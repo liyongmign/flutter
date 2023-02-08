@@ -24,7 +24,7 @@ class ButtonTemplate extends TokenTemplate {
     }
     return '''
 
-    const MaterialStatePropertyAll<Color>(Colors.transparent)''';
+    ButtonStyleButton.allOrNull<Color>(Colors.transparent)''';
   }
 
   String _elevation() {
@@ -49,15 +49,7 @@ class ButtonTemplate extends TokenTemplate {
     }
     return '''
 
-    const MaterialStatePropertyAll<double>(0.0)''';
-  }
-
-  String _elevationColor(String token) {
-    if (tokens.containsKey(token)) {
-      return 'MaterialStatePropertyAll<Color>(${color(token)})';
-    } else {
-      return 'const MaterialStatePropertyAll<Color>(Colors.transparent)';
-    }
+    ButtonStyleButton.allOrNull<double>(0.0)''';
   }
 
   @override
@@ -104,30 +96,34 @@ class _${blockName}DefaultsM3 extends ButtonStyle {
       return null;
     });
 
+${tokens.containsKey("$tokenGroup.container.shadow-color") ? '''
   @override
   MaterialStateProperty<Color>? get shadowColor =>
-    ${_elevationColor("$tokenGroup.container.shadow-color")};
+    ButtonStyleButton.allOrNull<Color>(${color("$tokenGroup.container.shadow-color")});''' : '''
+  // No default shadow color'''}
 
+${tokens.containsKey("$tokenGroup.container.surface-tint-layer.color") ? '''
   @override
   MaterialStateProperty<Color>? get surfaceTintColor =>
-    ${_elevationColor("$tokenGroup.container.surface-tint-layer.color")};
+    ButtonStyleButton.allOrNull<Color>(${color("$tokenGroup.container.surface-tint-layer.color")});''' : '''
+  // No default surface tint color'''}
 
   @override
   MaterialStateProperty<double>? get elevation =>${_elevation()};
 
   @override
   MaterialStateProperty<EdgeInsetsGeometry>? get padding =>
-    MaterialStatePropertyAll<EdgeInsetsGeometry>(_scaledPadding(context));
+    ButtonStyleButton.allOrNull<EdgeInsetsGeometry>(_scaledPadding(context));
 
   @override
   MaterialStateProperty<Size>? get minimumSize =>
-    const MaterialStatePropertyAll<Size>(Size(64.0, ${tokens["$tokenGroup.container.height"]}));
+    ButtonStyleButton.allOrNull<Size>(const Size(64.0, ${tokens["$tokenGroup.container.height"]}));
 
   // No default fixedSize
 
   @override
   MaterialStateProperty<Size>? get maximumSize =>
-    const MaterialStatePropertyAll<Size>(Size.infinite);
+    ButtonStyleButton.allOrNull<Size>(Size.infinite);
 
 ${tokens.containsKey("$tokenGroup.outline.color") ? '''
   @override
@@ -142,7 +138,7 @@ ${tokens.containsKey("$tokenGroup.outline.color") ? '''
 
   @override
   MaterialStateProperty<OutlinedBorder>? get shape =>
-    const MaterialStatePropertyAll<OutlinedBorder>(${shape("$tokenGroup.container", '')});
+    ButtonStyleButton.allOrNull<OutlinedBorder>(${shape("$tokenGroup.container")});
 
   @override
   MaterialStateProperty<MouseCursor?>? get mouseCursor =>

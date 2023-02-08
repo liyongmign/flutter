@@ -4,7 +4,7 @@
 
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show clampDouble, precisionErrorTolerance;
+import 'package:flutter/foundation.dart' show precisionErrorTolerance, clampDouble;
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/rendering.dart';
 
@@ -403,13 +403,13 @@ class _PagePosition extends ScrollPositionWithSingleContext implements PageMetri
 
   @override
   void saveScrollOffset() {
-    PageStorage.maybeOf(context.storageContext)?.writeState(context.storageContext, _cachedPage ?? getPageFromPixels(pixels, viewportDimension));
+    PageStorage.of(context.storageContext)?.writeState(context.storageContext, _cachedPage ?? getPageFromPixels(pixels, viewportDimension));
   }
 
   @override
   void restoreScrollOffset() {
     if (!hasPixels) {
-      final double? value = PageStorage.maybeOf(context.storageContext)?.readState(context.storageContext) as double?;
+      final double? value = PageStorage.of(context.storageContext)?.readState(context.storageContext) as double?;
       if (value != null) {
         _pageToUseOnStartup = value;
       }
@@ -675,8 +675,6 @@ class PageView extends StatefulWidget {
   /// [itemBuilder] will be called only with indices greater than or equal to
   /// zero and less than [itemCount].
   ///
-  /// {@macro flutter.widgets.ListView.builder.itemBuilder}
-  ///
   /// {@template flutter.widgets.PageView.findChildIndexCallback}
   /// The [findChildIndexCallback] corresponds to the
   /// [SliverChildBuilderDelegate.findChildIndexCallback] property. If null,
@@ -695,7 +693,7 @@ class PageView extends StatefulWidget {
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
-    required NullableIndexedWidgetBuilder itemBuilder,
+    required IndexedWidgetBuilder itemBuilder,
     ChildIndexGetter? findChildIndexCallback,
     int? itemCount,
     this.dragStartBehavior = DragStartBehavior.start,

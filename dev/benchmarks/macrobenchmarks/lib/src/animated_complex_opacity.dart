@@ -21,13 +21,7 @@ class _AnimatedComplexOpacityState extends State<AnimatedComplexOpacity> with Si
   @override
   void initState() {
     super.initState();
-    controller.repeat();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+    controller.forward(from: 0.0);
   }
 
   @override

@@ -18,16 +18,17 @@ class ScrubGeneratedPluginRegistrant extends ProjectMigrator {
   final Logger _logger;
 
   @override
-  void migrate() {
+  bool migrate() {
     final File registrant = _project.libDirectory.childFile('generated_plugin_registrant.dart');
     final File gitignore = _project.parent.directory.childFile('.gitignore');
 
     if (!removeFile(registrant)) {
-      return;
+      return false;
     }
     if (gitignore.existsSync()) {
       processFileLines(gitignore);
     }
+    return true;
   }
 
   // Cleans up the .gitignore by removing the line that mentions generated_plugin_registrant.

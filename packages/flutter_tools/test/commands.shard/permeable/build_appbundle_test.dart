@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:args/command_runner.dart';
 import 'package:flutter_tools/src/android/android_builder.dart';
 import 'package:flutter_tools/src/android/android_sdk.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
-import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/commands/build_appbundle.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
@@ -23,8 +24,8 @@ void main() {
   Cache.disableLocking();
 
   group('Usage', () {
-    late Directory tempDir;
-    late TestUsage testUsage;
+    Directory tempDir;
+    TestUsage testUsage;
 
     setUp(() {
       tempDir = globals.fs.systemTempDirectory.createTempSync('flutter_tools_packages_test.');
@@ -86,10 +87,10 @@ void main() {
   });
 
   group('Gradle', () {
-    late Directory tempDir;
-    late FakeProcessManager processManager;
-    late FakeAndroidSdk fakeAndroidSdk;
-    late TestUsage testUsage;
+    Directory tempDir;
+    FakeProcessManager processManager;
+    FakeAndroidSdk fakeAndroidSdk;
+    TestUsage testUsage;
 
     setUp(() {
       testUsage = TestUsage();
@@ -212,9 +213,9 @@ void main() {
 
 Future<BuildAppBundleCommand> runBuildAppBundleCommand(
   String target, {
-  List<String>? arguments,
+  List<String> arguments,
 }) async {
-  final BuildAppBundleCommand command = BuildAppBundleCommand(logger: BufferLogger.test());
+  final BuildAppBundleCommand command = BuildAppBundleCommand();
   final CommandRunner<void> runner = createTestCommandRunner(command);
   await runner.run(<String>[
     'appbundle',

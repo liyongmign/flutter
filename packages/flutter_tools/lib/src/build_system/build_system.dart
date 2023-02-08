@@ -17,7 +17,6 @@ import '../base/platform.dart';
 import '../base/utils.dart';
 import '../cache.dart';
 import '../convert.dart';
-import '../reporting/reporting.dart';
 import 'exceptions.dart';
 import 'file_store.dart';
 import 'source.dart';
@@ -333,7 +332,6 @@ class Environment {
     required Artifacts artifacts,
     required ProcessManager processManager,
     required Platform platform,
-    required Usage usage,
     String? engineVersion,
     required bool generateDartPluginRegistry,
     Directory? buildDir,
@@ -374,7 +372,6 @@ class Environment {
       artifacts: artifacts,
       processManager: processManager,
       platform: platform,
-      usage: usage,
       engineVersion: engineVersion,
       inputs: inputs,
       generateDartPluginRegistry: generateDartPluginRegistry,
@@ -395,7 +392,6 @@ class Environment {
     Map<String, String> inputs = const <String, String>{},
     String? engineVersion,
     Platform? platform,
-    Usage? usage,
     bool generateDartPluginRegistry = false,
     required FileSystem fileSystem,
     required Logger logger,
@@ -415,7 +411,6 @@ class Environment {
       artifacts: artifacts,
       processManager: processManager,
       platform: platform ?? FakePlatform(),
-      usage: usage ?? TestUsage(),
       engineVersion: engineVersion,
       generateDartPluginRegistry: generateDartPluginRegistry,
     );
@@ -434,7 +429,6 @@ class Environment {
     required this.logger,
     required this.fileSystem,
     required this.artifacts,
-    required this.usage,
     this.engineVersion,
     required this.inputs,
     required this.generateDartPluginRegistry,
@@ -514,8 +508,6 @@ class Environment {
   final Artifacts artifacts;
 
   final FileSystem fileSystem;
-
-  final Usage usage;
 
   /// The version of the current engine, or `null` if built with a local engine.
   final String? engineVersion;
@@ -871,11 +863,13 @@ class _BuildInstance {
         ErrorHandlingFileSystem.deleteIfExists(previousFile);
       }
     } on Exception catch (exception, stackTrace) {
+      // TODO(zanderso): throw specific exception for expected errors to mark
+      // as non-fatal. All others should be fatal.
       node.target.clearStamp(environment);
       succeeded = false;
       skipped = false;
       exceptionMeasurements[node.target.name] = ExceptionMeasurement(
-          node.target.name, exception, stackTrace, fatal: true);
+          node.target.name, exception, stackTrace);
     } finally {
       resource.release();
       stopwatch.stop();

@@ -470,7 +470,7 @@ class _SwitchingChildBuilderTest extends State<SwitchingChildBuilderTest> {
   }
 }
 
-class SwitchingChildListTest extends StatelessWidget {
+class SwitchingChildListTest extends StatefulWidget {
   const SwitchingChildListTest({
     required this.children,
     this.viewportFraction = 1.0,
@@ -480,6 +480,11 @@ class SwitchingChildListTest extends StatelessWidget {
   final List<Widget> children;
   final double viewportFraction;
 
+  @override
+  State<SwitchingChildListTest> createState() => _SwitchingChildListTest();
+}
+
+class _SwitchingChildListTest extends State<SwitchingChildListTest> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -491,8 +496,8 @@ class SwitchingChildListTest extends StatelessWidget {
             cacheExtent: 0,
             slivers: <Widget>[
               SliverFillViewport(
-                viewportFraction: viewportFraction,
-                delegate: SliverChildListDelegate(children),
+                viewportFraction: widget.viewportFraction,
+                delegate: SliverChildListDelegate(widget.children),
               ),
             ],
           ),
@@ -502,7 +507,7 @@ class SwitchingChildListTest extends StatelessWidget {
   }
 }
 
-class SwitchingSliverListTest extends StatelessWidget {
+class SwitchingSliverListTest extends StatefulWidget {
   const SwitchingSliverListTest({
     required this.children,
     this.viewportFraction = 1.0,
@@ -512,6 +517,11 @@ class SwitchingSliverListTest extends StatelessWidget {
   final List<Widget> children;
   final double viewportFraction;
 
+  @override
+  State<SwitchingSliverListTest> createState() => _SwitchingSliverListTest();
+}
+
+class _SwitchingSliverListTest extends State<SwitchingSliverListTest> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -523,7 +533,7 @@ class SwitchingSliverListTest extends StatelessWidget {
             cacheExtent: 0,
             slivers: <Widget>[
               SliverList(
-                delegate: SliverChildListDelegate(children),
+                delegate: SliverChildListDelegate(widget.children),
               ),
             ],
           ),

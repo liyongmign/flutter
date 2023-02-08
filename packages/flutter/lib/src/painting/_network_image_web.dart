@@ -3,22 +3,21 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:html' as html;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
-import 'package:js/js.dart';
 
-import '../services/dom.dart';
 import 'image_provider.dart' as image_provider;
 import 'image_stream.dart';
 
 /// Creates a type for an overridable factory function for testing purposes.
-typedef HttpRequestFactory = DomXMLHttpRequest Function();
+typedef HttpRequestFactory = html.HttpRequest Function();
 
 /// Default HTTP client.
-DomXMLHttpRequest _httpClient() {
-  return createDomXMLHttpRequest();
+html.HttpRequest _httpClient() {
+  return html.HttpRequest();
 }
 
 /// Creates an overridable factory function.
@@ -29,7 +28,7 @@ void debugRestoreHttpRequestFactory() {
   httpRequestFactory = _httpClient;
 }
 
-/// The web implementation of [image_provider.NetworkImage].
+/// The dart:html implementation of [image_provider.NetworkImage].
 ///
 /// NetworkImage on the web does not support decoding to a specified size.
 @immutable
@@ -122,17 +121,17 @@ class NetworkImage
     // We use a different method when headers are set because the
     // `ui.webOnlyInstantiateImageCodecFromUrl` method is not capable of handling headers.
     if (key.headers?.isNotEmpty ?? false) {
-      final Completer<DomXMLHttpRequest> completer =
-          Completer<DomXMLHttpRequest>();
-      final DomXMLHttpRequest request = httpRequestFactory();
+      final Completer<html.HttpRequest> completer =
+          Completer<html.HttpRequest>();
+      final html.HttpRequest request = httpRequestFactory();
 
-      request.open('GET', key.url, true);
+      request.open('GET', key.url, async: true);
       request.responseType = 'arraybuffer';
       key.headers!.forEach((String header, String value) {
         request.setRequestHeader(header, value);
       });
 
-      request.addEventListener('load', allowInterop((DomEvent e) {
+      request.onLoad.listen((html.ProgressEvent e) {
         final int? status = request.status;
         final bool accepted = status! >= 200 && status < 300;
         final bool fileUri = status == 0; // file:// URIs have status of 0.
@@ -148,9 +147,9 @@ class NetworkImage
           throw image_provider.NetworkImageLoadException(
               statusCode: request.status ?? 400, uri: resolved);
         }
-      }));
+      });
 
-      request.addEventListener('error', allowInterop(completer.completeError));
+      request.onError.listen(completer.completeError);
 
       request.send();
 

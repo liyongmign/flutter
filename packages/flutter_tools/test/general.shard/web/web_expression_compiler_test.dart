@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:dwds/dwds.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
@@ -12,7 +14,7 @@ import 'package:test/fake.dart';
 import '../../src/common.dart';
 
 void main() {
-  late FileSystem fileSystem;
+  FileSystem fileSystem;
 
   setUp(() {
     fileSystem = MemoryFileSystem.test();
@@ -25,7 +27,7 @@ void main() {
 
     final ExpressionCompilationResult result =
       await expressionCompiler.compileExpressionToJs(
-        '', '', 1, 1, <String, String>{}, <String, String>{}, '', '');
+        null, null, 1, 1, null, null, null, null);
 
     expectResult(result, false, 'a');
   });
@@ -37,7 +39,7 @@ void main() {
 
     final ExpressionCompilationResult result =
       await expressionCompiler.compileExpressionToJs(
-        '', '', 1, 1, <String, String>{}, <String, String>{}, '', '');
+        null, null, 1, 1, null, null, null, null);
 
     expectResult(result, true, 'Error: a');
   });
@@ -48,7 +50,7 @@ void main() {
 
     final ExpressionCompilationResult result =
       await expressionCompiler.compileExpressionToJs(
-        '', '', 1, 1, <String, String>{}, <String, String>{}, '', 'a');
+        null, null, 1, 1, null, null, null, 'a');
 
     expectResult(result, true, "InternalError: frontend server failed to compile 'a'");
   });
@@ -64,10 +66,10 @@ void expectResult(ExpressionCompilationResult result, bool isError, String value
 class FakeResidentCompiler extends Fake implements ResidentCompiler {
   FakeResidentCompiler(this.output);
 
-  final CompilerOutput? output;
+  final CompilerOutput output;
 
   @override
-  Future<CompilerOutput?> compileExpressionToJs(
+  Future<CompilerOutput> compileExpressionToJs(
     String libraryUri,
     int line,
     int column,

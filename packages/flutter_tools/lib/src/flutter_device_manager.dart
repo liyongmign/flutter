@@ -11,7 +11,6 @@ import 'artifacts.dart';
 import 'base/file_system.dart';
 import 'base/os.dart';
 import 'base/platform.dart';
-import 'base/user_messages.dart';
 import 'custom_devices/custom_device.dart';
 import 'custom_devices/custom_devices_config.dart';
 import 'device.dart';
@@ -52,9 +51,10 @@ class FlutterDeviceManager extends DeviceManager {
     required Artifacts artifacts,
     required MacOSWorkflow macOSWorkflow,
     required FuchsiaSdk fuchsiaSdk,
-    required UserMessages userMessages,
+    required super.userMessages,
     required OperatingSystemUtils operatingSystemUtils,
     required WindowsWorkflow windowsWorkflow,
+    required super.terminal,
     required CustomDevicesConfig customDevicesConfig,
   }) : deviceDiscoverers =  <DeviceDiscovery>[
     AndroidDevices(

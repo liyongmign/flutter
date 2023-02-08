@@ -216,7 +216,7 @@ class DecoratedBox extends SingleChildRenderObjectWidget {
 /// ```dart
 /// Container(
 ///   constraints: BoxConstraints.expand(
-///     height: Theme.of(context).textTheme.headlineMedium!.fontSize! * 1.1 + 200.0,
+///     height: Theme.of(context).textTheme.headline4!.fontSize! * 1.1 + 200.0,
 ///   ),
 ///   padding: const EdgeInsets.all(8.0),
 ///   color: Colors.blue[600],
@@ -225,7 +225,7 @@ class DecoratedBox extends SingleChildRenderObjectWidget {
 ///   child: Text('Hello World',
 ///     style: Theme.of(context)
 ///         .textTheme
-///         .headlineMedium!
+///         .headline4!
 ///         .copyWith(color: Colors.white)),
 /// )
 /// ```

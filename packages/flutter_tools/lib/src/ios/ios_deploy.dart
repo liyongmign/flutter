@@ -22,7 +22,6 @@ import 'iproxy.dart';
 const String noProvisioningProfileErrorOne = 'Error 0xe8008015';
 const String noProvisioningProfileErrorTwo = 'Error 0xe8000067';
 const String deviceLockedError = 'e80000e2';
-const String deviceLockedErrorMessage = 'the device was not, or could not be, unlocked';
 const String unknownAppLaunchError = 'Error 0xe8000022';
 
 class IOSDeploy {
@@ -521,7 +520,7 @@ String _monitorIOSDeployFailure(String stdout, Logger logger) {
     logger.printError(noProvisioningProfileInstruction, emphasis: true);
 
     // Launch issues.
-  } else if (stdout.contains(deviceLockedError) || stdout.contains(deviceLockedErrorMessage)) {
+  } else if (stdout.contains(deviceLockedError)) {
     logger.printError('''
 ═══════════════════════════════════════════════════════════════════════════════════
 Your device is locked. Unlock your device first before running.

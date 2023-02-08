@@ -20,7 +20,7 @@ class PaintingBindingSpy extends BindingBase with SchedulerBinding, ServicesBind
   }
 
   @override
-  // ignore: must_call_super
+  // ignore: MUST_CALL_SUPER
   void initLicenses() {
     // Do not include any licenses, because we're a test, and the LICENSE file
     // doesn't get generated for tests.

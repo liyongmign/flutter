@@ -107,24 +107,8 @@ void main() {
       expect(
         tester.getTopLeft(find.text('initial')) -
             tester.getTopLeft(find.byType(CupertinoSearchTextField)),
-        const Offset(31.5, 8.0),
+        const Offset(29.8, 8.0),
       );
-    },
-  );
-
-  testWidgets('can change keyboard type', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const CupertinoApp(
-          home: Center(
-            child: CupertinoSearchTextField(
-              keyboardType: TextInputType.number,
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.byType(CupertinoSearchTextField));
-      await tester.showKeyboard(find.byType(CupertinoSearchTextField));
-      expect((tester.testTextInput.setClientArgs!['inputType'] as Map<String, dynamic>)['name'], equals('TextInputType.number'));
     },
   );
 
@@ -231,7 +215,7 @@ void main() {
       );
 
       expect(
-        tester.getTopRight(find.byIcon(CupertinoIcons.search)).dx + 5.5,
+        tester.getTopRight(find.byIcon(CupertinoIcons.search)).dx + 3.8,
         tester.getTopLeft(find.byType(EditableText)).dx,
       );
 
@@ -239,7 +223,7 @@ void main() {
         tester.getTopLeft(find.byType(EditableText)).dx,
         tester.getTopLeft(find.byType(CupertinoSearchTextField)).dx +
             tester.getSize(find.byIcon(CupertinoIcons.search)).width +
-            11.5,
+            9.8,
       );
     },
   );
@@ -258,7 +242,7 @@ void main() {
       );
 
       expect(
-        tester.getTopRight(find.byType(EditableText)).dx + 5.5,
+        tester.getTopRight(find.byType(EditableText)).dx + 5.0,
         tester.getTopLeft(find.byIcon(CupertinoIcons.xmark_circle_fill)).dx,
       );
 
@@ -268,7 +252,7 @@ void main() {
             tester
                 .getSize(find.byIcon(CupertinoIcons.xmark_circle_fill))
                 .width -
-            10.5,
+            10.0,
       );
     },
   );

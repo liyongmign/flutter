@@ -65,7 +65,7 @@ class ProxiedDevices extends DeviceDiscovery {
     final List<Map<String, Object?>> discoveredDevices = _cast<List<dynamic>>(await connection.sendRequest('device.discoverDevices')).cast<Map<String, Object?>>();
     final List<ProxiedDevice> devices = <ProxiedDevice>[
       for (final Map<String, Object?> device in discoveredDevices)
-        deviceFromDaemonResult(device),
+        _deviceFromDaemonResult(device),
     ];
 
     _devices = devices;
@@ -75,8 +75,7 @@ class ProxiedDevices extends DeviceDiscovery {
   @override
   List<String> get wellKnownIds => const <String>[];
 
-  @visibleForTesting
-  ProxiedDevice deviceFromDaemonResult(Map<String, Object?> device) {
+  ProxiedDevice _deviceFromDaemonResult(Map<String, Object?> device) {
     final Map<String, Object?> capabilities = _cast<Map<String, Object?>>(device['capabilities']);
     return ProxiedDevice(
       connection, _cast<String>(device['id']),
@@ -276,13 +275,12 @@ class ProxiedDevice extends Device {
 
   @override
   Future<bool> stopApp(
-    covariant PrebuiltApplicationPackage? app, {
+    covariant PrebuiltApplicationPackage app, {
     String? userIdentifier,
   }) async {
     return _cast<bool>(await connection.sendRequest('device.stopApp', <String, Object?>{
       'deviceId': id,
-      if (app != null)
-        'applicationPackageId': await applicationPackageId(app),
+      'applicationPackageId': await applicationPackageId(app),
       'userIdentifier': userIdentifier,
     }));
   }
@@ -522,13 +520,16 @@ class ProxiedPortForwarder extends DevicePortForwarder {
       socket.listen((Uint8List data) {
         unawaited(connection.sendRequest('proxy.write', <String, Object>{
           'id': id,
-        }, data).catchError((Object error, StackTrace stackTrace) {
+        }, data)
+        // TODO(srawlins): Fix this static issue,
+        // https://github.com/flutter/flutter/issues/105750.
+        // ignore: body_might_complete_normally_catch_error
+	.catchError((Object error, StackTrace stackTrace) {
           // Log the error, but proceed normally. Network failure should not
           // crash the tool. If this is critical, the place where the connection
           // is being used would crash.
           _logger.printWarning('Write to remote proxy error: $error');
           _logger.printTrace('Write to remote proxy error: $error, stack trace: $stackTrace');
-          return null;
         }));
       });
       _connectedSockets.add(socket);
@@ -540,12 +541,15 @@ class ProxiedPortForwarder extends DevicePortForwarder {
         // Send a proxy disconnect event just in case.
         unawaited(connection.sendRequest('proxy.disconnect', <String, Object>{
           'id': id,
-        }).catchError((Object error, StackTrace stackTrace) {
+        })
+        // TODO(srawlins): Fix this static issue,
+        // https://github.com/flutter/flutter/issues/105750.
+        // ignore: body_might_complete_normally_catch_error
+	.catchError((Object error, StackTrace stackTrace) {
           // Ignore the error here. There might be a race condition when the
           // remote end also disconnects. In any case, this request is just to
           // notify the remote end to disconnect and we should not crash when
           // there is an error here.
-          return null;
         }));
         _connectedSockets.remove(socket);
       }));

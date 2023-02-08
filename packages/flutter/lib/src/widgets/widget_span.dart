@@ -8,9 +8,6 @@ import 'package:flutter/painting.dart';
 
 import 'framework.dart';
 
-// Examples can assume:
-// late WidgetSpan myWidgetSpan;
-
 /// An immutable widget that is embedded inline within text.
 ///
 /// The [child] property is the widget that will be embedded. Children are

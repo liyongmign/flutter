@@ -354,16 +354,12 @@ class AndroidSdk {
           platformVersion = int.parse(numberedVersion.group(1)!);
         } else {
           final String buildProps = platformDir.childFile('build.prop').readAsStringSync();
-          final Iterable<Match> versionMatches = const LineSplitter()
+          final String? versionString = const LineSplitter()
               .convert(buildProps)
               .map<RegExpMatch?>(_sdkVersionRe.firstMatch)
-              .whereType<Match>();
-
-          if (versionMatches.isEmpty) {
-            return null;
-          }
-
-          final String? versionString = versionMatches.first.group(1);
+              .whereType<Match>()
+              .first
+              .group(1);
           if (versionString == null) {
             return null;
           }

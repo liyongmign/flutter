@@ -16,10 +16,10 @@ class ProjectBaseConfigurationMigration extends ProjectMigrator {
   final File _xcodeProjectInfoFile;
 
   @override
-  void migrate() {
+  bool migrate() {
     if (!_xcodeProjectInfoFile.existsSync()) {
       logger.printTrace('Xcode project not found, skipping Runner project build settings and configuration migration');
-      return;
+      return true;
     }
 
     final String originalProjectContents = _xcodeProjectInfoFile.readAsStringSync();
@@ -84,5 +84,6 @@ class ProjectBaseConfigurationMigration extends ProjectMigrator {
       logger.printStatus('Project base configurations detected, removing.');
       _xcodeProjectInfoFile.writeAsStringSync(newProjectContents);
     }
+    return true;
   }
 }

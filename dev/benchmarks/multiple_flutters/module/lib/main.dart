@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 '0',
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headline4,
               ),
               TextButton(
                 onPressed: () {},

@@ -28,7 +28,7 @@ class DateTimeItem extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
 
     return DefaultTextStyle(
-      style: theme.textTheme.titleMedium!,
+      style: theme.textTheme.subtitle1!,
       child: Row(
         children: <Widget>[
           Expanded(
@@ -46,9 +46,8 @@ class DateTimeItem extends StatelessWidget {
                     lastDate: date.add(const Duration(days: 30)),
                   )
                   .then((DateTime? value) {
-                    if (value != null) {
+                    if (value != null)
                       onChanged(DateTime(value.year, value.month, value.day, time.hour, time.minute));
-                    }
                   });
                 },
                 child: Row(
@@ -74,9 +73,8 @@ class DateTimeItem extends StatelessWidget {
                   initialTime: time,
                 )
                 .then((TimeOfDay? value) {
-                  if (value != null) {
+                  if (value != null)
                     onChanged(DateTime(date.year, date.month, date.day, value.hour, value.minute));
-                  }
                 });
               },
               child: Row(
@@ -111,12 +109,11 @@ class FullScreenDialogDemoState extends State<FullScreenDialogDemo> {
 
   Future<bool> _onWillPop() async {
     _saveNeeded = _hasLocation || _hasName || _saveNeeded;
-    if (!_saveNeeded) {
+    if (!_saveNeeded)
       return true;
-    }
 
     final ThemeData theme = Theme.of(context);
-    final TextStyle dialogTextStyle = theme.textTheme.titleMedium!.copyWith(color: theme.textTheme.bodySmall!.color);
+    final TextStyle dialogTextStyle = theme.textTheme.subtitle1!.copyWith(color: theme.textTheme.caption!.color);
 
     return showDialog<bool>(
       context: context,
@@ -154,7 +151,7 @@ class FullScreenDialogDemoState extends State<FullScreenDialogDemo> {
         title: Text(_hasName ? _eventName : 'Event Name TBD'),
         actions: <Widget> [
           TextButton(
-            child: Text('SAVE', style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white)),
+            child: Text('SAVE', style: theme.textTheme.bodyText2!.copyWith(color: Colors.white)),
             onPressed: () {
               Navigator.pop(context, DismissDialogAction.save);
             },
@@ -176,7 +173,7 @@ class FullScreenDialogDemoState extends State<FullScreenDialogDemo> {
                     labelText: 'Event name',
                     filled: true,
                   ),
-                  style: theme.textTheme.headlineSmall,
+                  style: theme.textTheme.headline5,
                   onChanged: (String value) {
                     setState(() {
                       _hasName = value.isNotEmpty;
@@ -206,7 +203,7 @@ class FullScreenDialogDemoState extends State<FullScreenDialogDemo> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('From', style: theme.textTheme.bodySmall),
+                  Text('From', style: theme.textTheme.caption),
                   DateTimeItem(
                     dateTime: _fromDateTime,
                     onChanged: (DateTime value) {
@@ -221,7 +218,7 @@ class FullScreenDialogDemoState extends State<FullScreenDialogDemo> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('To', style: theme.textTheme.bodySmall),
+                  Text('To', style: theme.textTheme.caption),
                   DateTimeItem(
                     dateTime: _toDateTime,
                     onChanged: (DateTime value) {

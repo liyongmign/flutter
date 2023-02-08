@@ -9,14 +9,12 @@ import 'framework.dart';
 import 'icon_theme_data.dart';
 import 'inherited_theme.dart';
 
-// Examples can assume:
-// late BuildContext context;
-
-/// Controls the default properties of icons in a widget subtree.
+/// Controls the default color, opacity, and size of icons in a widget subtree.
 ///
 /// The icon theme is honored by [Icon] and [ImageIcon] widgets.
 class IconTheme extends InheritedTheme {
-  /// Creates an icon theme that controls properties of descendant widgets.
+  /// Creates an icon theme that controls the color, opacity, and size of
+  /// descendant widgets.
   ///
   /// Both [data] and [child] arguments must not be null.
   const IconTheme({
@@ -26,7 +24,7 @@ class IconTheme extends InheritedTheme {
   }) : assert(data != null),
        assert(child != null);
 
-  /// Creates an icon theme that controls the properties of
+  /// Creates an icon theme that controls the color, opacity, and size of
   /// descendant widgets, and merges in the current icon theme, if any.
   ///
   /// The [data] and [child] arguments must not be null.
@@ -46,7 +44,7 @@ class IconTheme extends InheritedTheme {
     );
   }
 
-  /// The set of properties to use for icons in this subtree.
+  /// The color, opacity, and size to use for icons in this subtree.
   final IconThemeData data;
 
   /// The data from the closest instance of this class that encloses the given
@@ -74,10 +72,6 @@ class IconTheme extends InheritedTheme {
       ? iconThemeData
       : iconThemeData.copyWith(
         size: iconThemeData.size ?? const IconThemeData.fallback().size,
-        fill: iconThemeData.fill ?? const IconThemeData.fallback().fill,
-        weight: iconThemeData.weight ?? const IconThemeData.fallback().weight,
-        grade: iconThemeData.grade ?? const IconThemeData.fallback().grade,
-        opticalSize: iconThemeData.opticalSize ?? const IconThemeData.fallback().opticalSize,
         color: iconThemeData.color ?? const IconThemeData.fallback().color,
         opacity: iconThemeData.opacity ?? const IconThemeData.fallback().opacity,
         shadows: iconThemeData.shadows ?? const IconThemeData.fallback().shadows,

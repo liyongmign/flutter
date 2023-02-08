@@ -26,9 +26,8 @@ class _TestState extends State<Test> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_triggered) {
+    if (!_triggered)
       return const SizedBox.shrink();
-    }
     return Row(children: const <Widget>[
       SizedBox(width: 10000.0),
       SizedBox(width: 10000.0),

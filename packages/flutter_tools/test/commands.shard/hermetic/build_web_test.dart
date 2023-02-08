@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:args/command_runner.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
-import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/base/platform.dart';
 import 'package:flutter_tools/src/build_info.dart';
 import 'package:flutter_tools/src/build_system/build_system.dart';
@@ -22,7 +23,7 @@ import '../../src/test_build_system.dart';
 import '../../src/test_flutter_command_runner.dart';
 
 void main() {
-  late FileSystem fileSystem;
+  FileSystem fileSystem;
   final Platform fakePlatform = FakePlatform(
     environment: <String, String>{
       'FLUTTER_ROOT': '/',
@@ -46,13 +47,7 @@ void main() {
 
   testUsingContext('Refuses to build for web when missing index.html', () async {
     fileSystem.file(fileSystem.path.join('web', 'index.html')).deleteSync();
-    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand(
-      androidSdk: FakeAndroidSdk(),
-      buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-      fileSystem: MemoryFileSystem.test(),
-      logger: BufferLogger.test(),
-      osUtils: FakeOperatingSystemUtils(),
-    ));
+    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand());
 
     expect(
       () => runner.run(<String>['build', 'web', '--no-pub']),
@@ -66,30 +61,19 @@ void main() {
   });
 
   testUsingContext('Refuses to build a debug build for web', () async {
-    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand(
-      androidSdk: FakeAndroidSdk(),
-      buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-      fileSystem: fileSystem,
-      logger: BufferLogger.test(),
-      osUtils: FakeOperatingSystemUtils(),
-    ));
+    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand());
 
     expect(() => runner.run(<String>['build', 'web', '--debug', '--no-pub']),
       throwsA(isA<UsageException>()));
   }, overrides: <Type, Generator>{
     Platform: () => fakePlatform,
+    FileSystem: () => fileSystem,
     FeatureFlags: () => TestFeatureFlags(isWebEnabled: true),
     ProcessManager: () => FakeProcessManager.any(),
   });
 
   testUsingContext('Refuses to build for web when feature is disabled', () async {
-    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand(
-      androidSdk: FakeAndroidSdk(),
-      buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-      fileSystem: MemoryFileSystem.test(),
-      logger: BufferLogger.test(),
-      osUtils: FakeOperatingSystemUtils(),
-    ));
+    final CommandRunner<void> runner = createTestCommandRunner(BuildCommand());
 
     expect(
       () => runner.run(<String>['build', 'web', '--no-pub']),
@@ -102,14 +86,8 @@ void main() {
     ProcessManager: () => FakeProcessManager.any(),
   });
 
-  testUsingContext('Setup for a web build with default output directory', () async {
-    final BuildCommand buildCommand = BuildCommand(
-      androidSdk: FakeAndroidSdk(),
-      buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-      fileSystem: fileSystem,
-      logger: BufferLogger.test(),
-      osUtils: FakeOperatingSystemUtils(),
-    );
+  testUsingContext('Builds a web bundle - end to end', () async {
+    final BuildCommand buildCommand = BuildCommand();
     final CommandRunner<void> runner = createTestCommandRunner(buildCommand);
     setupFileSystemForEndToEndTest(fileSystem);
     await runner.run(<String>['build', 'web', '--no-pub', '--dart-define=foo=a', '--dart2js-optimization=O3']);
@@ -130,8 +108,6 @@ void main() {
         'SourceMaps': 'false',
         'NativeNullAssertions': 'true',
         'ServiceWorkerStrategy': 'offline-first',
-        'Dart2jsDumpInfo': 'false',
-        'Dart2jsNoFrequencyBasedMinification': 'false',
         'Dart2jsOptimization': 'O3',
         'BuildMode': 'release',
         'DartDefines': 'Zm9vPWE=,RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ==',
@@ -142,58 +118,8 @@ void main() {
     }),
   });
 
-  testUsingContext('Setup for a web build with a user specified output directory',
-      () async {
-    final BuildCommand buildCommand = BuildCommand(
-      androidSdk: FakeAndroidSdk(),
-      buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-      fileSystem: fileSystem,
-      logger: BufferLogger.test(),
-      osUtils: FakeOperatingSystemUtils(),
-    );
-    final CommandRunner<void> runner = createTestCommandRunner(buildCommand);
-
-    setupFileSystemForEndToEndTest(fileSystem);
-
-    const String newBuildDir = 'new_dir';
-    final Directory buildDir = fileSystem.directory(fileSystem.path.join(newBuildDir));
-
-    expect(buildDir.existsSync(), false);
-
-    await runner.run(<String>[
-      'build',
-      'web',
-      '--no-pub',
-      '--output=$newBuildDir'
-    ]);
-
-    expect(buildDir.existsSync(), true);
-  }, overrides: <Type, Generator>{
-    Platform: () => fakePlatform,
-    FileSystem: () => fileSystem,
-    FeatureFlags: () => TestFeatureFlags(isWebEnabled: true),
-    ProcessManager: () => FakeProcessManager.any(),
-    BuildSystem: () => TestBuildSystem.all(BuildResult(success: true), (Target target, Environment environment) {
-      expect(environment.defines, <String, String>{
-        'TargetFile': 'lib/main.dart',
-        'HasWebPlugins': 'true',
-        'cspMode': 'false',
-        'SourceMaps': 'false',
-        'NativeNullAssertions': 'true',
-        'ServiceWorkerStrategy': 'offline-first',
-        'Dart2jsDumpInfo': 'false',
-        'Dart2jsNoFrequencyBasedMinification': 'false',
-        'BuildMode': 'release',
-        'DartDefines': 'RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ==',
-        'DartObfuscation': 'false',
-        'TrackWidgetCreation': 'false',
-        'TreeShakeIcons': 'false',
-      });
-    }),
-  });
-
   testUsingContext('hidden if feature flag is not enabled', () async {
-    expect(BuildWebCommand(fileSystem: fileSystem, logger: BufferLogger.test(), verboseHelp: false).hidden, true);
+    expect(BuildWebCommand(verboseHelp: false).hidden, true);
   }, overrides: <Type, Generator>{
     Platform: () => fakePlatform,
     FileSystem: () => fileSystem,
@@ -202,7 +128,7 @@ void main() {
   });
 
   testUsingContext('not hidden if feature flag is enabled', () async {
-    expect(BuildWebCommand(fileSystem: fileSystem, logger: BufferLogger.test(), verboseHelp: false).hidden, false);
+    expect(BuildWebCommand(verboseHelp: false).hidden, false);
   }, overrides: <Type, Generator>{
     Platform: () => fakePlatform,
     FileSystem: () => fileSystem,
@@ -211,7 +137,7 @@ void main() {
   });
 
   testUsingContext('Defaults to web renderer auto mode when no option is specified', () async {
-    final TestWebBuildCommand buildCommand = TestWebBuildCommand(fileSystem: fileSystem);
+    final TestWebBuildCommand buildCommand = TestWebBuildCommand();
     final CommandRunner<void> runner = createTestCommandRunner(buildCommand);
     setupFileSystemForEndToEndTest(fileSystem);
     await runner.run(<String>['build', 'web', '--no-pub']);
@@ -227,7 +153,7 @@ void main() {
   });
 
   testUsingContext('Web build supports build-name and build-number', () async {
-    final TestWebBuildCommand buildCommand = TestWebBuildCommand(fileSystem: fileSystem);
+    final TestWebBuildCommand buildCommand = TestWebBuildCommand();
     final CommandRunner<void> runner = createTestCommandRunner(buildCommand);
     setupFileSystemForEndToEndTest(fileSystem);
 
@@ -303,11 +229,8 @@ class UrlLauncherPlugin {}
 }
 
 class TestWebBuildCommand extends FlutterCommand {
-  TestWebBuildCommand({ required FileSystem fileSystem, bool verboseHelp = false }) :
-    webCommand = BuildWebCommand(
-      fileSystem: fileSystem,
-      logger: BufferLogger.test(),
-      verboseHelp: verboseHelp) {
+  TestWebBuildCommand({ bool verboseHelp = false }) :
+    webCommand = BuildWebCommand(verboseHelp: verboseHelp) {
     addSubcommand(webCommand);
   }
 
@@ -320,7 +243,7 @@ class TestWebBuildCommand extends FlutterCommand {
   final String description = 'Build a test executable app.';
 
   @override
-  Future<FlutterCommandResult> runCommand() async => FlutterCommandResult.fail();
+  Future<FlutterCommandResult> runCommand() async => null;
 
   @override
   bool get shouldRunPub => false;

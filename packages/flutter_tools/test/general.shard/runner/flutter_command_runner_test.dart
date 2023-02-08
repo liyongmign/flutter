@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:file/memory.dart';
 import 'package:flutter_tools/src/base/bot_detector.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
@@ -24,8 +26,8 @@ const String _kProjectRoot = '/project';
 
 void main() {
   group('FlutterCommandRunner', () {
-    late MemoryFileSystem fileSystem;
-    late Platform platform;
+    MemoryFileSystem fileSystem;
+    Platform platform;
 
     setUpAll(() {
       Cache.disableLocking();
@@ -171,7 +173,7 @@ void main() {
     });
 
     group('getRepoPackages', () {
-      late String? oldFlutterRoot;
+      String oldFlutterRoot;
 
       setUp(() {
         oldFlutterRoot = Cache.flutterRoot;
@@ -268,7 +270,7 @@ void main() {
 }
 
 class FakeFlutterCommand extends FlutterCommand {
-  late OutputPreferences preferences;
+  OutputPreferences preferences;
 
   @override
   Future<FlutterCommandResult> runCommand() {
@@ -277,14 +279,14 @@ class FakeFlutterCommand extends FlutterCommand {
   }
 
   @override
-  String get description => '';
+  String get description => null;
 
   @override
   String get name => 'fake';
 }
 
 class FakeStdio extends Stdio {
-  FakeStdio({required this.hasFakeTerminal});
+  FakeStdio({this.hasFakeTerminal});
 
   final bool hasFakeTerminal;
 
@@ -292,10 +294,10 @@ class FakeStdio extends Stdio {
   bool get hasTerminal => hasFakeTerminal;
 
   @override
-  int? get terminalColumns => hasFakeTerminal ? 80 : null;
+  int get terminalColumns => hasFakeTerminal ? 80 : null;
 
   @override
-  int? get terminalLines => hasFakeTerminal ? 24 : null;
+  int get terminalLines => hasFakeTerminal ? 24 : null;
   @override
   bool get supportsAnsiEscapes => hasFakeTerminal;
 }

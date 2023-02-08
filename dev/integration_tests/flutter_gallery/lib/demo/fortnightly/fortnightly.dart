@@ -117,29 +117,29 @@ over water meant for the whole central valley of California? The story will shoc
                       children: <Widget>[
                         Text(
                           'US',
-                          style: textTheme.labelSmall,
+                          style: textTheme.overline,
                         ),
                         Text(
                           ' ¬ ',
                           // TODO(larche): Replace textTheme.headline2.color with a ColorScheme value when known.
-                          style: textTheme.labelSmall!.apply(color: textTheme.displayMedium!.color),
+                          style: textTheme.overline!.apply(color: textTheme.headline2!.color),
                         ),
                         Text(
                           'CULTURE',
-                          style: textTheme.labelSmall,
+                          style: textTheme.overline,
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Text(
                       'Quince for Wisdom, Persimmon for Luck, Pomegranate for Love',
-                      style: textTheme.headlineMedium,
+                      style: textTheme.headline4,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       'How these crazy fruits sweetened our hearts, relationships, '
                           'and puffed pastries',
-                      style: textTheme.bodyMedium,
+                      style: textTheme.bodyText2,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -155,7 +155,7 @@ over water meant for the whole central valley of California? The story will shoc
                           const SizedBox(width: 12),
                           Text(
                             'by',
-                            style: textTheme.displayMedium,
+                            style: textTheme.headline2,
                           ),
                           const SizedBox(width: 4),
                           const Text(
@@ -172,7 +172,7 @@ over water meant for the whole central valley of California? The story will shoc
                     ),
                     Text(
                       '$paragraph1\n\n$paragraph2',
-                      style: textTheme.bodyLarge,
+                      style: textTheme.bodyText1,
                     ),
                   ],
                 ),
@@ -200,7 +200,7 @@ TextTheme _buildTextTheme(TextTheme base) {
   theme = theme.apply(displayColor: Colors.black);
 
   theme = theme.copyWith(
-    headlineMedium: base.headlineMedium!.copyWith(
+    headline4: base.headline4!.copyWith(
       fontFamily: 'Merriweather',
       fontStyle: FontStyle.italic,
       fontSize: 28,
@@ -208,21 +208,21 @@ TextTheme _buildTextTheme(TextTheme base) {
       color: Colors.black,
       height: .88,
     ),
-    displayMedium: base.displayMedium!.copyWith(
+    headline2: base.headline2!.copyWith(
       fontFamily: 'LibreFranklin',
       fontSize: 18,
       fontWeight: FontWeight.w500,
       color: Colors.black.withAlpha(153),
     ),
-    headlineSmall: base.headlineSmall!.copyWith(fontWeight: FontWeight.w500),
-    bodyMedium: base.bodyMedium!.copyWith(
+    headline5: base.headline5!.copyWith(fontWeight: FontWeight.w500),
+    bodyText2: base.bodyText2!.copyWith(
       fontFamily: 'Merriweather',
       fontSize: 14,
       fontWeight: FontWeight.w300,
       color: const Color(0xFF666666),
       height: 1.11,
     ),
-    bodyLarge: base.bodyLarge!.copyWith(
+    bodyText1: base.bodyText1!.copyWith(
       fontFamily: 'Merriweather',
       fontSize: 16,
       fontWeight: FontWeight.w300,
@@ -230,7 +230,7 @@ TextTheme _buildTextTheme(TextTheme base) {
       height: 1.4,
       letterSpacing: .25,
     ),
-    labelSmall: const TextStyle(
+    overline: const TextStyle(
       fontFamily: 'LibreFranklin',
       fontSize: 10,
       fontWeight: FontWeight.w700,

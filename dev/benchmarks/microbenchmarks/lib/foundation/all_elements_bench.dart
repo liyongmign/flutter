@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart' show collectAllElementsFrom;
 
 import '../common.dart';
@@ -42,12 +41,6 @@ Future<void> main() async {
       ),
     ),
   ));
-
-  // Lists may not be scrolled into frame in landscape.
-  SystemChrome.setPreferredOrientations(<DeviceOrientation>[
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
 
   // Wait for frame rendering to stabilize.
   for (int i = 0; i < 5; i++) {

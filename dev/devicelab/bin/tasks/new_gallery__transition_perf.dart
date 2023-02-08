@@ -17,14 +17,7 @@ Future<void> main() async {
   final Directory galleryDir = Directory(path.join(galleryParentDir.path, 'gallery'));
 
   try {
-    await task(
-      NewGalleryPerfTest(
-        galleryDir,
-        // time out after 20 minutes allowing the tool to take a screenshot to debug
-        // https://github.com/flutter/flutter/issues/114025.
-        timeoutSeconds: 20 * 60,
-      ).run,
-    );
+    await task(NewGalleryPerfTest(galleryDir).run);
   } finally {
     rmTree(galleryParentDir);
   }

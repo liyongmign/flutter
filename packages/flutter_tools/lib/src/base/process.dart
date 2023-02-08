@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:meta/meta.dart';
 import 'package:process/process.dart';
 
 import '../convert.dart';
@@ -14,7 +13,7 @@ import 'logger.dart';
 typedef StringConverter = String? Function(String string);
 
 /// A function that will be run before the VM exits.
-typedef ShutdownHook = FutureOr<void> Function();
+typedef ShutdownHook = FutureOr<dynamic> Function();
 
 // TODO(ianh): We have way too many ways to run subprocesses in this project.
 // Convert most of these into one or more lightweight wrappers around the
@@ -23,15 +22,16 @@ typedef ShutdownHook = FutureOr<void> Function();
 // for more details.
 
 abstract class ShutdownHooks {
-  factory ShutdownHooks() => _DefaultShutdownHooks();
+  factory ShutdownHooks({
+    required Logger logger,
+  }) => _DefaultShutdownHooks(
+    logger: logger,
+  );
 
   /// Registers a [ShutdownHook] to be executed before the VM exits.
   void addShutdownHook(
     ShutdownHook shutdownHook
   );
-
-  @visibleForTesting
-  List<ShutdownHook> get registeredHooks;
 
   /// Runs all registered shutdown hooks and returns a future that completes when
   /// all such hooks have finished.
@@ -40,17 +40,16 @@ abstract class ShutdownHooks {
   /// hooks within a given stage will be started in parallel and will be
   /// guaranteed to run to completion before shutdown hooks in the next stage are
   /// started.
-  ///
-  /// This class is constructed before the [Logger], so it cannot be direct
-  /// injected in the constructor.
-  Future<void> runShutdownHooks(Logger logger);
+  Future<void> runShutdownHooks();
 }
 
 class _DefaultShutdownHooks implements ShutdownHooks {
-  _DefaultShutdownHooks();
+  _DefaultShutdownHooks({
+    required Logger logger,
+  }) : _logger = logger;
 
-  @override
-  final List<ShutdownHook> registeredHooks = <ShutdownHook>[];
+  final Logger _logger;
+  final List<ShutdownHook> _shutdownHooks = <ShutdownHook>[];
 
   bool _shutdownHooksRunning = false;
 
@@ -59,18 +58,16 @@ class _DefaultShutdownHooks implements ShutdownHooks {
     ShutdownHook shutdownHook
   ) {
     assert(!_shutdownHooksRunning);
-    registeredHooks.add(shutdownHook);
+    _shutdownHooks.add(shutdownHook);
   }
 
   @override
-  Future<void> runShutdownHooks(Logger logger) async {
-    logger.printTrace(
-      'Running ${registeredHooks.length} shutdown hook${registeredHooks.length == 1 ? '' : 's'}',
-    );
+  Future<void> runShutdownHooks() async {
+    _logger.printTrace('Running shutdown hooks');
     _shutdownHooksRunning = true;
     try {
       final List<Future<dynamic>> futures = <Future<dynamic>>[];
-      for (final ShutdownHook shutdownHook in registeredHooks) {
+      for (final ShutdownHook shutdownHook in _shutdownHooks) {
         final FutureOr<dynamic> result = shutdownHook();
         if (result is Future<dynamic>) {
           futures.add(result);
@@ -80,7 +77,7 @@ class _DefaultShutdownHooks implements ShutdownHooks {
     } finally {
       _shutdownHooksRunning = false;
     }
-    logger.printTrace('Shutdown hooks complete');
+    _logger.printTrace('Shutdown hooks complete');
   }
 }
 
@@ -197,7 +194,6 @@ abstract class ProcessUtils {
     String? workingDirectory,
     bool allowReentrantFlutter = false,
     Map<String, String>? environment,
-    ProcessStartMode mode = ProcessStartMode.normal,
   });
 
   /// This runs the command and streams stdout/stderr from the child process to
@@ -423,14 +419,12 @@ class _DefaultProcessUtils implements ProcessUtils {
     String? workingDirectory,
     bool allowReentrantFlutter = false,
     Map<String, String>? environment,
-    ProcessStartMode mode = ProcessStartMode.normal,
   }) {
     _traceCommand(cmd, workingDirectory: workingDirectory);
     return _processManager.start(
       cmd,
       workingDirectory: workingDirectory,
       environment: _environment(allowReentrantFlutter, environment),
-      mode: mode,
     );
   }
 

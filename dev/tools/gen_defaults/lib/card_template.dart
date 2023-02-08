@@ -9,6 +9,7 @@ class CardTemplate extends TokenTemplate {
 
   @override
   String generate() => '''
+// Generated version ${tokens["version"]}
 class _${blockName}DefaultsM3 extends CardTheme {
   const _${blockName}DefaultsM3(this.context)
     : super(
@@ -24,10 +25,10 @@ class _${blockName}DefaultsM3 extends CardTheme {
   Color? get color => ${componentColor("md.comp.elevated-card.container")};
 
   @override
-  Color? get shadowColor => ${colorOrTransparent("md.comp.elevated-card.container.shadow-color")};
+  Color? get shadowColor => ${color("md.comp.elevated-card.container.shadow-color")};
 
   @override
-  Color? get surfaceTintColor => ${colorOrTransparent("md.comp.elevated-card.container.surface-tint-layer.color")};
+  Color? get surfaceTintColor => ${color("md.comp.elevated-card.container.surface-tint-layer.color")};
 }
 ''';
 }

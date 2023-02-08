@@ -681,14 +681,10 @@ class RenderListWheelViewport
   /// by [childManager].
   @override
   void performLayout() {
+    // Apply the dimensions first in case it changes the scroll offset which
+    // determines what should be shown.
     offset.applyViewportDimension(_viewportExtent);
-    // Apply the content dimensions first if it has exact dimensions in case it
-    // changes the scroll offset which determines what should be shown. Such as
-    // if the child count decrease, we should correct the pixels first, otherwise,
-    // it may be shown blank null children.
-    if (childManager.childCount != null) {
-      offset.applyContentDimensions(_minEstimatedScrollExtent, _maxEstimatedScrollExtent);
-    }
+    offset.applyContentDimensions(_minEstimatedScrollExtent, _maxEstimatedScrollExtent);
 
     // The height, in pixel, that children will be visible and might be laid out
     // and painted.

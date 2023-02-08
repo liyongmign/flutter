@@ -24,9 +24,8 @@ void main(List<String> arguments) {
   for (final String androidDirectoryPath in androidDirectories) {
     final Directory androidDirectory = fileSystem.directory(path.normalize(androidDirectoryPath));
 
-    if (!androidDirectory.existsSync()) {
+    if (!androidDirectory.existsSync())
       throw '$androidDirectory does not exist';
-    }
 
     final File rootBuildGradle = androidDirectory.childFile('build.gradle');
     if (!rootBuildGradle.existsSync()) {
@@ -126,10 +125,9 @@ void exec(
   String? workingDirectory,
 }) {
   final ProcessResult result = Process.runSync(cmd, args, workingDirectory: workingDirectory);
-  if (result.exitCode != 0) {
+  if (result.exitCode != 0)
     throw ProcessException(
         cmd, args, '${result.stdout}${result.stderr}', result.exitCode);
-  }
 }
 
 const String rootGradleFileContent = r'''
@@ -142,14 +140,14 @@ const String rootGradleFileContent = r'''
 // See dev/tools/bin/generate_gradle_lockfiles.dart.
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.5.31'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:4.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 

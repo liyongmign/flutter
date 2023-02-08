@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'dart:ui' show AccessibilityFeatures, AppLifecycleState, FrameTiming, Locale, PlatformDispatcher, TimingsCallback;
+import 'dart:ui' show AppLifecycleState, Locale, AccessibilityFeatures, FrameTiming, TimingsCallback, PlatformDispatcher;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -18,7 +18,6 @@ import 'focus_manager.dart';
 import 'framework.dart';
 import 'platform_menu_bar.dart';
 import 'router.dart';
-import 'service_extensions.dart';
 import 'widget_inspector.dart';
 
 export 'dart:ui' show AppLifecycleState, Locale;
@@ -40,7 +39,7 @@ export 'dart:ui' show AppLifecycleState, Locale;
 /// lifecycle messages. See [didChangeAppLifecycleState].
 ///
 /// ** See code in examples/api/lib/widgets/binding/widget_binding_observer.0.dart **
-///
+/// ```
 /// {@end-tool}
 ///
 /// To respond to other notifications, replace the [didChangeAppLifecycleState]
@@ -361,7 +360,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
 
     if (!kReleaseMode) {
       registerServiceExtension(
-        name: WidgetsServiceExtensions.debugDumpApp.name,
+        name: 'debugDumpApp',
         callback: (Map<String, String> parameters) async {
           final String data = _debugDumpAppString();
           return <String, Object>{
@@ -372,7 +371,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
 
       if (!kIsWeb) {
         registerBoolServiceExtension(
-          name: WidgetsServiceExtensions.showPerformanceOverlay.name,
+          name: 'showPerformanceOverlay',
           getter: () =>
           Future<bool>.value(WidgetsApp.showPerformanceOverlayOverride),
           setter: (bool value) {
@@ -386,7 +385,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
       }
 
       registerServiceExtension(
-        name: WidgetsServiceExtensions.didSendFirstFrameEvent.name,
+        name: 'didSendFirstFrameEvent',
         callback: (_) async {
           return <String, dynamic>{
             // This is defined to return a STRING, not a boolean.
@@ -397,8 +396,10 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
         },
       );
 
+      // This returns 'true' when the first frame is rasterized, and the trace
+      // event 'Rasterized first useful frame' is sent out.
       registerServiceExtension(
-        name: WidgetsServiceExtensions.didSendFirstFrameRasterizedEvent.name,
+        name: 'didSendFirstFrameRasterizedEvent',
         callback: (_) async {
           return <String, dynamic>{
             // This is defined to return a STRING, not a boolean.
@@ -410,7 +411,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
       );
 
       registerServiceExtension(
-        name: WidgetsServiceExtensions.fastReassemble.name,
+        name: 'fastReassemble',
         callback: (Map<String, Object> params) async {
           // This mirrors the implementation of the 'reassemble' callback registration
           // in lib/src/foundation/binding.dart, but with the extra binding config used
@@ -428,24 +429,28 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
 
       // Expose the ability to send Widget rebuilds as [Timeline] events.
       registerBoolServiceExtension(
-        name: WidgetsServiceExtensions.profileWidgetBuilds.name,
+        name: 'profileWidgetBuilds',
         getter: () async => debugProfileBuildsEnabled,
         setter: (bool value) async {
-          debugProfileBuildsEnabled = value;
-        }
+          if (debugProfileBuildsEnabled != value) {
+            debugProfileBuildsEnabled = value;
+          }
+        },
       );
       registerBoolServiceExtension(
-        name: WidgetsServiceExtensions.profileUserWidgetBuilds.name,
+        name: 'profileUserWidgetBuilds',
         getter: () async => debugProfileBuildsEnabledUserWidgets,
         setter: (bool value) async {
-          debugProfileBuildsEnabledUserWidgets = value;
-        }
+          if (debugProfileBuildsEnabledUserWidgets != value) {
+            debugProfileBuildsEnabledUserWidgets = value;
+          }
+        },
       );
     }
 
     assert(() {
       registerBoolServiceExtension(
-        name: WidgetsServiceExtensions.debugAllowBanner.name,
+        name: 'debugAllowBanner',
         getter: () => Future<bool>.value(WidgetsApp.debugAllowBannerOverride),
         setter: (bool value) {
           if (WidgetsApp.debugAllowBannerOverride == value) {
@@ -454,6 +459,20 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
           WidgetsApp.debugAllowBannerOverride = value;
           return _forceRebuild();
         },
+      );
+
+      // This service extension is deprecated and will be removed by 12/1/2018.
+      // Use ext.flutter.inspector.show instead.
+      registerBoolServiceExtension(
+          name: 'debugWidgetInspector',
+          getter: () async => WidgetsApp.debugShowWidgetInspectorOverride,
+          setter: (bool value) {
+            if (WidgetsApp.debugShowWidgetInspectorOverride == value) {
+              return Future<void>.value();
+            }
+            WidgetsApp.debugShowWidgetInspectorOverride = value;
+            return _forceRebuild();
+          },
       );
 
       WidgetInspectorService.instance.initServiceExtensions(registerServiceExtension);

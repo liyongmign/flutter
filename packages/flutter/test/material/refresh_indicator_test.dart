@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -407,17 +406,12 @@ void main() {
       ),
     );
 
-    if (debugDefaultTargetPlatformOverride == TargetPlatform.macOS) {
-      await tester.fling(find.text('A'), const Offset(0.0, 1500.0), 10000.0);
-    }
-    else {
-      await tester.fling(find.text('A'), const Offset(0.0, 300.0), 1000.0);
-    }
+    await tester.fling(find.text('A'), const Offset(0.0, 300.0), 1000.0);
     await tester.pump(const Duration(milliseconds: 100));
     expect(lastScrollOffset = controller.offset, lessThan(0.0));
     expect(refreshCalled, isFalse);
 
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 100));
     expect(controller.offset, greaterThan(lastScrollOffset));
     expect(controller.offset, lessThan(0.0));
     expect(refreshCalled, isTrue);

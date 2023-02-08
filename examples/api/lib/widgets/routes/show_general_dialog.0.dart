@@ -2,26 +2,29 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Flutter code sample for [showGeneralDialog].
+// Flutter code sample for showGeneralDialog
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(const GeneralDialogApp());
+void main() => runApp(const MyApp());
 
-class GeneralDialogApp extends StatelessWidget {
-  const GeneralDialogApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static const String _title = 'Flutter Code Sample';
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       restorationScopeId: 'app',
-      home: GeneralDialogExample(),
+      title: _title,
+      home: MyStatelessWidget(),
     );
   }
 }
 
-class GeneralDialogExample extends StatelessWidget {
-  const GeneralDialogExample({super.key});
+class MyStatelessWidget extends StatelessWidget {
+  const MyStatelessWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,6 @@ class GeneralDialogExample extends StatelessWidget {
       body: Center(
         child: OutlinedButton(
           onPressed: () {
-            /// This shows an alert dialog.
             Navigator.of(context).restorablePush(_dialogBuilder);
           },
           child: const Text('Open Dialog'),

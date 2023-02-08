@@ -12,10 +12,16 @@ class TestResult {
   bool dragUpdate = false;
 }
 
-class NestedScrollableCase extends StatelessWidget {
+class NestedScrollableCase extends StatefulWidget {
   const NestedScrollableCase({super.key, required this.testResult});
 
   final TestResult testResult;
+
+  @override
+  State<NestedScrollableCase> createState() => _NestedScrollableCaseState();
+}
+
+class _NestedScrollableCaseState extends State<NestedScrollableCase> {
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +37,10 @@ class NestedScrollableCase extends StatelessWidget {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onVerticalDragDown: (DragDownDetails details) {
-                      testResult.dragStarted = true;
+                      widget.testResult.dragStarted = true;
                     },
                     onVerticalDragUpdate: (DragUpdateDetails details){
-                      testResult.dragUpdate = true;
+                      widget.testResult.dragUpdate = true;
                     },
                     onVerticalDragEnd: (_) {},
                     child: Text('List Item $index', key: ValueKey<int>(index),
@@ -50,10 +56,16 @@ class NestedScrollableCase extends StatelessWidget {
   }
 }
 
-class NestedDragableCase extends StatelessWidget {
+class NestedDragableCase extends StatefulWidget {
   const NestedDragableCase({super.key, required this.testResult});
 
   final TestResult testResult;
+
+  @override
+  State<NestedDragableCase> createState() => _NestedDragableCaseState();
+}
+
+class _NestedDragableCaseState extends State<NestedDragableCase> {
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +83,10 @@ class NestedDragableCase extends StatelessWidget {
                     feedback: const Text('Dragging'),
                     child: Text('List Item $index'),
                     onDragStarted: () {
-                      testResult.dragStarted = true;
+                      widget.testResult.dragStarted = true;
                     },
                     onDragUpdate: (DragUpdateDetails details){
-                      testResult.dragUpdate = true;
+                      widget.testResult.dragUpdate = true;
                     },
                     onDragEnd: (_) {},
                   ),

@@ -18,14 +18,11 @@ import './common.dart';
 
 void main() {
   group('start command', () {
-    const String branchPointRevision =
-        '5131a6e5e0c50b8b7b2906cd58dab8746d6450be';
+    const String branchPointRevision = '5131a6e5e0c50b8b7b2906cd58dab8746d6450be';
     const String flutterRoot = '/flutter';
     const String checkoutsParentDirectory = '$flutterRoot/dev/tools/';
-    const String githubUsername = 'user';
-    const String frameworkMirror =
-        'git@github.com:$githubUsername/flutter.git';
-    const String engineMirror = 'git@github.com:$githubUsername/engine.git';
+    const String frameworkMirror = 'https://github.com/user/flutter.git';
+    const String engineMirror = 'https://github.com/user/engine.git';
     const String candidateBranch = 'flutter-1.2-candidate.3';
     const String releaseChannel = 'beta';
     const String revision = 'abcd1234';
@@ -89,6 +86,10 @@ void main() {
       await expectLater(
         () async => runner.run(<String>[
           'start',
+          '--$kFrameworkMirrorOption',
+          frameworkMirror,
+          '--$kEngineMirrorOption',
+          engineMirror,
           '--$kCandidateOption',
           candidateBranch,
           '--$kReleaseOption',
@@ -98,6 +99,24 @@ void main() {
         ]),
         throwsExceptionWith(
           'Error! This tool is only supported on macOS and Linux',
+        ),
+      );
+    });
+
+    test('throws if --$kFrameworkMirrorOption not provided', () async {
+      final CommandRunner<void> runner = createRunner(
+        commands: <FakeCommand>[
+          const FakeCommand(
+            command: <String>['git', 'rev-parse', 'HEAD'],
+            stdout: revision,
+          ),
+        ],
+      );
+
+      await expectLater(
+        () async => runner.run(<String>['start']),
+        throwsExceptionWith(
+          'Expected either the CLI arg --$kFrameworkMirrorOption or the environment variable FRAMEWORK_MIRROR to be provided',
         ),
       );
     });
@@ -113,6 +132,10 @@ void main() {
       await expectLater(
         () async => runner.run(<String>[
           'start',
+          '--$kFrameworkMirrorOption',
+          frameworkMirror,
+          '--$kEngineMirrorOption',
+          engineMirror,
           '--$kCandidateOption',
           candidateBranch,
           '--$kReleaseOption',
@@ -121,8 +144,6 @@ void main() {
           stateFilePath,
           '--$kVersionOverrideOption',
           'an invalid version string',
-          '--$kGithubUsernameOption',
-          githubUsername,
         ]),
         throwsExceptionWith('an invalid version string cannot be parsed'),
       );
@@ -132,10 +153,8 @@ void main() {
       stdio.stdin.add('y'); // accept prompt from ensureBranchPointTagged()
       const String revision2 = 'def789';
       const String revision3 = '123abc';
-      const String previousDartRevision =
-          '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
-      const String nextDartRevision =
-          'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
+      const String previousDartRevision = '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
+      const String nextDartRevision = 'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
       const String previousVersion = '1.2.0-1.0.pre';
       // This is what this release will be
       const String nextVersion = '1.2.0-1.1.pre';
@@ -162,8 +181,7 @@ void main() {
             onRun: () {
               // Create the DEPS file which the tool will update
               engine.createSync(recursive: true);
-              depsFile
-                  .writeAsStringSync(generateMockDeps(previousDartRevision));
+              depsFile.writeAsStringSync(generateMockDeps(previousDartRevision));
             }),
         const FakeCommand(
           command: <String>['git', 'remote', 'add', 'mirror', engineMirror],
@@ -194,12 +212,7 @@ void main() {
           command: <String>['git', 'add', '--all'],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'commit',
-            '--message',
-            'Update Dart SDK to $nextDartRevision',
-          ],
+          command: <String>['git', 'commit', '--message', 'Update Dart SDK to $nextDartRevision'],
         ),
         const FakeCommand(
           command: <String>['git', 'rev-parse', 'HEAD'],
@@ -264,23 +277,12 @@ void main() {
           stdout: revision3,
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'merge-base',
-            'upstream/$candidateBranch',
-            'upstream/master',
-          ],
+          command: <String>['git', 'merge-base', 'upstream/$candidateBranch', 'upstream/master'],
           stdout: branchPointRevision,
         ),
         // check if commit is tagged, zero exit code means it is tagged
         const FakeCommand(
-          command: <String>[
-            'git',
-            'describe',
-            '--exact-match',
-            '--tags',
-            branchPointRevision,
-          ],
+          command: <String>['git', 'describe', '--exact-match', '--tags', branchPointRevision],
         ),
       ];
 
@@ -298,6 +300,10 @@ void main() {
 
       await runner.run(<String>[
         'start',
+        '--$kFrameworkMirrorOption',
+        frameworkMirror,
+        '--$kEngineMirrorOption',
+        engineMirror,
         '--$kCandidateOption',
         candidateBranch,
         '--$kReleaseOption',
@@ -306,8 +312,6 @@ void main() {
         stateFilePath,
         '--$kDartRevisionOption',
         nextDartRevision,
-        '--$kGithubUsernameOption',
-        githubUsername,
       ]);
 
       final File stateFile = fileSystem.file(stateFilePath);
@@ -318,10 +322,7 @@ void main() {
       );
 
       expect(state.releaseType, ReleaseType.BETA_HOTFIX);
-      expect(
-          stdio.error,
-          isNot(contains(
-              'Tried to tag the branch point, however the target version')));
+      expect(stdio.error, isNot(contains('Tried to tag the branch point, however the target version')));
       expect(processManager, hasNoRemainingExpectations);
       expect(state.isInitialized(), true);
       expect(state.releaseChannel, releaseChannel);
@@ -332,8 +333,7 @@ void main() {
       expect(state.engine.upstream.url, 'git@github.com:flutter/engine.git');
       expect(state.framework.candidateBranch, candidateBranch);
       expect(state.framework.startingGitHead, revision3);
-      expect(
-          state.framework.upstream.url, 'git@github.com:flutter/flutter.git');
+      expect(state.framework.upstream.url, 'git@github.com:flutter/flutter.git');
       expect(state.currentPhase, ReleasePhase.APPLY_ENGINE_CHERRYPICKS);
       expect(state.conductorVersion, conductorVersion);
     });
@@ -342,10 +342,8 @@ void main() {
       stdio.stdin.add('y'); // accept prompt from ensureBranchPointTagged()
       const String revision2 = 'def789';
       const String revision3 = '123abc';
-      const String previousDartRevision =
-          '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
-      const String nextDartRevision =
-          'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
+      const String previousDartRevision = '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
+      const String nextDartRevision = 'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
       const String previousVersion = '1.2.0-1.0.pre';
       const String candidateBranch = 'flutter-1.2-candidate.1';
       const String versionOverride = '42.0.0-42.0.pre';
@@ -371,8 +369,7 @@ void main() {
             onRun: () {
               // Create the DEPS file which the tool will update
               engine.createSync(recursive: true);
-              depsFile
-                  .writeAsStringSync(generateMockDeps(previousDartRevision));
+              depsFile.writeAsStringSync(generateMockDeps(previousDartRevision));
             }),
         const FakeCommand(
           command: <String>['git', 'remote', 'add', 'mirror', engineMirror],
@@ -403,12 +400,7 @@ void main() {
           command: <String>['git', 'add', '--all'],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'commit',
-            '--message',
-            'Update Dart SDK to $nextDartRevision'
-          ],
+          command: <String>['git', 'commit', '--message', 'Update Dart SDK to $nextDartRevision'],
         ),
         const FakeCommand(
           command: <String>['git', 'rev-parse', 'HEAD'],
@@ -473,12 +465,7 @@ void main() {
           stdout: revision3,
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'merge-base',
-            'upstream/$candidateBranch',
-            'upstream/master'
-          ],
+          command: <String>['git', 'merge-base', 'upstream/$candidateBranch', 'upstream/master'],
           stdout: branchPointRevision,
         ),
       ];
@@ -497,6 +484,10 @@ void main() {
 
       await runner.run(<String>[
         'start',
+        '--$kFrameworkMirrorOption',
+        frameworkMirror,
+        '--$kEngineMirrorOption',
+        engineMirror,
         '--$kCandidateOption',
         candidateBranch,
         '--$kReleaseOption',
@@ -507,8 +498,6 @@ void main() {
         nextDartRevision,
         '--$kVersionOverrideOption',
         versionOverride,
-        '--$kGithubUsernameOption',
-        githubUsername,
       ]);
 
       final File stateFile = fileSystem.file(stateFilePath);
@@ -522,15 +511,12 @@ void main() {
       expect(state.releaseVersion, versionOverride);
     });
 
-    test('logs to STDERR but does not fail on an unexpected candidate branch',
-        () async {
+    test('logs to STDERR but does not fail on an unexpected candidate branch', () async {
       stdio.stdin.add('y'); // accept prompt from ensureBranchPointTagged()
       const String revision2 = 'def789';
       const String revision3 = '123abc';
-      const String previousDartRevision =
-          '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
-      const String nextDartRevision =
-          'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
+      const String previousDartRevision = '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
+      const String nextDartRevision = 'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
       // note that this significantly behind the candidate branch name
       const String previousVersion = '0.9.0-1.0.pre';
       // This is what this release will be
@@ -557,8 +543,7 @@ void main() {
             onRun: () {
               // Create the DEPS file which the tool will update
               engine.createSync(recursive: true);
-              depsFile
-                  .writeAsStringSync(generateMockDeps(previousDartRevision));
+              depsFile.writeAsStringSync(generateMockDeps(previousDartRevision));
             }),
         const FakeCommand(
           command: <String>['git', 'remote', 'add', 'mirror', engineMirror],
@@ -589,12 +574,7 @@ void main() {
           command: <String>['git', 'add', '--all'],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'commit',
-            '--message',
-            'Update Dart SDK to $nextDartRevision',
-          ],
+          command: <String>['git', 'commit', '--message', 'Update Dart SDK to $nextDartRevision'],
         ),
         const FakeCommand(
           command: <String>['git', 'rev-parse', 'HEAD'],
@@ -659,23 +639,12 @@ void main() {
           stdout: revision3,
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'merge-base',
-            'upstream/$candidateBranch',
-            'upstream/master',
-          ],
+          command: <String>['git', 'merge-base', 'upstream/$candidateBranch', 'upstream/master'],
           stdout: branchPointRevision,
         ),
         // check if commit is tagged, 0 exit code means it is tagged
         const FakeCommand(
-          command: <String>[
-            'git',
-            'describe',
-            '--exact-match',
-            '--tags',
-            branchPointRevision,
-          ],
+          command: <String>['git', 'describe', '--exact-match', '--tags', branchPointRevision],
         ),
       ];
 
@@ -693,6 +662,10 @@ void main() {
 
       await runner.run(<String>[
         'start',
+        '--$kFrameworkMirrorOption',
+        frameworkMirror,
+        '--$kEngineMirrorOption',
+        engineMirror,
         '--$kCandidateOption',
         candidateBranch,
         '--$kReleaseOption',
@@ -701,8 +674,6 @@ void main() {
         stateFilePath,
         '--$kDartRevisionOption',
         nextDartRevision,
-        '--$kGithubUsernameOption',
-        githubUsername,
       ]);
 
       final File stateFile = fileSystem.file(stateFilePath);
@@ -712,8 +683,7 @@ void main() {
         jsonDecode(stateFile.readAsStringSync()),
       );
 
-      expect(stdio.error,
-          isNot(contains('Tried to tag the branch point, however')));
+      expect(stdio.error, isNot(contains('Tried to tag the branch point, however')));
       expect(processManager, hasNoRemainingExpectations);
       expect(state.isInitialized(), true);
       expect(state.releaseChannel, releaseChannel);
@@ -724,24 +694,18 @@ void main() {
       expect(state.engine.upstream.url, 'git@github.com:flutter/engine.git');
       expect(state.framework.candidateBranch, candidateBranch);
       expect(state.framework.startingGitHead, revision3);
-      expect(
-          state.framework.upstream.url, 'git@github.com:flutter/flutter.git');
+      expect(state.framework.upstream.url, 'git@github.com:flutter/flutter.git');
       expect(state.currentPhase, ReleasePhase.APPLY_ENGINE_CHERRYPICKS);
       expect(state.conductorVersion, conductorVersion);
       expect(state.releaseType, ReleaseType.BETA_HOTFIX);
-      expect(
-          stdio.error,
-          contains(
-              'Parsed version $previousVersion.42 has a different x value than candidate branch $candidateBranch'));
+      expect(stdio.error, contains('Parsed version $previousVersion.42 has a different x value than candidate branch $candidateBranch'));
     });
 
     test('can convert from dev style version to stable version', () async {
       const String revision2 = 'def789';
       const String revision3 = '123abc';
-      const String previousDartRevision =
-          '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
-      const String nextDartRevision =
-          'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
+      const String previousDartRevision = '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
+      const String nextDartRevision = 'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
       const String previousVersion = '1.2.0-3.0.pre';
       const String nextVersion = '1.2.0';
 
@@ -766,8 +730,7 @@ void main() {
             onRun: () {
               // Create the DEPS file which the tool will update
               engine.createSync(recursive: true);
-              depsFile
-                  .writeAsStringSync(generateMockDeps(previousDartRevision));
+              depsFile.writeAsStringSync(generateMockDeps(previousDartRevision));
             }),
         const FakeCommand(
           command: <String>['git', 'remote', 'add', 'mirror', engineMirror],
@@ -798,12 +761,7 @@ void main() {
           command: <String>['git', 'add', '--all'],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'commit',
-            '--message',
-            'Update Dart SDK to $nextDartRevision',
-          ],
+          command: <String>['git', 'commit', '--message', 'Update Dart SDK to $nextDartRevision'],
         ),
         const FakeCommand(
           command: <String>['git', 'rev-parse', 'HEAD'],
@@ -868,23 +826,12 @@ void main() {
           stdout: revision3,
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'merge-base',
-            'upstream/$candidateBranch',
-            'upstream/master'
-          ],
+          command: <String>['git', 'merge-base', 'upstream/$candidateBranch', 'upstream/master'],
           stdout: branchPointRevision,
         ),
         // check if commit is tagged, 0 exit code thus it is tagged
         const FakeCommand(
-          command: <String>[
-            'git',
-            'describe',
-            '--exact-match',
-            '--tags',
-            branchPointRevision,
-          ],
+          command: <String>['git', 'describe', '--exact-match', '--tags', branchPointRevision],
         ),
       ];
 
@@ -902,6 +849,10 @@ void main() {
 
       await runner.run(<String>[
         'start',
+        '--$kFrameworkMirrorOption',
+        frameworkMirror,
+        '--$kEngineMirrorOption',
+        engineMirror,
         '--$kCandidateOption',
         candidateBranch,
         '--$kReleaseOption',
@@ -910,8 +861,6 @@ void main() {
         stateFilePath,
         '--$kDartRevisionOption',
         nextDartRevision,
-        '--$kGithubUsernameOption',
-        githubUsername,
       ]);
 
       final File stateFile = fileSystem.file(stateFilePath);
@@ -934,17 +883,14 @@ void main() {
       expect(state.conductorVersion, conductorVersion);
       expect(state.releaseType, ReleaseType.STABLE_INITIAL);
     });
-    test(
-        'StartContext gets engine and framework checkout directories after run',
-        () async {
+
+    test('StartContext gets engine and framework checkout directories after run', () async {
       stdio.stdin.add('y');
       const String revision2 = 'def789';
       const String revision3 = '123abc';
       const String branchPointRevision = 'deadbeef';
-      const String previousDartRevision =
-          '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
-      const String nextDartRevision =
-          'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
+      const String previousDartRevision = '171876a4e6cf56ee6da1f97d203926bd7afda7ef';
+      const String nextDartRevision = 'f6c91128be6b77aef8351e1e3a9d07c85bc2e46e';
       const String previousVersion = '1.2.0-1.0.pre';
       // This is a git tag applied to the branch point, not an actual release
       const String branchPointTag = '1.2.0-3.0.pre';
@@ -975,8 +921,7 @@ void main() {
             onRun: () {
               // Create the DEPS file which the tool will update
               engine.createSync(recursive: true);
-              depsFile
-                  .writeAsStringSync(generateMockDeps(previousDartRevision));
+              depsFile.writeAsStringSync(generateMockDeps(previousDartRevision));
             }),
         const FakeCommand(
           command: <String>['git', 'remote', 'add', 'mirror', engineMirror],
@@ -1007,12 +952,7 @@ void main() {
           command: <String>['git', 'add', '--all'],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'commit',
-            '--message',
-            'Update Dart SDK to $nextDartRevision'
-          ],
+          command: <String>['git', 'commit', '--message', 'Update Dart SDK to $nextDartRevision'],
         ),
         const FakeCommand(
           command: <String>['git', 'rev-parse', 'HEAD'],
@@ -1074,23 +1014,12 @@ void main() {
           stdout: branchPointRevision,
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'merge-base',
-            'upstream/$candidateBranch',
-            'upstream/master'
-          ],
+          command: <String>['git', 'merge-base', 'upstream/$candidateBranch', 'upstream/master'],
           stdout: branchPointRevision,
         ),
         // check if commit is tagged
         const FakeCommand(
-          command: <String>[
-            'git',
-            'describe',
-            '--exact-match',
-            '--tags',
-            branchPointRevision
-          ],
+          command: <String>['git', 'describe', '--exact-match', '--tags', branchPointRevision],
           // non-zero exit code means branch point is NOT tagged
           exitCode: 128,
         ),
@@ -1098,12 +1027,7 @@ void main() {
           command: <String>['git', 'tag', branchPointTag, branchPointRevision],
         ),
         const FakeCommand(
-          command: <String>[
-            'git',
-            'push',
-            FrameworkRepository.defaultUpstream,
-            branchPointTag
-          ],
+          command: <String>['git', 'push', FrameworkRepository.defaultUpstream, branchPointTag],
         ),
       ];
 
@@ -1152,7 +1076,6 @@ void main() {
         releaseChannel: releaseChannel,
         processManager: processManager,
         conductorVersion: conductorVersion,
-        githubUsername: githubUsername,
         stateFile: stateFile,
       );
 
@@ -1163,10 +1086,8 @@ void main() {
         jsonDecode(stateFile.readAsStringSync()),
       );
 
-      expect((await startContext.engine.checkoutDirectory).path,
-          equals(engine.path));
-      expect((await startContext.framework.checkoutDirectory).path,
-          equals(framework.path));
+      expect((await startContext.engine.checkoutDirectory).path, equals(engine.path));
+      expect((await startContext.framework.checkoutDirectory).path, equals(framework.path));
       expect(state.releaseType, ReleaseType.BETA_INITIAL);
       expect(processManager, hasNoRemainingExpectations);
     });

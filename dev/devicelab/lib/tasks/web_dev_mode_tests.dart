@@ -42,10 +42,11 @@ TaskFunction createWebDevModeTest(String webDevice, bool enableIncrementalCompil
       recursiveCopy(flutterGalleryDir, _editedFlutterGalleryDir);
       await inDirectory<void>(_editedFlutterGalleryDir, () async {
         {
-           await exec(
+          final Process packagesGet = await startProcess(
               path.join(flutterDirectory.path, 'bin', 'flutter'),
               <String>['packages', 'get'],
           );
+          await packagesGet.exitCode;
           final Process process = await startProcess(
               path.join(flutterDirectory.path, 'bin', 'flutter'),
               flutterCommandArgs('run', options),

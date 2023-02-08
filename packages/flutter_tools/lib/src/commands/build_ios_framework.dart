@@ -33,7 +33,6 @@ abstract class BuildFrameworkCommand extends BuildSubCommand {
     required bool verboseHelp,
     Cache? cache,
     Platform? platform,
-    required super.logger,
   }) : _injectedFlutterVersion = flutterVersion,
        _buildSystem = buildSystem,
        _injectedCache = cache,
@@ -153,7 +152,7 @@ abstract class BuildFrameworkCommand extends BuildSubCommand {
         ...framework.parent
             .listSync()
             .where((FileSystemEntity entity) =>
-        entity.basename.endsWith('dSYM'))
+        entity.basename.endsWith('bcsymbolmap') || entity.basename.endsWith('dSYM'))
             .map((FileSystemEntity entity) => <String>['-debug-symbols', entity.path])
             .expand<String>((List<String> parameter) => parameter),
       ],
@@ -177,7 +176,6 @@ abstract class BuildFrameworkCommand extends BuildSubCommand {
 /// managers.
 class BuildIOSFrameworkCommand extends BuildFrameworkCommand {
   BuildIOSFrameworkCommand({
-    required super.logger,
     super.flutterVersion,
     required super.buildSystem,
     required bool verboseHelp,
@@ -302,10 +300,6 @@ class BuildIOSFrameworkCommand extends BuildFrameworkCommand {
           'See https://flutter.dev/docs/development/add-to-app/ios/add-flutter-screen#create-a-flutterengine for more information.');
     }
 
-    globals.printWarning(
-        'Bitcode support has been deprecated. Turn off the "Enable Bitcode" build setting in your Xcode project or you may encounter compilation errors.\n'
-        'See https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes for details.');
-
     return FlutterCommandResult.success();
   }
 
@@ -318,7 +312,7 @@ class BuildIOSFrameworkCommand extends BuildFrameworkCommand {
       final GitTagVersion gitTagVersion = flutterVersion.gitTagVersion;
       if (!force && (gitTagVersion.x == null || gitTagVersion.y == null || gitTagVersion.z == null || gitTagVersion.commits != 0)) {
         throwToolExit(
-            '--cocoapods is only supported on the beta or stable channel. Detected version is ${flutterVersion.frameworkVersion}');
+            '--cocoapods is only supported on the dev, beta, or stable channels. Detected version is ${flutterVersion.frameworkVersion}');
       }
 
       // Podspecs use semantic versioning, which don't support hotfixes.
@@ -427,7 +421,8 @@ end
           defines: <String, String>{
             kTargetFile: targetFile,
             kTargetPlatform: getNameForTargetPlatform(TargetPlatform.ios),
-            kIosArchs: defaultIOSArchsForEnvironment(sdkType, globals.artifacts!)
+            kBitcodeFlag: 'true',
+            kIosArchs: defaultIOSArchsForEnvironment(sdkType)
                 .map(getNameForDarwinArch)
                 .join(' '),
             kSdkRoot: await globals.xcode!.sdkLocation(sdkType),
@@ -438,7 +433,6 @@ end
           logger: globals.logger,
           processManager: globals.processManager,
           platform: globals.platform,
-          usage: globals.flutterUsage,
           engineVersion: globals.artifacts!.isLocalEngine
               ? null
               : globals.flutterVersion.engineRevision,
@@ -485,6 +479,9 @@ end
       ' ├─Building plugins...'
     );
     try {
+      final String bitcodeGenerationMode = mode == BuildMode.release ?
+          'bitcode' : 'marker'; // In release, force bitcode embedding without archiving.
+
       List<String> pluginsBuildCommand = <String>[
         ...globals.xcode!.xcrunCommand(),
         'xcodebuild',
@@ -494,6 +491,7 @@ end
         '-configuration',
         xcodeBuildConfiguration,
         'SYMROOT=${iPhoneBuildOutput.path}',
+        'BITCODE_GENERATION_MODE=$bitcodeGenerationMode',
         'ONLY_ACTIVE_ARCH=NO', // No device targeted, so build all valid architectures.
         'BUILD_LIBRARY_FOR_DISTRIBUTION=YES',
         if (boolArg('static') ?? false)
@@ -520,6 +518,7 @@ end
         '-configuration',
         simulatorConfiguration,
         'SYMROOT=${simulatorBuildOutput.path}',
+        'ENABLE_BITCODE=YES', // Support host apps with bitcode enabled.
         'ONLY_ACTIVE_ARCH=NO', // No device targeted, so build all valid architectures.
         'BUILD_LIBRARY_FOR_DISTRIBUTION=YES',
         if (boolArg('static') ?? false)

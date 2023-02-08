@@ -2,28 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Flutter code sample for [showModalBottomSheet].
+// Flutter code sample for showModalBottomSheet
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(const BottomSheetApp());
+void main() => runApp(const MyApp());
 
-class BottomSheetApp extends StatelessWidget {
-  const BottomSheetApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static const String _title = 'Flutter Code Sample';
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: _title,
       home: Scaffold(
-        appBar: AppBar(title: const Text('Bottom Sheet Sample')),
-        body: const BottomSheetExample(),
+        appBar: AppBar(title: const Text(_title)),
+        body: const MyStatelessWidget(),
       ),
     );
   }
 }
 
-class BottomSheetExample extends StatelessWidget {
-  const BottomSheetExample({super.key});
+class MyStatelessWidget extends StatelessWidget {
+  const MyStatelessWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

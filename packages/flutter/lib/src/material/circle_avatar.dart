@@ -84,8 +84,7 @@ class CircleAvatar extends StatelessWidget {
   /// The color with which to fill the circle. Changing the background
   /// color will cause the avatar to animate to the new color.
   ///
-  /// If a [backgroundColor] is not specified and [ThemeData.useMaterial3] is true,
-  /// [ColorScheme.primaryContainer] will be used, otherwise the theme's
+  /// If a [backgroundColor] is not specified, the theme's
   /// [ThemeData.primaryColorLight] is used with dark foreground colors, and
   /// [ThemeData.primaryColorDark] with light foreground colors.
   final Color? backgroundColor;
@@ -95,9 +94,7 @@ class CircleAvatar extends StatelessWidget {
   /// Defaults to the primary text theme color if no [backgroundColor] is
   /// specified.
   ///
-  /// If a [foregroundColor] is not specified and [ThemeData.useMaterial3] is true,
-  /// [ColorScheme.onPrimaryContainer] will be used, otherwise the theme's
-  /// [ThemeData.primaryColorLight] for dark background colors, and
+  /// Defaults to [ThemeData.primaryColorLight] for dark background colors, and
   /// [ThemeData.primaryColorDark] for light background colors.
   final Color? foregroundColor;
 
@@ -195,14 +192,8 @@ class CircleAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     final ThemeData theme = Theme.of(context);
-    final Color? effectiveForegroundColor = foregroundColor
-      ?? (theme.useMaterial3 ? theme.colorScheme.onPrimaryContainer : null);
-    final TextStyle effectiveTextStyle = theme.useMaterial3
-      ? theme.textTheme.titleMedium!
-      : theme.primaryTextTheme.titleMedium!;
-    TextStyle textStyle = effectiveTextStyle.copyWith(color: effectiveForegroundColor);
-    Color? effectiveBackgroundColor = backgroundColor
-      ?? (theme.useMaterial3 ? theme.colorScheme.primaryContainer : null);
+    TextStyle textStyle = theme.primaryTextTheme.subtitle1!.copyWith(color: foregroundColor);
+    Color? effectiveBackgroundColor = backgroundColor;
     if (effectiveBackgroundColor == null) {
       switch (ThemeData.estimateBrightnessForColor(textStyle.color!)) {
         case Brightness.dark:
@@ -212,7 +203,7 @@ class CircleAvatar extends StatelessWidget {
           effectiveBackgroundColor = theme.primaryColorDark;
           break;
       }
-    } else if (effectiveForegroundColor == null) {
+    } else if (foregroundColor == null) {
       switch (ThemeData.estimateBrightnessForColor(backgroundColor!)) {
         case Brightness.dark:
           textStyle = textStyle.copyWith(color: theme.primaryColorLight);

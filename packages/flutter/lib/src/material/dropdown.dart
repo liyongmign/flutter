@@ -808,7 +808,7 @@ class DropdownButtonHideUnderline extends InheritedWidget {
 /// dropdown with the new value.
 ///
 /// {@tool dartpad}
-/// This sample shows a [DropdownButton] with a large arrow icon,
+/// This sample shows a `DropdownButton` with a large arrow icon,
 /// purple text style, and bold purple underline, whose value is one of "One",
 /// "Two", "Free", or "Four".
 ///
@@ -825,8 +825,6 @@ class DropdownButtonHideUnderline extends InheritedWidget {
 /// instead be displayed.
 ///
 /// Requires one of its ancestors to be a [Material] widget.
-///
-/// {@youtube 560 315 https://www.youtube.com/watch?v=ZzQ_PWrFihg}
 ///
 /// See also:
 ///
@@ -1050,7 +1048,7 @@ class DropdownButton<T> extends StatefulWidget {
   /// ** See code in examples/api/lib/material/dropdown/dropdown_button.style.0.dart **
   /// {@end-tool}
   ///
-  /// Defaults to the [TextTheme.titleMedium] value of the current
+  /// Defaults to the [TextTheme.subtitle1] value of the current
   /// [ThemeData.textTheme] of the current [Theme].
   final TextStyle? style;
 
@@ -1266,7 +1264,7 @@ class _DropdownButtonState<T> extends State<DropdownButton<T>> with WidgetsBindi
     }
   }
 
-  TextStyle? get _textStyle => widget.style ?? Theme.of(context).textTheme.titleMedium;
+  TextStyle? get _textStyle => widget.style ?? Theme.of(context).textTheme.subtitle1;
 
   void _handleTap() {
     final TextDirection? textDirection = Directionality.maybeOf(context);
@@ -1333,10 +1331,8 @@ class _DropdownButtonState<T> extends State<DropdownButton<T>> with WidgetsBindi
   // Similarly, we don't reduce the height of the button so much that its icon
   // would be clipped.
   double get _denseButtonHeight {
-    final double textScaleFactor = MediaQuery.of(context).textScaleFactor;
-    final double fontSize = _textStyle!.fontSize ?? Theme.of(context).textTheme.titleMedium!.fontSize!;
-    final double scaledFontSize = textScaleFactor * fontSize;
-    return math.max(scaledFontSize, math.max(widget.iconSize, _kDenseButtonHeight));
+    final double fontSize = _textStyle!.fontSize ?? Theme.of(context).textTheme.subtitle1!.fontSize!;
+    return math.max(fontSize, math.max(widget.iconSize, _kDenseButtonHeight));
   }
 
   Color get _iconColor {
@@ -1401,17 +1397,17 @@ class _DropdownButtonState<T> extends State<DropdownButton<T>> with WidgetsBindi
 
     int? hintIndex;
     if (widget.hint != null || (!_enabled && widget.disabledHint != null)) {
-      final Widget displayedHint = _enabled ? widget.hint! : widget.disabledHint ?? widget.hint!;
+      Widget displayedHint = _enabled ? widget.hint! : widget.disabledHint ?? widget.hint!;
+      if (widget.selectedItemBuilder == null) {
+        displayedHint = _DropdownMenuItemContainer(alignment: widget.alignment, child: displayedHint);
+      }
 
       hintIndex = items.length;
       items.add(DefaultTextStyle(
         style: _textStyle!.copyWith(color: Theme.of(context).hintColor),
         child: IgnorePointer(
           ignoringSemantics: false,
-          child: _DropdownMenuItemContainer(
-            alignment: widget.alignment,
-            child: displayedHint,
-          ),
+          child: displayedHint,
         ),
       ));
     }
@@ -1424,7 +1420,7 @@ class _DropdownButtonState<T> extends State<DropdownButton<T>> with WidgetsBindi
     // display the hint or nothing at all.
     final Widget innerItemsWidget;
     if (items.isEmpty) {
-      innerItemsWidget = const SizedBox.shrink();
+      innerItemsWidget = Container();
     } else {
       innerItemsWidget = IndexedStack(
         index: _selectedIndex ?? hintIndex,

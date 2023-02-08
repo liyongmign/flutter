@@ -82,6 +82,7 @@ class WebDriverService extends DriverService {
           disablePortPublication: debuggingOptions.disablePortPublication,
         ),
       stayResident: true,
+      urlTunneller: null,
       flutterProject: FlutterProject.current(),
       fileSystem: globals.fs,
       usage: globals.flutterUsage,
@@ -95,15 +96,15 @@ class WebDriverService extends DriverService {
     );
 
     bool isAppStarted = false;
-    await Future.any(<Future<Object?>>[
+    await Future.any<Object>(<Future<Object>>[
       runFuture.then((int? result) {
         _runResult = result;
         return null;
-      }),
+      } as FutureOr<Object> Function(int?)),
       appStartedCompleter.future.then((_) {
         isAppStarted = true;
         return null;
-      }),
+      } as FutureOr<Object> Function(void)),
     ]);
 
     if (_runResult != null) {

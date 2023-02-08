@@ -16,10 +16,10 @@ class CmakeCustomCommandMigration extends ProjectMigrator {
   final File _cmakeFile;
 
   @override
-  void migrate() {
+  bool migrate() {
     if (!_cmakeFile.existsSync()) {
       logger.printTrace('CMake project not found, skipping add_custom_command() VERBATIM migration');
-      return;
+      return true;
     }
 
     final String originalProjectContents = _cmakeFile.readAsStringSync();
@@ -68,5 +68,6 @@ class CmakeCustomCommandMigration extends ProjectMigrator {
       logger.printStatus('add_custom_command() missing VERBATIM or FLUTTER_TARGET_PLATFORM, updating.');
       _cmakeFile.writeAsStringSync(newProjectContents);
     }
+    return true;
   }
 }

@@ -6,9 +6,6 @@ import 'package:flutter/widgets.dart';
 
 import 'localizations.dart';
 
-// Examples can assume:
-// late BuildContext context;
-
 /// Asserts that the given context has a [Localizations] ancestor that contains
 /// a [CupertinoLocalizations] delegate.
 ///
@@ -18,10 +15,6 @@ import 'localizations.dart';
 /// ```dart
 /// assert(debugCheckHasCupertinoLocalizations(context));
 /// ```
-///
-/// Always place this before any early returns, so that the invariant is checked
-/// in all cases. This prevents bugs from hiding until a particular codepath is
-/// hit.
 ///
 /// Does nothing if asserts are disabled. Always returns true.
 bool debugCheckHasCupertinoLocalizations(BuildContext context) {

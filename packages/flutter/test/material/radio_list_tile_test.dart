@@ -681,7 +681,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(Material), paints..rect(color: tileColor));
+    expect(find.byType(Material), paints..path(color: tileColor));
   });
 
   testWidgets('RadioListTile respects selectedTileColor', (WidgetTester tester) async {
@@ -702,7 +702,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(Material), paints..rect(color: selectedTileColor));
+    expect(find.byType(Material), paints..path(color: selectedTileColor));
   });
 
   testWidgets('RadioListTile selected item text Color', (WidgetTester tester) async {
@@ -710,14 +710,10 @@ void main() {
 
     const Color activeColor = Color(0xff00ff00);
 
-    Widget buildFrame({ Color? activeColor, Color? fillColor }) {
+    Widget buildFrame({ Color? activeColor, Color? toggleableActiveColor }) {
       return MaterialApp(
         theme: ThemeData.light().copyWith(
-          radioTheme: RadioThemeData(
-            fillColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-              return states.contains(MaterialState.selected) ? fillColor : null;
-            }),
-          ),
+          toggleableActiveColor: toggleableActiveColor,
         ),
         home: Scaffold(
           body: Center(
@@ -738,7 +734,7 @@ void main() {
       return tester.renderObject<RenderParagraph>(find.text(text)).text.style?.color;
     }
 
-    await tester.pumpWidget(buildFrame(fillColor: activeColor));
+    await tester.pumpWidget(buildFrame(toggleableActiveColor: activeColor));
     expect(textColor('title'), activeColor);
 
     await tester.pumpWidget(buildFrame(activeColor: activeColor));
@@ -791,36 +787,6 @@ void main() {
     await tester.pump(); // Let the focus take effect.
     expect(Focus.of(childKey.currentContext!).hasPrimaryFocus, isTrue);
     expect(tileNode.hasPrimaryFocus, isTrue);
-  });
-
-  testWidgets('RadioListTile onFocusChange callback', (WidgetTester tester) async {
-    final FocusNode node = FocusNode(debugLabel: 'RadioListTile onFocusChange');
-    bool gotFocus = false;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Material(
-          child: RadioListTile<bool>(
-            value: true,
-            focusNode: node,
-            onFocusChange: (bool focused) {
-              gotFocus = focused;
-            },
-            onChanged: (bool? value) {},
-            groupValue: true,
-          ),
-        ),
-      ),
-    );
-
-    node.requestFocus();
-    await tester.pump();
-    expect(gotFocus, isTrue);
-    expect(node.hasFocus, isTrue);
-
-    node.unfocus();
-    await tester.pump();
-    expect(gotFocus, isFalse);
-    expect(node.hasFocus, isFalse);
   });
 
   group('feedback', () {

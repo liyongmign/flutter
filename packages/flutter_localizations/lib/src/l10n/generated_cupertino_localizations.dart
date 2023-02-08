@@ -10811,7 +10811,7 @@ class CupertinoLocalizationTa extends GlobalCupertinoLocalizations {
   String get alertDialogLabel => 'விழிப்பூட்டல்';
 
   @override
-  String get anteMeridiemAbbreviation => 'முற்பகல்';
+  String get anteMeridiemAbbreviation => 'AM';
 
   @override
   String get copyButtonLabel => 'நகலெடு';
@@ -10868,7 +10868,7 @@ class CupertinoLocalizationTa extends GlobalCupertinoLocalizations {
   String get pasteButtonLabel => 'ஒட்டு';
 
   @override
-  String get postMeridiemAbbreviation => 'பிற்பகல்';
+  String get postMeridiemAbbreviation => 'PM';
 
   @override
   String get searchTextFieldPlaceholderLabel => 'தேடுக';

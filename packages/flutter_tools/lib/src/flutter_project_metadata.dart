@@ -72,21 +72,22 @@ FlutterProjectType? stringToProjectType(String value) {
 /// A wrapper around the `.metadata` file.
 class FlutterProjectMetadata {
   /// Creates a MigrateConfig by parsing an existing .migrate_config yaml file.
-  FlutterProjectMetadata(this.file, Logger logger) : _logger = logger,
+  FlutterProjectMetadata(File file, Logger logger) : _metadataFile = file,
+                                                     _logger = logger,
                                                      migrateConfig = MigrateConfig() {
-    if (!file.existsSync()) {
-      _logger.printTrace('No .metadata file found at ${file.path}.');
+    if (!_metadataFile.existsSync()) {
+      _logger.printTrace('No .metadata file found at ${_metadataFile.path}.');
       // Create a default empty metadata.
       return;
     }
     Object? yamlRoot;
     try {
-      yamlRoot = loadYaml(file.readAsStringSync());
+      yamlRoot = loadYaml(_metadataFile.readAsStringSync());
     } on YamlException {
       // Handled in _validate below.
     }
     if (yamlRoot is! YamlMap) {
-      _logger.printTrace('.metadata file at ${file.path} was empty or malformed.');
+      _logger.printTrace('.metadata file at ${_metadataFile.path} was empty or malformed.');
       return;
     }
     if (_validateMetadataMap(yamlRoot, <String, Type>{'version': YamlMap}, _logger)) {
@@ -108,9 +109,9 @@ class FlutterProjectMetadata {
     }
   }
 
-  /// Creates a FlutterProjectMetadata by explicitly providing all values.
+  /// Creates a MigrateConfig by explicitly providing all values.
   FlutterProjectMetadata.explicit({
-    required this.file,
+    required File file,
     required String? versionRevision,
     required String? versionChannel,
     required FlutterProjectType? projectType,
@@ -119,7 +120,8 @@ class FlutterProjectMetadata {
   }) : _logger = logger,
        _versionChannel = versionChannel,
        _versionRevision = versionRevision,
-       _projectType = projectType;
+       _projectType = projectType,
+       _metadataFile = file;
 
   /// The name of the config file.
   static const String kFileName = '.metadata';
@@ -138,27 +140,17 @@ class FlutterProjectMetadata {
 
   final Logger _logger;
 
-  final File file;
+  final File _metadataFile;
 
   /// Writes the .migrate_config file in the provided project directory's platform subdirectory.
   ///
   /// We write the file manually instead of with a template because this
   /// needs to be able to write the .migrate_config file into legacy apps.
   void writeFile({File? outputFile}) {
-    outputFile = outputFile ?? file;
-    if (outputFile == null) {
-      // In-memory FlutterProjectMetadata instances requires an output file to
-      // be passed or specified in the constructor.
-      throw const FileSystemException('No outputFile specified to write .metadata to. Initialize with a file or provide one when writing.');
-    }
+    outputFile = outputFile ?? _metadataFile;
     outputFile
       ..createSync(recursive: true)
-      ..writeAsStringSync(toString(), flush: true);
-  }
-
-  @override
-  String toString() {
-    return '''
+      ..writeAsStringSync('''
 # This file tracks properties of this Flutter project.
 # Used by Flutter tool to assess capabilities and perform upgrades etc.
 #
@@ -169,12 +161,13 @@ version:
   channel: $_versionChannel
 
 project_type: ${flutterProjectTypeToString(projectType)}
-${migrateConfig.getOutputFileString()}''';
+${migrateConfig.getOutputFileString()}''',
+    flush: true);
   }
 
   void populate({
     List<SupportedPlatform>? platforms,
-    required Directory projectDirectory,
+    Directory? projectDirectory,
     String? currentRevision,
     String? createRevision,
     bool create = true,
@@ -212,11 +205,11 @@ ${migrateConfig.getOutputFileString()}''';
 class MigrateConfig {
   MigrateConfig({
     Map<SupportedPlatform, MigratePlatformConfig>? platformConfigs,
-    this.unmanagedFiles = kDefaultUnmanagedFiles
+    this.unmanagedFiles = _kDefaultUnmanagedFiles
   }) : platformConfigs = platformConfigs ?? <SupportedPlatform, MigratePlatformConfig>{};
 
   /// A mapping of the files that are unmanaged by defult for each platform.
-  static const List<String> kDefaultUnmanagedFiles = <String>[
+  static const List<String> _kDefaultUnmanagedFiles = <String>[
     'lib/main.dart',
     'ios/Runner.xcodeproj/project.pbxproj',
   ];
@@ -229,20 +222,20 @@ class MigrateConfig {
   /// These files are typically user-owned files that should not be changed.
   List<String> unmanagedFiles;
 
-  bool get isEmpty => platformConfigs.isEmpty && (unmanagedFiles.isEmpty || unmanagedFiles == kDefaultUnmanagedFiles);
+  bool get isEmpty => platformConfigs.isEmpty && (unmanagedFiles.isEmpty || unmanagedFiles == _kDefaultUnmanagedFiles);
 
   /// Parses the project for all supported platforms and populates the [MigrateConfig]
   /// to reflect the project.
   void populate({
     List<SupportedPlatform>? platforms,
-    required Directory projectDirectory,
+    Directory? projectDirectory,
     String? currentRevision,
     String? createRevision,
     bool create = true,
     bool update = true,
     required Logger logger,
   }) {
-    final FlutterProject flutterProject = FlutterProject.fromDirectory(projectDirectory);
+    final FlutterProject flutterProject = projectDirectory == null ? FlutterProject.current() : FlutterProject.fromDirectory(projectDirectory);
     platforms ??= flutterProject.getSupportedPlatforms(includeRoot: true);
 
     for (final SupportedPlatform platform in platforms) {
@@ -252,7 +245,7 @@ class MigrateConfig {
         }
       } else {
         if (create) {
-          platformConfigs[platform] = MigratePlatformConfig(platform: platform, createRevision: createRevision, baseRevision: currentRevision);
+          platformConfigs[platform] = MigratePlatformConfig(createRevision: createRevision, baseRevision: currentRevision);
         }
       }
     }
@@ -297,11 +290,10 @@ migration:
                 'create_revision': String,
                 'base_revision': String,
               }, logger)) {
-            final SupportedPlatform platformValue = SupportedPlatform.values.firstWhere(
+            final SupportedPlatform platformString = SupportedPlatform.values.firstWhere(
               (SupportedPlatform val) => val.toString() == 'SupportedPlatform.${platformYamlMap['platform'] as String}'
             );
-            platformConfigs[platformValue] = MigratePlatformConfig(
-              platform: platformValue,
+            platformConfigs[platformString] = MigratePlatformConfig(
               createRevision: platformYamlMap['create_revision'] as String?,
               baseRevision: platformYamlMap['base_revision'] as String?,
             );
@@ -323,14 +315,7 @@ migration:
 
 /// Holds the revisions for a single platform for use by the flutter migrate command.
 class MigratePlatformConfig {
-  MigratePlatformConfig({
-    required this.platform,
-    this.createRevision,
-    this.baseRevision
-  });
-
-  /// The platform this config describes.
-  SupportedPlatform platform;
+  MigratePlatformConfig({this.createRevision, this.baseRevision});
 
   /// The Flutter SDK revision this platform was created by.
   ///
@@ -341,10 +326,4 @@ class MigratePlatformConfig {
   ///
   /// Null if the project was never migrated or the revision is unknown.
   String? baseRevision;
-
-  bool equals(MigratePlatformConfig other) {
-    return platform == other.platform &&
-           createRevision == other.createRevision &&
-           baseRevision == other.baseRevision;
-  }
 }

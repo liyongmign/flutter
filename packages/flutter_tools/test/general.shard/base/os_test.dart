@@ -219,7 +219,7 @@ void main() {
 
       final OperatingSystemUtils utils =
       createOSUtils(FakePlatform(operatingSystem: 'macos'));
-      expect(utils.hostPlatform, HostPlatform.darwin_arm64);
+      expect(utils.hostPlatform, HostPlatform.darwin_arm);
     });
 
     testWithoutContext('macOS 11 x86', () async {
@@ -335,7 +335,7 @@ void main() {
 
       final OperatingSystemUtils utils =
           createOSUtils(FakePlatform(operatingSystem: 'macos'));
-      expect(utils.name, 'product version build darwin-arm64');
+      expect(utils.name, 'product version build darwin-arm');
     });
 
     testWithoutContext('macOS ARM on Rosetta name', () async {
@@ -385,7 +385,7 @@ void main() {
 
       final OperatingSystemUtils utils =
       createOSUtils(FakePlatform(operatingSystem: 'macos'));
-      expect(utils.name, 'product version build darwin-arm64 (Rosetta)');
+      expect(utils.name, 'product version build darwin-arm (Rosetta)');
     });
 
     testWithoutContext('macOS x86 name', () async {

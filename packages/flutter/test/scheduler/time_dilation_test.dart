@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_test/flutter_test.dart' show expect, test;
+import 'package:flutter_test/flutter_test.dart' show test, expect;
 
 // This file should not use testWidgets, and should not instantiate the binding.
 

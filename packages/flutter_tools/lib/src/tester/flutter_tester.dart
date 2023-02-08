@@ -165,15 +165,14 @@ class FlutterTesterDevice extends Device {
       _artifacts.getArtifactPath(Artifact.flutterTester),
       '--run-forever',
       '--non-interactive',
-      if (debuggingOptions.enableDartProfiling)
-        '--enable-dart-profiling',
+      '--enable-dart-profiling',
       '--packages=${debuggingOptions.buildInfo.packagesPath}',
       '--flutter-assets-dir=${assetDirectory.path}',
       if (debuggingOptions.startPaused)
         '--start-paused',
       if (debuggingOptions.disableServiceAuthCodes)
         '--disable-service-auth-codes',
-      if (debuggingOptions.hostVmServicePort != null)
+      if (debuggingOptions.hasObservatoryPort)
         '--observatory-port=${debuggingOptions.hostVmServicePort}',
       applicationKernelFilePath,
     ];

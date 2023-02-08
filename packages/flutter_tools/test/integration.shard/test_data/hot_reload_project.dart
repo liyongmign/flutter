@@ -6,8 +6,6 @@ import '../test_utils.dart';
 import 'project.dart';
 
 class HotReloadProject extends Project {
-  HotReloadProject({super.indexHtml});
-
   @override
   final String pubspec = '''
   name: test

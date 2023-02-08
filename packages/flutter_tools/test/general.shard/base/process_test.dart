@@ -42,13 +42,13 @@ void main() {
       int i = 1;
       int? cleanup;
 
-      final ShutdownHooks shutdownHooks = ShutdownHooks();
+      final ShutdownHooks shutdownHooks = ShutdownHooks(logger: BufferLogger.test());
 
       shutdownHooks.addShutdownHook(() async {
         cleanup = i++;
       });
 
-      await shutdownHooks.runShutdownHooks(BufferLogger.test());
+      await shutdownHooks.runShutdownHooks();
 
       expect(cleanup, 1);
     });

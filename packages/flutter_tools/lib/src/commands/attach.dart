@@ -12,10 +12,6 @@ import '../base/common.dart';
 import '../base/context.dart';
 import '../base/file_system.dart';
 import '../base/io.dart';
-import '../base/logger.dart';
-import '../base/platform.dart';
-import '../base/signals.dart';
-import '../base/terminal.dart';
 import  '../build_info.dart';
 import '../commands/daemon.dart';
 import '../compile.dart';
@@ -23,6 +19,7 @@ import '../daemon.dart';
 import '../device.dart';
 import '../device_port_forwarder.dart';
 import '../fuchsia/fuchsia_device.dart';
+import '../globals.dart' as globals;
 import '../ios/devices.dart';
 import '../ios/simulators.dart';
 import '../macos/macos_ipad_device.dart';
@@ -61,26 +58,7 @@ import '../vmservice.dart';
 /// To attach to a flutter mod running on a fuchsia device, `--module` must
 /// also be provided.
 class AttachCommand extends FlutterCommand {
-  AttachCommand({
-    bool verboseHelp = false,
-    HotRunnerFactory? hotRunnerFactory,
-    required Artifacts? artifacts,
-    required Stdio stdio,
-    required Logger logger,
-    required Terminal terminal,
-    required Signals signals,
-    required Platform platform,
-    required ProcessInfo processInfo,
-    required FileSystem fileSystem,
-  }): _artifacts = artifacts,
-      _hotRunnerFactory = hotRunnerFactory ?? HotRunnerFactory(),
-      _stdio = stdio,
-      _logger = logger,
-      _terminal = terminal,
-      _signals = signals,
-      _platform = platform,
-      _processInfo = processInfo,
-      _fileSystem = fileSystem {
+  AttachCommand({bool verboseHelp = false, this.hotRunnerFactory}) {
     addBuildModeFlags(verboseHelp: verboseHelp, defaultToRelease: false, excludeRelease: true);
     usesTargetOption();
     usesPortOptions(verboseHelp: verboseHelp);
@@ -139,17 +117,10 @@ class AttachCommand extends FlutterCommand {
     addDdsOptions(verboseHelp: verboseHelp);
     addDevToolsOptions(verboseHelp: verboseHelp);
     usesDeviceTimeoutOption();
+    hotRunnerFactory ??= HotRunnerFactory();
   }
 
-  final HotRunnerFactory _hotRunnerFactory;
-  final Artifacts? _artifacts;
-  final Stdio _stdio;
-  final Logger _logger;
-  final Terminal _terminal;
-  final Signals _signals;
-  final Platform _platform;
-  final ProcessInfo _processInfo;
-  final FileSystem _fileSystem;
+  HotRunnerFactory? hotRunnerFactory;
 
   @override
   final String name = 'attach';
@@ -245,19 +216,12 @@ known, it can be explicitly provided to attach via the command-line, e.g.
     await _validateArguments();
 
     final Device? device = await findTargetDevice();
-<<<<<<< HEAD
-
-    if (device == null) {
-      throwToolExit('Did not find any valid target devices.');
-    }
-=======
->>>>>>> 7048ed95a5ad3e43d697e0c397464193991fc230
 
     if (device == null) {
       throwToolExit('Did not find any valid target devices.');
     }
 
-    final Artifacts? overrideArtifacts = device.artifactOverrides ?? _artifacts;
+    final Artifacts? overrideArtifacts = device.artifactOverrides ?? globals.artifacts;
     await context.run<void>(
       body: () => _attachToDevice(device),
       overrides: <Type, Generator>{
@@ -274,12 +238,12 @@ known, it can be explicitly provided to attach via the command-line, e.g.
     final Daemon? daemon = boolArgDeprecated('machine')
       ? Daemon(
           DaemonConnection(
-            daemonStreams: DaemonStreams.fromStdio(_stdio, logger: _logger),
-            logger: _logger,
+            daemonStreams: DaemonStreams.fromStdio(globals.stdio, logger: globals.logger),
+            logger: globals.logger,
           ),
-          notifyingLogger: (_logger is NotifyingLogger)
-            ? _logger as NotifyingLogger
-            : NotifyingLogger(verbose: _logger.isVerbose, parent: _logger),
+          notifyingLogger: (globals.logger is NotifyingLogger)
+            ? globals.logger as NotifyingLogger
+            : NotifyingLogger(verbose: globals.logger.isVerbose, parent: globals.logger),
           logToStdout: true,
         )
       : null;
@@ -332,9 +296,9 @@ known, it can be explicitly provided to attach via the command-line, e.g.
             ipv6: ipv6!,
             devicePort: deviceVmservicePort,
             hostPort: hostVmservicePort,
-            logger: _logger,
+            logger: globals.logger,
           );
-        _logger.printStatus('Waiting for a connection from Flutter on ${device.name}...');
+        globals.printStatus('Waiting for a connection from Flutter on ${device.name}...');
         observatoryUri = observatoryDiscovery.uris;
         // Determine ipv6 status from the scanned logs.
         usesIpv6 = observatoryDiscovery.ipv6;
@@ -352,7 +316,7 @@ known, it can be explicitly provided to attach via the command-line, e.g.
         ).asBroadcastStream();
     }
 
-    _terminal.usesTerminalUi = daemon == null;
+    globals.terminal.usesTerminalUi = daemon == null;
 
     try {
       int? result;
@@ -379,9 +343,9 @@ known, it can be explicitly provided to attach via the command-line, e.g.
             device,
             null,
             true,
-            _fileSystem.currentDirectory,
+            globals.fs.currentDirectory,
             LaunchMode.attach,
-            _logger as AppRunLogger,
+            globals.logger as AppRunLogger,
           );
         } on Exception catch (error) {
           throwToolExit(error.toString());
@@ -402,10 +366,10 @@ known, it can be explicitly provided to attach via the command-line, e.g.
         unawaited(onAppStart.future.whenComplete(() {
           terminalHandler = TerminalHandler(
             runner,
-            logger: _logger,
-            terminal: _terminal,
-            signals: _signals,
-            processInfo: _processInfo,
+            logger: globals.logger,
+            terminal: globals.terminal,
+            signals: globals.signals,
+            processInfo: globals.processInfo,
             reportReady: boolArgDeprecated('report-ready'),
             pidFile: stringArgDeprecated('pid-file'),
           )
@@ -425,7 +389,7 @@ known, it can be explicitly provided to attach via the command-line, e.g.
         if (runner.exited || !runner.isWaitingForObservatory) {
           break;
         }
-        _logger.printStatus('Waiting for a new connection from Flutter on ${device.name}...');
+        globals.printStatus('Waiting for a new connection from Flutter on ${device.name}...');
       }
     } on RPCError catch (err) {
       if (err.code == RPCErrorCodes.kServiceDisappeared) {
@@ -458,7 +422,7 @@ known, it can be explicitly provided to attach via the command-line, e.g.
       targetModel: TargetModel(stringArgDeprecated('target-model')!),
       buildInfo: buildInfo,
       userIdentifier: userIdentifier,
-      platform: _platform,
+      platform: globals.platform,
     );
     flutterDevice.observatoryUris = observatoryUris;
     final List<FlutterDevice> flutterDevices =  <FlutterDevice>[flutterDevice];
@@ -470,7 +434,7 @@ known, it can be explicitly provided to attach via the command-line, e.g.
     );
 
     return buildInfo.isDebug
-      ? _hotRunnerFactory.build(
+      ? hotRunnerFactory!.build(
           flutterDevices,
           target: targetFile,
           debuggingOptions: debuggingOptions,

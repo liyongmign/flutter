@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final TestWidgetsFlutterBinding binding = TestWidgetsFlutterBinding.ensureInitialized();
-  const double kOpenScale = 1.15;
+  const double kOpenScale = 1.1;
 
   Widget getChild() {
     return Container(
@@ -18,10 +18,6 @@ void main() {
       height: 100.0,
       color: CupertinoColors.activeOrange,
     );
-  }
-
-  Widget getBuilder(BuildContext context, Animation<double> animation) {
-    return getChild();
   }
 
   Widget getContextMenu({
@@ -49,35 +45,10 @@ void main() {
     );
   }
 
-  Widget getBuilderContextMenu({
-    Alignment alignment = Alignment.center,
-    Size screenSize = const Size(800.0, 600.0),
-    CupertinoContextMenuBuilder? builder,
-  }) {
-    return CupertinoApp(
-      home: CupertinoPageScaffold(
-        child: MediaQuery(
-          data: MediaQueryData(size: screenSize),
-          child: Align(
-            alignment: alignment,
-            child: CupertinoContextMenu.builder(
-              actions: <CupertinoContextMenuAction>[
-                CupertinoContextMenuAction(
-                  child: Text('CupertinoContextMenuAction $alignment'),
-                ),
-              ],
-              builder: builder ?? getBuilder,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   // Finds the child widget that is rendered inside of _DecoyChild.
   Finder findDecoyChild(Widget child) {
     return find.descendant(
-      of: find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'),
+      of: find.byType(ShaderMask),
       matching: find.byWidget(child),
     );
   }
@@ -101,20 +72,6 @@ void main() {
     return find.descendant(
       of: findStatic(),
       matching: find.byType(DecoratedBox),
-    );
-  }
-
-  Finder findFittedBox() {
-    return find.descendant(
-      of: findStatic(),
-      matching: find.byType(FittedBox),
-    );
-  }
-
-  Finder findStaticDefaultPreview() {
-    return find.descendant(
-      of: findFittedBox(),
-      matching: find.byType(ClipRRect),
     );
   }
 
@@ -144,7 +101,7 @@ void main() {
       await tester.pumpWidget(getContextMenu(child: child));
       expect(find.byWidget(child), findsOneWidget);
       final Rect childRect = tester.getRect(find.byWidget(child));
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsNothing);
+      expect(find.byType(ShaderMask), findsNothing);
 
       // Start a press on the child.
       final TestGesture gesture = await tester.startGesture(childRect.center);
@@ -155,15 +112,15 @@ void main() {
       Rect decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, equals(decoyChildRect));
 
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsOneWidget);
+      expect(find.byType(ShaderMask), findsOneWidget);
 
       // After a small delay, the _DecoyChild has begun to animate.
-      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 100));
       decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, isNot(equals(decoyChildRect)));
 
       // Eventually the decoy fully scales by _kOpenSize.
-      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 500));
       decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, isNot(equals(decoyChildRect)));
       expect(decoyChildRect.width, childRect.width * kOpenScale);
@@ -209,7 +166,7 @@ void main() {
       ));
       expect(find.byWidget(child), findsOneWidget);
       final Rect childRect = tester.getRect(find.byWidget(child));
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsNothing);
+      expect(find.byType(ShaderMask), findsNothing);
 
       // Start a press on the child.
       final TestGesture gesture = await tester.startGesture(childRect.center);
@@ -220,102 +177,24 @@ void main() {
       Rect decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, equals(decoyChildRect));
 
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsOneWidget);
+      expect(find.byType(ShaderMask), findsOneWidget);
 
       // After a small delay, the _DecoyChild has begun to animate.
-      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 100));
       decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, isNot(equals(decoyChildRect)));
 
       // Eventually the decoy fully scales by _kOpenSize.
-      await tester.pump(const Duration(milliseconds: 800));
-      decoyChildRect = tester.getRect(findDecoyChild(child));
-      expect(childRect, isNot(equals(decoyChildRect)));
-      expect(decoyChildRect.width, childRect.width * kOpenScale);
-
-      // Then the CupertinoContextMenu opens.
-      await tester.pumpAndSettle();
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(findStatic(), findsOneWidget);
-    });
-
-    testWidgets('CupertinoContextMenu with a basic builder opens and closes the same as when providing a child', (WidgetTester tester) async {
-      final Widget child = getChild();
-      await tester.pumpWidget(getBuilderContextMenu(builder: (BuildContext context, Animation<double> animation) {
-        return child;
-      }));
-      expect(find.byWidget(child), findsOneWidget);
-      final Rect childRect = tester.getRect(find.byWidget(child));
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsNothing);
-
-      // Start a press on the child.
-      final TestGesture gesture = await tester.startGesture(childRect.center);
-      await tester.pump();
-
-      // The _DecoyChild is showing directly on top of the child.
-      expect(findDecoyChild(child), findsOneWidget);
-      Rect decoyChildRect = tester.getRect(findDecoyChild(child));
-      expect(childRect, equals(decoyChildRect));
-
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsOneWidget);
-
-      // After a small delay, the _DecoyChild has begun to animate.
-      await tester.pump(const Duration(milliseconds: 400));
-      decoyChildRect = tester.getRect(findDecoyChild(child));
-      expect(childRect, isNot(equals(decoyChildRect)));
-
-      // Eventually the decoy fully scales by _kOpenSize.
-      await tester.pump(const Duration(milliseconds: 800));
-      decoyChildRect = tester.getRect(findDecoyChild(child));
-      expect(childRect, isNot(equals(decoyChildRect)));
-      expect(decoyChildRect.width, childRect.width * kOpenScale);
-
-      // Then the CupertinoContextMenu opens.
-      await tester.pumpAndSettle();
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(findStatic(), findsOneWidget);
-    });
-
-    testWidgets('CupertinoContextMenu with a builder can change the animation', (WidgetTester tester) async {
-      await tester.pumpWidget(getBuilderContextMenu(builder: (BuildContext context, Animation<double> animation) {
-        return Container(
-          width: 300.0,
-          height: 100.0,
-          decoration: BoxDecoration(
-            color: CupertinoColors.activeOrange,
-            borderRadius: BorderRadius.circular(25.0 * animation.value)
-          ),
-        );
-      }));
-
-      final Widget child = find.descendant(of: find.byType(TickerMode), matching: find.byType(Container)).evaluate().single.widget;
-      final Rect childRect = tester.getRect(find.byWidget(child));
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsNothing);
-
-      // Start a press on the child.
-      await tester.startGesture(childRect.center);
-      await tester.pump();
-
-      Finder findBuilderDecoyChild() {
-        return find.descendant(
-          of: find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'),
-          matching: find.byType(Container),
-        );
-      }
-
-      final Container decoyContainer = tester.firstElement(findBuilderDecoyChild()).widget as Container;
-      final BoxDecoration? decoyDecoration = decoyContainer.decoration as BoxDecoration?;
-      expect(decoyDecoration?.borderRadius, equals(BorderRadius.circular(0)));
-
-      expect(findBuilderDecoyChild(), findsOneWidget);
-
-      // After a small delay, the _DecoyChild has begun to animate with a different border radius.
       await tester.pump(const Duration(milliseconds: 500));
-      final Container decoyLaterContainer = tester.firstElement(findBuilderDecoyChild()).widget as Container;
-      final BoxDecoration? decoyLaterDecoration = decoyLaterContainer.decoration as BoxDecoration?;
-      expect(decoyLaterDecoration?.borderRadius, isNot(equals(BorderRadius.circular(0))));
+      decoyChildRect = tester.getRect(findDecoyChild(child));
+      expect(childRect, isNot(equals(decoyChildRect)));
+      expect(decoyChildRect.width, childRect.width * kOpenScale);
+
+      // Then the CupertinoContextMenu opens.
+      await tester.pumpAndSettle();
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(findStatic(), findsOneWidget);
     });
 
     testWidgets('Hovering over Cupertino context menu updates cursor to clickable on Web', (WidgetTester tester) async {
@@ -374,7 +253,7 @@ void main() {
       ));
       expect(find.byWidget(child), findsOneWidget);
       final Rect childRect = tester.getRect(find.byWidget(child));
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsNothing);
+      expect(find.byType(ShaderMask), findsNothing);
 
       // Start a press on the child.
       final TestGesture gesture = await tester.startGesture(childRect.center);
@@ -385,15 +264,15 @@ void main() {
       Rect decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, equals(decoyChildRect));
 
-      expect(find.byWidgetPredicate((Widget w) => '${w.runtimeType}' == '_DecoyChild'), findsOneWidget);
+      expect(find.byType(ShaderMask), findsOneWidget);
 
       // After a small delay, the _DecoyChild has begun to animate.
-      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 100));
       decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, isNot(equals(decoyChildRect)));
 
       // Eventually the decoy fully scales by _kOpenSize.
-      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 500));
       decoyChildRect = tester.getRect(findDecoyChild(child));
       expect(childRect, isNot(equals(decoyChildRect)));
       expect(decoyChildRect.width, childRect.width * kOpenScale);
@@ -564,24 +443,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(findStatic(), findsOneWidget);
       expect(find.byType(BackdropFilter), findsOneWidget);
-    });
-
-    testWidgets('Preview widget should have the correct border radius', (WidgetTester tester) async {
-      final Widget child = getChild();
-      await tester.pumpWidget(getContextMenu(child: child));
-
-      // Open the CupertinoContextMenu.
-      final Rect childRect = tester.getRect(find.byWidget(child));
-      final TestGesture gesture = await tester.startGesture(childRect.center);
-      await tester.pumpAndSettle();
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(findStatic(), findsOneWidget);
-
-      // Check border radius.
-      expect(findStaticDefaultPreview(), findsOneWidget);
-      final ClipRRect previewWidget = tester.firstWidget(findStaticDefaultPreview()) as ClipRRect;
-      expect(previewWidget.borderRadius, equals(BorderRadius.circular(12.0)));
     });
   });
 

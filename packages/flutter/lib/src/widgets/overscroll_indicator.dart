@@ -6,7 +6,7 @@ import 'dart:async' show Timer;
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/physics.dart' show Tolerance, nearEqual;
+import 'package:flutter/physics.dart' show nearEqual, Tolerance;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -744,7 +744,7 @@ class _StretchingOverscrollIndicatorState extends State<StretchingOverscrollIndi
     return false;
   }
 
-  AlignmentGeometry _getAlignmentForAxisDirection(double overscroll) {
+  AlignmentDirectional _getAlignmentForAxisDirection(double overscroll) {
     // Accounts for reversed scrollables by checking the AxisDirection
     switch (widget.axisDirection) {
       case AxisDirection.up:
@@ -753,16 +753,16 @@ class _StretchingOverscrollIndicatorState extends State<StretchingOverscrollIndi
             : AlignmentDirectional.bottomCenter;
       case AxisDirection.right:
         return overscroll > 0
-            ? Alignment.centerRight
-            : Alignment.centerLeft;
+            ? AlignmentDirectional.centerEnd
+            : AlignmentDirectional.centerStart;
       case AxisDirection.down:
         return overscroll > 0
             ? AlignmentDirectional.bottomCenter
             : AlignmentDirectional.topCenter;
       case AxisDirection.left:
         return overscroll > 0
-            ? Alignment.centerLeft
-            : Alignment.centerRight;
+            ? AlignmentDirectional.centerStart
+            : AlignmentDirectional.centerEnd;
     }
   }
 
@@ -796,7 +796,7 @@ class _StretchingOverscrollIndicatorState extends State<StretchingOverscrollIndi
               break;
           }
 
-          final AlignmentGeometry alignment = _getAlignmentForAxisDirection(
+          final AlignmentDirectional alignment = _getAlignmentForAxisDirection(
             _lastOverscrollNotification?.overscroll ?? 0.0
           );
 

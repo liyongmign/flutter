@@ -34,21 +34,21 @@
 import 'dart:async';
 import 'dart:io' as io
   show
-    IOSink,
+    exit,
     InternetAddress,
     InternetAddressType,
+    IOSink,
     NetworkInterface,
+    pid,
     Process,
     ProcessInfo,
     ProcessSignal,
+    stderr,
+    stdin,
     Stdin,
     StdinException,
     Stdout,
     StdoutException,
-    exit,
-    pid,
-    stderr,
-    stdin,
     stdout;
 
 import 'package:file/file.dart';
@@ -63,8 +63,10 @@ export 'dart:io'
         BytesBuilder,
         CompressionOptions,
         // Directory,         NO! Use `file_system.dart`
+        exitCode,
         // File,              NO! Use `file_system.dart`
         // FileSystemEntity,  NO! Use `file_system.dart`
+        gzip,
         GZipCodec,
         HandshakeException,
         HttpClient,
@@ -77,13 +79,14 @@ export 'dart:io'
         HttpResponse,
         HttpServer,
         HttpStatus,
-        IOException,
-        IOSink,
         InternetAddress,
         InternetAddressType,
+        IOException,
+        IOSink,
         // Link              NO! Use `file_system.dart`
         // NetworkInterface  NO! Use `io.dart`
         OSError,
+        pid,
         // Platform          NO! use `platform.dart`
         Process,
         ProcessException,
@@ -94,22 +97,19 @@ export 'dart:io'
         // RandomAccessFile  NO! Use `file_system.dart`
         ServerSocket,
         SignalException,
-        Socket,
-        SocketException,
+        // stderr,           NO! Use `io.dart`
+        // stdin,            NO! Use `io.dart`
         Stdin,
         StdinException,
+        // stdout,           NO! Use `io.dart`
         Stdout,
+        Socket,
+        SocketException,
+        systemEncoding,
         WebSocket,
         WebSocketException,
         WebSocketTransformer,
-        ZLibEncoder,
-        exitCode,
-        gzip,
-        pid,
-        // stderr,           NO! Use `io.dart`
-        // stdin,            NO! Use `io.dart`
-        // stdout,           NO! Use `io.dart`
-        systemEncoding;
+        ZLibEncoder;
 
 /// Exits the process with the given [exitCode].
 typedef ExitFunction = void Function(int exitCode);
@@ -267,6 +267,7 @@ class Stdio {
   }
   io.Stdout? _stdout;
 
+  @visibleForTesting
   io.IOSink get stderr {
     if (_stderr != null) {
       return _stderr!;

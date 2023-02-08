@@ -159,9 +159,8 @@ class _Tester {
     final Stopwatch stopwatch = Stopwatch()..start();
     await gesture.moveTo(location, timeStamp: currentTime);
     stopwatch.stop();
-    if (onDataPoint != null) {
+    if (onDataPoint != null)
       onDataPoint(stopwatch.elapsed);
-    }
     await _UntilNextFrame.wait();
   }
 

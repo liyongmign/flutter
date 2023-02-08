@@ -37,9 +37,9 @@ class InkHighlight extends InteractiveInkFeature {
   ///
   /// When the highlight is removed, `onRemoved` will be called.
   InkHighlight({
-    required super.controller,
+    required MaterialInkController controller,
     required super.referenceBox,
-    required super.color,
+    required Color color,
     required TextDirection textDirection,
     BoxShape shape = BoxShape.rectangle,
     double? radius,
@@ -57,7 +57,8 @@ class InkHighlight extends InteractiveInkFeature {
        _borderRadius = borderRadius ?? BorderRadius.zero,
        _customBorder = customBorder,
        _textDirection = textDirection,
-       _rectCallback = rectCallback {
+       _rectCallback = rectCallback,
+       super(controller: controller, color: color) {
     _alphaController = AnimationController(duration: fadeDuration, vsync: controller.vsync)
       ..addListener(controller.markNeedsPaint)
       ..addStatusListener(_handleAlphaStatusChanged)

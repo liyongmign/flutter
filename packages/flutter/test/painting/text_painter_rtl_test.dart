@@ -32,7 +32,6 @@ void main() {
       painter.getWordBoundary(const TextPosition(offset: 9)),
       const TextRange(start: 8, end: 11),
     );
-    painter.dispose();
   });
 
   test('TextPainter - bidi overrides in LTR', () {
@@ -165,7 +164,6 @@ void main() {
       // The list currently has one extra bogus entry (the last entry, for the
       // trailing U+202C PDF, should be empty but is one-pixel-wide instead).
     ], skip: skipExpectsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - bidi overrides in RTL', () {
@@ -257,7 +255,6 @@ void main() {
       // The list is currently in the wrong order (so selection boxes will paint in the wrong order).
       skip: skipExpectsWithKnownBugs, // https://github.com/flutter/flutter/issues/87536
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - forced line-wrapping with bidi', () {
@@ -325,7 +322,6 @@ void main() {
         TextBox.fromLTRBD(0.0, 10.0, 10.0, 20.0, TextDirection.rtl), // Alef
       ],
     );
-    painter.dispose();
   }, skip: isBrowser); // https://github.com/flutter/flutter/issues/32238
 
   test('TextPainter - line wrap mid-word', () {
@@ -360,7 +356,6 @@ void main() {
       // horizontal offsets are one pixel off in places; vertical offsets are good
       skip: skipExpectsWithKnownBugs, // https://github.com/flutter/flutter/issues/87536
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - line wrap mid-word, bidi - LTR base', () {
@@ -417,7 +412,6 @@ void main() {
       <TextBox>[TextBox.fromLTRBD(70.0, 28.0, 80.0, 38.0, TextDirection.ltr)],
       <TextBox>[TextBox.fromLTRBD(80.0, 28.0, 90.0, 38.0, TextDirection.ltr)],
     ]);
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - line wrap mid-word, bidi - RTL base', () {
@@ -453,7 +447,6 @@ void main() {
       // The list is currently in the wrong order (so selection boxes will paint in the wrong order).
       skip: skipExpectsWithKnownBugs, // https://github.com/flutter/flutter/issues/87536
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - multiple levels', () {
@@ -485,7 +478,6 @@ void main() {
       // Also currently there's an extraneous box at the start of the list.
       skip: skipExpectsWithKnownBugs, // https://github.com/flutter/flutter/issues/87536
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - getPositionForOffset - RTL in LTR', () {
@@ -569,7 +561,6 @@ void main() {
       painter.getPositionForOffset(const Offset(100.0, 5.0)).toString(),
       const TextPosition(offset: 9, affinity: TextAffinity.upstream).toString(),
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - getPositionForOffset - LTR in RTL', () {
@@ -615,7 +606,6 @@ void main() {
       painter.getPositionForOffset(const Offset(62.0, 5.0)).toString(),
       const TextPosition(offset: 3, affinity: TextAffinity.upstream).toString(),
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - Spaces', () {
@@ -677,7 +667,6 @@ void main() {
       // Horizontal offsets are currently one pixel off in places; vertical offsets are good.
       skip: skipExpectsWithKnownBugs, // https://github.com/flutter/flutter/issues/87536
     );
-    painter.dispose();
   }, skip: skipTestsWithKnownBugs); // https://github.com/flutter/flutter/issues/87536
 
   test('TextPainter - empty text baseline', () {
@@ -689,7 +678,6 @@ void main() {
     );
     painter.layout();
     expect(painter.computeDistanceToActualBaseline(TextBaseline.alphabetic), moreOrLessEquals(80.0, epsilon: 0.001));
-    painter.dispose();
   });
 }
 

@@ -32,36 +32,18 @@ class BottomAppBarTheme with Diagnosticable {
     this.color,
     this.elevation,
     this.shape,
-    this.height,
-    this.surfaceTintColor,
-    this.padding,
   });
 
-  /// Overrides the default value for [BottomAppBar.color].
+  /// Default value for [BottomAppBar.color].
   ///
   /// If null, [BottomAppBar] uses [ThemeData.bottomAppBarColor].
   final Color? color;
 
-  /// Overrides the default value for [BottomAppBar.elevation].
+  /// Default value for [BottomAppBar.elevation].
   final double? elevation;
 
-  /// Overrides the default value for [BottomAppBar.shape].
+  /// Default value for [BottomAppBar.shape].
   final NotchedShape? shape;
-
-  /// Overrides the default value for [BottomAppBar.height].
-  ///
-  /// If null, [BottomAppBar] height will be the minimum on the non material 3.
-  final double? height;
-
-  /// Overrides the default value for [BottomAppBar.surfaceTintColor].
-  ///
-  /// If null, [BottomAppBar] will not display an overlay color.
-  ///
-  /// See [Material.surfaceTintColor] for more details.
-  final Color? surfaceTintColor;
-
-  /// Overrides the default value for [BottomAppBar.padding].
-  final EdgeInsetsGeometry? padding;
 
   /// Creates a copy of this object but with the given fields replaced with the
   /// new values.
@@ -69,17 +51,11 @@ class BottomAppBarTheme with Diagnosticable {
     Color? color,
     double? elevation,
     NotchedShape? shape,
-    double? height,
-    Color? surfaceTintColor,
-    EdgeInsetsGeometry? padding,
   }) {
     return BottomAppBarTheme(
       color: color ?? this.color,
       elevation: elevation ?? this.elevation,
       shape: shape ?? this.shape,
-      height: height ?? this.height,
-      surfaceTintColor: surfaceTintColor ?? this.surfaceTintColor,
-      padding: padding ?? this.padding,
     );
   }
 
@@ -99,9 +75,6 @@ class BottomAppBarTheme with Diagnosticable {
       color: Color.lerp(a?.color, b?.color, t),
       elevation: lerpDouble(a?.elevation, b?.elevation, t),
       shape: t < 0.5 ? a?.shape : b?.shape,
-      height: lerpDouble(a?.height, b?.height, t),
-      surfaceTintColor: Color.lerp(a?.surfaceTintColor, b?.surfaceTintColor, t),
-      padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
     );
   }
 
@@ -110,9 +83,6 @@ class BottomAppBarTheme with Diagnosticable {
     color,
     elevation,
     shape,
-    height,
-    surfaceTintColor,
-    padding,
   );
 
   @override
@@ -126,10 +96,7 @@ class BottomAppBarTheme with Diagnosticable {
     return other is BottomAppBarTheme
         && other.color == color
         && other.elevation == elevation
-        && other.shape == shape
-        && other.height == height
-        && other.surfaceTintColor == surfaceTintColor
-        && other.padding == padding;
+        && other.shape == shape;
   }
 
   @override
@@ -138,8 +105,5 @@ class BottomAppBarTheme with Diagnosticable {
     properties.add(ColorProperty('color', color, defaultValue: null));
     properties.add(DiagnosticsProperty<double>('elevation', elevation, defaultValue: null));
     properties.add(DiagnosticsProperty<NotchedShape>('shape', shape, defaultValue: null));
-    properties.add(DiagnosticsProperty<double>('height', height, defaultValue: null));
-    properties.add(ColorProperty('surfaceTintColor', surfaceTintColor, defaultValue: null));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding, defaultValue: null));
   }
 }

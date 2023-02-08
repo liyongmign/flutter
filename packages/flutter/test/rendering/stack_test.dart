@@ -63,39 +63,30 @@ void main() {
     expect(stack.size.height, equals(100.0));
   });
 
-  test('Stack has correct clipBehavior', () {
+  test('Stack respects clipBehavior', () {
     const BoxConstraints viewport = BoxConstraints(maxHeight: 100.0, maxWidth: 100.0);
+    final TestClipPaintingContext context = TestClipPaintingContext();
 
-    for (final Clip? clip in <Clip?>[null, ...Clip.values]) {
-      final TestClipPaintingContext context = TestClipPaintingContext();
+    // By default, clipBehavior should be Clip.none
+    final RenderStack defaultStack = RenderStack(textDirection: TextDirection.ltr, children: <RenderBox>[box200x200]);
+    layout(defaultStack, constraints: viewport, phase: EnginePhase.composite, onErrors: expectOverflowedErrors);
+    defaultStack.paint(context, Offset.zero);
+    expect(context.clipBehavior, equals(Clip.none));
+
+    for (final Clip clip in Clip.values) {
       final RenderBox child = box200x200;
-      final RenderStack stack;
-      switch(clip){
-        case Clip.none:
-        case Clip.hardEdge:
-        case Clip.antiAlias:
-        case Clip.antiAliasWithSaveLayer:
-          stack = RenderStack(
-            textDirection: TextDirection.ltr,
-            children: <RenderBox>[child],
-            clipBehavior: clip!,
-          );
-          break;
-        case null:
-          stack = RenderStack(
-            textDirection: TextDirection.ltr,
-            children: <RenderBox>[child],
-          );
-          break;
-      }
+      final RenderStack stack = RenderStack(
+          textDirection: TextDirection.ltr,
+          children: <RenderBox>[child],
+          clipBehavior: clip,
+      );
       { // Make sure that the child is positioned so the stack will consider it as overflowed.
         final StackParentData parentData = child.parentData! as StackParentData;
         parentData.left = parentData.right = 0;
       }
-      layout(stack, constraints: viewport, phase: EnginePhase.composite, onErrors: expectNoFlutterErrors);
+      layout(stack, constraints: viewport, phase: EnginePhase.composite, onErrors: expectOverflowedErrors);
       context.paintChild(stack, Offset.zero);
-      // By default, clipBehavior should be Clip.hardEdge
-      expect(context.clipBehavior, equals(clip ?? Clip.hardEdge), reason: 'for $clip');
+      expect(context.clipBehavior, equals(clip));
     }
   });
 
@@ -153,34 +144,6 @@ void main() {
 
       expect(diagnosticNodes[2].name, 'child 3');
       expect(diagnosticNodes[2].style, DiagnosticsTreeStyle.sparse);
-    });
-
-    test('debugDescribeChildren handles a null index', () {
-      final RenderBox child1 = RenderConstrainedBox(
-        additionalConstraints: BoxConstraints.tight(const Size(100.0, 100.0)),
-      );
-      final RenderBox child2 = RenderConstrainedBox(
-        additionalConstraints: BoxConstraints.tight(const Size(100.0, 100.0)),
-      );
-      final RenderBox child3 = RenderConstrainedBox(
-        additionalConstraints: BoxConstraints.tight(const Size(100.0, 100.0)),
-      );
-
-      final RenderBox stack = RenderIndexedStack(
-        index: null,
-        children: <RenderBox>[child1, child2, child3],
-      );
-
-      final List<DiagnosticsNode> diagnosticNodes = stack.debugDescribeChildren();
-
-      expect(diagnosticNodes[0].name, 'child 1');
-      expect(diagnosticNodes[0].style, DiagnosticsTreeStyle.offstage);
-
-      expect(diagnosticNodes[1].name, 'child 2');
-      expect(diagnosticNodes[1].style, DiagnosticsTreeStyle.offstage);
-
-      expect(diagnosticNodes[2].name, 'child 3');
-      expect(diagnosticNodes[2].style, DiagnosticsTreeStyle.offstage);
     });
   });
 

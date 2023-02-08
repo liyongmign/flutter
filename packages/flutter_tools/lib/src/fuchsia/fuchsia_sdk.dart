@@ -31,7 +31,11 @@ class FuchsiaSdk {
   late final FuchsiaKernelCompiler fuchsiaKernelCompiler = FuchsiaKernelCompiler();
 
   /// Interface to the 'ffx' tool.
-  late final FuchsiaFfx fuchsiaFfx = FuchsiaFfx();
+  late final FuchsiaFfx fuchsiaFfx = FuchsiaFfx(
+    fuchsiaArtifacts: globals.fuchsiaArtifacts,
+    logger: globals.logger,
+    processManager: globals.processManager,
+  );
 
   /// Returns any attached devices is a newline-denominated String.
   ///

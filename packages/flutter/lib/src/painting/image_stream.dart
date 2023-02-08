@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' as ui show Codec, FrameInfo, Image;
+import 'dart:ui' as ui show Image, Codec, FrameInfo;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
@@ -62,11 +62,9 @@ class ImageInfo {
   /// {@tool snippet}
   ///
   /// The following sample shows how to appropriately check whether the
-  /// [ImageInfo] reference refers to new image data or not (in this case in a
-  /// setter).
+  /// [ImageInfo] reference refers to new image data or not.
   ///
   /// ```dart
-  /// ImageInfo? get imageInfo => _imageInfo;
   /// ImageInfo? _imageInfo;
   /// set imageInfo (ImageInfo? value) {
   ///   // If the image reference is exactly the same, do nothing.
@@ -80,12 +78,9 @@ class ImageInfo {
   ///     value.dispose();
   ///     return;
   ///   }
-  ///   // It is a new image. Dispose of the old one and take a reference
-  ///   // to the new one.
   ///   _imageInfo?.dispose();
   ///   _imageInfo = value;
-  ///   // Perform work to determine size, paint the image, etc.
-  ///   // ...
+  ///   // Perform work to determine size, or paint the image.
   /// }
   /// ```
   /// {@end-tool}

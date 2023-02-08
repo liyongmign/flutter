@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:flutter_tools/src/base/file_system.dart';
 import 'package:flutter_tools/src/base/io.dart';
 import 'package:flutter_tools/src/base/platform.dart';
@@ -21,10 +23,10 @@ import '../../src/test_flutter_command_runner.dart';
 
 void main() {
   group('UpgradeCommandRunner', () {
-    late FakeUpgradeCommandRunner fakeCommandRunner;
-    late UpgradeCommandRunner realCommandRunner;
-    late FakeProcessManager processManager;
-    late FakePlatform fakePlatform;
+    FakeUpgradeCommandRunner fakeCommandRunner;
+    UpgradeCommandRunner realCommandRunner;
+    FakeProcessManager processManager;
+    FakePlatform fakePlatform;
     const GitTagVersion gitTagVersion = GitTagVersion(
       x: 1,
       y: 2,
@@ -347,7 +349,7 @@ void main() {
       });
 
       testUsingContext('does not throw on unknown tag, official branch, force', () async {
-        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: '1234');
+        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: null);
         final FakeFlutterVersion flutterVersion = FakeFlutterVersion(channel: 'beta');
 
         final Future<FlutterCommandResult> result = fakeCommandRunner.runCommand(
@@ -367,7 +369,7 @@ void main() {
 
       testUsingContext('does not throw tool exit with uncommitted changes and force', () async {
         final FakeFlutterVersion flutterVersion = FakeFlutterVersion(channel: 'beta');
-        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: '1234');
+        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: null);
         fakeCommandRunner.willHaveUncommittedChanges = true;
 
         final Future<FlutterCommandResult> result = fakeCommandRunner.runCommand(
@@ -387,7 +389,7 @@ void main() {
 
       testUsingContext("Doesn't throw on known tag, beta branch, no force", () async {
         final FakeFlutterVersion flutterVersion = FakeFlutterVersion(channel: 'beta');
-        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: '1234');
+        fakeCommandRunner.remoteVersion = FakeFlutterVersion(frameworkRevision: null);
 
         final Future<FlutterCommandResult> result = fakeCommandRunner.runCommand(
           force: false,
@@ -405,9 +407,9 @@ void main() {
       });
 
       group('full command', () {
-        late FakeProcessManager fakeProcessManager;
-        late Directory tempDir;
-        late File flutterToolState;
+        FakeProcessManager fakeProcessManager;
+        Directory tempDir;
+        File flutterToolState;
 
         setUp(() {
           Cache.disableLocking();
@@ -468,10 +470,10 @@ class FakeUpgradeCommandRunner extends UpgradeCommandRunner {
   bool willHaveUncommittedChanges = false;
   bool alreadyUpToDate = false;
 
-  late FlutterVersion remoteVersion;
+  FlutterVersion remoteVersion;
 
   @override
-  Future<FlutterVersion> fetchLatestVersion({FlutterVersion? localVersion}) async => remoteVersion;
+  Future<FlutterVersion> fetchLatestVersion({FlutterVersion localVersion}) async => remoteVersion;
 
   @override
   Future<bool> hasUncommittedChanges() async => willHaveUncommittedChanges;

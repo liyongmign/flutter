@@ -197,7 +197,7 @@ void main() {
   testWithoutContext('target platform display name on ARM', () async {
     final FakeOperatingSystemUtils fakeOperatingSystemUtils =
         FakeOperatingSystemUtils();
-    fakeOperatingSystemUtils.hostPlatform = HostPlatform.darwin_arm64;
+    fakeOperatingSystemUtils.hostPlatform = HostPlatform.darwin_arm;
     final MacOSDevice device = MacOSDevice(
       fileSystem: MemoryFileSystem.test(),
       logger: BufferLogger.test(),

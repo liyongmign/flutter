@@ -49,18 +49,10 @@ void main() {
     expect(iosWorkflow.canListDevices, false);
   });
 
-  testWithoutContext('iOS workflow applies on macOS, no Xcode or simctl', () {
-    final FakeProcessManager xcodeProcessManager = FakeProcessManager.list(<FakeCommand>[
-      const FakeCommand(
-        command: <String>[
-          'xcrun', 'simctl', 'list', 'devices', 'booted',
-        ],
-        exitCode: 1,
-      ),
-    ]);
+  testWithoutContext('iOS workflow applies on macOS, no Xcode', () {
     final IOSWorkflow iosWorkflow = IOSWorkflow(
       platform: FakePlatform(operatingSystem: 'macos'),
-      xcode: Xcode.test(processManager: xcodeProcessManager,
+      xcode: Xcode.test(processManager: FakeProcessManager.any(),
         xcodeProjectInterpreter: XcodeProjectInterpreter.test(
           processManager: FakeProcessManager.any(),
           version: null,
@@ -73,33 +65,9 @@ void main() {
     expect(iosWorkflow.canLaunchDevices, false);
     expect(iosWorkflow.canListDevices, false);
     expect(iosWorkflow.canListEmulators, false);
-    expect(xcodeProcessManager, hasNoRemainingExpectations);
   });
 
-  testWithoutContext('iOS workflow can list devices even when Xcode version is too low', () {
-    final Xcode xcode = Xcode.test(
-      processManager: FakeProcessManager.any(),
-      xcodeProjectInterpreter: XcodeProjectInterpreter.test(
-          processManager: FakeProcessManager.any(),
-          version: Version(1, 0, 0)
-      ),
-    );
-
-    final IOSWorkflow iosWorkflow = IOSWorkflow(
-      platform: FakePlatform(operatingSystem: 'macos'),
-      xcode: xcode,
-      featureFlags: TestFeatureFlags(),
-    );
-
-    // Make sure we're testing the right Xcode state.
-    // expect(xcode.isInstalledAndMeetsVersionCheck, true);
-    expect(xcode.isSimctlInstalled, true);
-    expect(iosWorkflow.canLaunchDevices, false);
-    expect(iosWorkflow.canListDevices, true);
-    expect(iosWorkflow.canListEmulators, false);
-  });
-
-  testWithoutContext('iOS workflow can launch devices when Xcode is set up', () {
+  testWithoutContext('iOS workflow can launch and list devices when Xcode is set up', () {
     final Xcode xcode = Xcode.test(
       processManager: FakeProcessManager.any(),
       xcodeProjectInterpreter: XcodeProjectInterpreter.test(
