@@ -71,8 +71,7 @@ class CleanCommand extends FlutterCommand {
   }
 
   Future<void> _cleanXcode(XcodeBasedProject xcodeProject) async {
-    final Directory? xcodeWorkspace = xcodeProject.xcodeWorkspace;
-    if (xcodeWorkspace == null) {
+    if (!xcodeProject.existsSync()) {
       return;
     }
     final Status xcodeStatus = globals.logger.startProgress(
@@ -80,7 +79,8 @@ class CleanCommand extends FlutterCommand {
     );
     try {
       final XcodeProjectInterpreter xcodeProjectInterpreter = globals.xcodeProjectInterpreter!;
-      final XcodeProjectInfo projectInfo = (await xcodeProjectInterpreter.getInfo(xcodeWorkspace.parent.path))!;
+      final Directory xcodeWorkspace = xcodeProject.xcodeWorkspace;
+      final XcodeProjectInfo projectInfo = await xcodeProjectInterpreter.getInfo(xcodeWorkspace.parent.path);
       for (final String scheme in projectInfo.schemes) {
         await xcodeProjectInterpreter.cleanWorkspace(xcodeWorkspace.path, scheme, verbose: _verbose);
       }

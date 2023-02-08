@@ -13,7 +13,6 @@ import 'package:intl/intl_standalone.dart' as intl_standalone;
 import 'src/base/async_guard.dart';
 import 'src/base/common.dart';
 import 'src/base/context.dart';
-import 'src/base/error_handling_io.dart';
 import 'src/base/file_system.dart';
 import 'src/base/io.dart';
 import 'src/base/logger.dart';
@@ -35,7 +34,6 @@ Future<int> run(
     bool? reportCrashes,
     String? flutterVersion,
     Map<Type, Generator>? overrides,
-    required ShutdownHooks shutdownHooks,
   }) async {
   if (muteCommandLogging) {
     // Remove the verbose option; for help and doctor, users don't need to see
@@ -64,19 +62,19 @@ Future<int> run(
         await runner.run(args);
 
         // Triggering [runZoned]'s error callback does not necessarily mean that
-        // we stopped executing the body. See https://github.com/dart-lang/sdk/issues/42150.
+        // we stopped executing the body.  See https://github.com/dart-lang/sdk/issues/42150.
         if (firstError == null) {
-          return await _exit(0, shutdownHooks: shutdownHooks);
+          return await _exit(0);
         }
 
-        // We already hit some error, so don't return success. The error path
+        // We already hit some error, so don't return success.  The error path
         // (which should be in progress) is responsible for calling _exit().
         return 1;
       } catch (error, stackTrace) { // ignore: avoid_catches_without_on_clauses
         // This catches all exceptions to send to crash logging, etc.
         firstError = error;
         firstStackTrace = stackTrace;
-        return _handleToolError(error, stackTrace, verbose, args, reportCrashes!, getVersion, shutdownHooks);
+        return _handleToolError(error, stackTrace, verbose, args, reportCrashes!, getVersion);
       }
     }, onError: (Object error, StackTrace stackTrace) async { // ignore: deprecated_member_use
       // If sending a crash report throws an error into the zone, we don't want
@@ -84,7 +82,7 @@ Future<int> run(
       // to send the original error that triggered the crash report.
       firstError ??= error;
       firstStackTrace ??= stackTrace;
-      await _handleToolError(firstError!, firstStackTrace, verbose, args, reportCrashes!, getVersion, shutdownHooks);
+      await _handleToolError(firstError!, firstStackTrace, verbose, args, reportCrashes!, getVersion);
     });
   }, overrides: overrides);
 }
@@ -96,13 +94,12 @@ Future<int> _handleToolError(
   List<String> args,
   bool reportCrashes,
   String Function() getFlutterVersion,
-  ShutdownHooks shutdownHooks,
 ) async {
   if (error is UsageException) {
     globals.printError('${error.message}\n');
     globals.printError("Run 'flutter -h' (or 'flutter <command> -h') for available flutter commands and options.");
     // Argument error exit code.
-    return _exit(64, shutdownHooks: shutdownHooks);
+    return _exit(64);
   } else if (error is ToolExit) {
     if (error.message != null) {
       globals.printError(error.message!);
@@ -110,14 +107,14 @@ Future<int> _handleToolError(
     if (verbose) {
       globals.printError('\n$stackTrace\n');
     }
-    return _exit(error.exitCode ?? 1, shutdownHooks: shutdownHooks);
+    return _exit(error.exitCode ?? 1);
   } else if (error is ProcessExit) {
     // We've caught an exit code.
     if (error.immediate) {
       exit(error.exitCode);
       return error.exitCode;
     } else {
-      return _exit(error.exitCode, shutdownHooks: shutdownHooks);
+      return _exit(error.exitCode);
     }
   } else {
     // We've crashed; emit a log report.
@@ -127,7 +124,7 @@ Future<int> _handleToolError(
       // Print the stack trace on the bots - don't write a crash report.
       globals.stdio.stderrWrite('$error\n');
       globals.stdio.stderrWrite('$stackTrace\n');
-      return _exit(1, shutdownHooks: shutdownHooks);
+      return _exit(1);
     }
 
     // Report to both [Usage] and [CrashReportSender].
@@ -168,7 +165,7 @@ Future<int> _handleToolError(
       final File file = await _createLocalCrashReport(details);
       await globals.crashReporter!.informUser(details, file);
 
-      return _exit(1, shutdownHooks: shutdownHooks);
+      return _exit(1);
     // This catch catches all exceptions to ensure the message below is printed.
     } catch (error, st) { // ignore: avoid_catches_without_on_clauses
       globals.stdio.stderrWrite(
@@ -190,6 +187,12 @@ String _crashException(dynamic error) => '${error.runtimeType}: $error';
 
 /// Saves the crash report to a local file.
 Future<File> _createLocalCrashReport(CrashDetails details) async {
+  File crashFile = globals.fsUtils.getUniqueFile(
+    globals.fs.currentDirectory,
+    'flutter',
+    'log',
+  );
+
   final StringBuffer buffer = StringBuffer();
 
   buffer.writeln('Flutter crash report.');
@@ -205,37 +208,27 @@ Future<File> _createLocalCrashReport(CrashDetails details) async {
   buffer.writeln('## flutter doctor\n');
   buffer.writeln('```\n${await details.doctorText.text}```');
 
-  late File crashFile;
-  ErrorHandlingFileSystem.noExitOnFailure(() {
+  try {
+    crashFile.writeAsStringSync(buffer.toString());
+  } on FileSystemException catch (_) {
+    // Fallback to the system temporary directory.
+    crashFile = globals.fsUtils.getUniqueFile(
+      globals.fs.systemTempDirectory,
+      'flutter',
+      'log',
+    );
     try {
-      crashFile = globals.fsUtils.getUniqueFile(
-        globals.fs.currentDirectory,
-        'flutter',
-        'log',
-      );
       crashFile.writeAsStringSync(buffer.toString());
-    } on FileSystemException catch (_) {
-      // Fallback to the system temporary directory.
-      try {
-        crashFile = globals.fsUtils.getUniqueFile(
-          globals.fs.systemTempDirectory,
-          'flutter',
-          'log',
-        );
-        crashFile.writeAsStringSync(buffer.toString());
-      } on FileSystemException catch (e) {
-        globals.printError('Could not write crash report to disk: $e');
-        globals.printError(buffer.toString());
-
-        rethrow;
-      }
+    } on FileSystemException catch (e) {
+      globals.printError('Could not write crash report to disk: $e');
+      globals.printError(buffer.toString());
     }
-  });
+  }
 
   return crashFile;
 }
 
-Future<int> _exit(int code, {required ShutdownHooks shutdownHooks}) async {
+Future<int> _exit(int code) async {
   // Prints the welcome message if needed.
   globals.flutterUsage.printWelcome();
 
@@ -248,7 +241,7 @@ Future<int> _exit(int code, {required ShutdownHooks shutdownHooks}) async {
   }
 
   // Run shutdown hooks before flushing logs
-  await shutdownHooks.runShutdownHooks(globals.logger);
+  await globals.shutdownHooks!.runShutdownHooks();
 
   final Completer<void> completer = Completer<void>();
 

@@ -93,9 +93,8 @@ class StockSettingsState extends State<StockSettings> {
   }
 
   void sendUpdates(StockConfiguration value) {
-    if (widget.updater != null) {
+    if (widget.updater != null)
       widget.updater(value);
-    }
   }
 
   AppBar buildAppBar(BuildContext context) {

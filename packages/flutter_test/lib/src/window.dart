@@ -311,12 +311,6 @@ class TestWindow implements ui.SingletonFlutterWindow {
   }
 
   @override
-  bool get nativeSpellCheckServiceDefined => platformDispatcher.nativeSpellCheckServiceDefined;
-  set nativeSpellCheckServiceDefinedTestValue(bool nativeSpellCheckServiceDefinedTestValue) { // ignore: avoid_setters_without_getters
-    platformDispatcher.nativeSpellCheckServiceDefinedTestValue = nativeSpellCheckServiceDefinedTestValue;
-  }
-
-  @override
   bool get brieflyShowPassword => platformDispatcher.brieflyShowPassword;
   /// Hides the real [brieflyShowPassword] and reports the given
   /// `brieflyShowPasswordTestValue` instead.
@@ -465,7 +459,7 @@ class TestWindow implements ui.SingletonFlutterWindow {
 
   @override
   void updateSemantics(ui.SemanticsUpdate update) {
-    _window.updateSemantics(update);
+    platformDispatcher.updateSemantics(update);
   }
 
   @override
@@ -728,18 +722,6 @@ class TestPlatformDispatcher implements ui.PlatformDispatcher {
   }
 
   @override
-  bool get nativeSpellCheckServiceDefined => _nativeSpellCheckServiceDefinedTestValue ?? _platformDispatcher.nativeSpellCheckServiceDefined;
-  bool? _nativeSpellCheckServiceDefinedTestValue;
-  set nativeSpellCheckServiceDefinedTestValue(bool nativeSpellCheckServiceDefinedTestValue) { // ignore: avoid_setters_without_getters
-    _nativeSpellCheckServiceDefinedTestValue = nativeSpellCheckServiceDefinedTestValue;
-  }
-  /// Deletes existing value that determines whether or not a native spell check
-  /// service is defined and returns to the real value.
-  void clearNativeSpellCheckServiceDefined() {
-    _nativeSpellCheckServiceDefinedTestValue = null;
-  }
-
-  @override
   bool get brieflyShowPassword => _brieflyShowPasswordTestValue ?? _platformDispatcher.brieflyShowPassword;
   bool? _brieflyShowPasswordTestValue;
   /// Hides the real [brieflyShowPassword] and reports the given
@@ -852,6 +834,11 @@ class TestPlatformDispatcher implements ui.PlatformDispatcher {
   }
 
   @override
+  void updateSemantics(ui.SemanticsUpdate update) {
+    _platformDispatcher.updateSemantics(update);
+  }
+
+  @override
   void setIsolateDebugName(String name) {
     _platformDispatcher.setIsolateDebugName(name);
   }
@@ -895,7 +882,6 @@ class TestPlatformDispatcher implements ui.PlatformDispatcher {
     clearLocalesTestValue();
     clearSemanticsEnabledTestValue();
     clearTextScaleFactorTestValue();
-    clearNativeSpellCheckServiceDefined();
   }
 
   @override

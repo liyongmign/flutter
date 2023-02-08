@@ -11,21 +11,10 @@ import '../integration.shard/test_driver.dart';
 import '../integration.shard/test_utils.dart';
 import '../src/common.dart';
 
-import 'test_data/hot_reload_index_html_samples.dart';
-
-void main() async {
-  await _testProject(HotReloadProject()); // default
-  await _testProject(HotReloadProject(indexHtml: indexHtmlFlutterJsCallback), name: 'flutter.js (callback)');
-  await _testProject(HotReloadProject(indexHtml: indexHtmlFlutterJsPromisesFull), name: 'flutter.js (promises)');
-  await _testProject(HotReloadProject(indexHtml: indexHtmlFlutterJsPromisesShort), name: 'flutter.js (promises, short)');
-  await _testProject(HotReloadProject(indexHtml: indexHtmlNoFlutterJs), name: 'No flutter.js');
-}
-
-Future<void> _testProject(HotReloadProject project, {String name = 'Default'}) async {
+void main() {
   late Directory tempDir;
+  final HotReloadProject project = HotReloadProject();
   late FlutterRunTestDriver flutter;
-
-  final String testName = 'Hot reload (index.html: $name)';
 
   setUp(() async {
     tempDir = createResolvedTempDirectorySync('hot_reload_test.');
@@ -39,12 +28,12 @@ Future<void> _testProject(HotReloadProject project, {String name = 'Default'}) a
     tryToDelete(tempDir);
   });
 
-  testWithoutContext('$testName: hot restart works without error', () async {
+  testWithoutContext('hot restart works without error', () async {
     await flutter.run(chrome: true, additionalCommandArgs: <String>['--verbose', '--web-renderer=html']);
     await flutter.hotRestart();
   });
 
-  testWithoutContext('$testName: newly added code executes during hot restart', () async {
+  testWithoutContext('newly added code executes during hot restart', () async {
     final Completer<void> completer = Completer<void>();
     final StreamSubscription<String> subscription = flutter.stdout.listen((String line) {
       if (line.contains('(((((RELOAD WORKED)))))')) {
@@ -61,7 +50,7 @@ Future<void> _testProject(HotReloadProject project, {String name = 'Default'}) a
     }
   });
 
-  testWithoutContext('$testName: newly added code executes during hot restart - canvaskit', () async {
+  testWithoutContext('newly added code executes during hot restart - canvaskit', () async {
     final Completer<void> completer = Completer<void>();
     final StreamSubscription<String> subscription = flutter.stdout.listen((String line) {
       if (line.contains('(((((RELOAD WORKED)))))')) {
@@ -77,5 +66,5 @@ Future<void> _testProject(HotReloadProject project, {String name = 'Default'}) a
     } finally {
       await subscription.cancel();
     }
-  }, skip: true); // Skipped for https://github.com/flutter/flutter/issues/110879.
+  }, skip: true); // Skipping for https://github.com/flutter/flutter/issues/85043.
 }

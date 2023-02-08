@@ -103,7 +103,7 @@ void main() {
                   'children': <Map<String, Object?>>[
                     <String, Object?>{
                       'id': 7,
-                      'label': 'Sub Sub Menu 110',
+                      'label': 'Sub Sub Menu 100',
                       'enabled': true,
                       'shortcutTrigger': 97,
                       'shortcutModifiers': 8,
@@ -111,7 +111,7 @@ void main() {
                     <String, Object?>{'id': 8, 'isDivider': true},
                     <String, Object?>{
                       'id': 10,
-                      'label': 'Sub Sub Menu 111',
+                      'label': 'Sub Sub Menu 101',
                       'enabled': true,
                       'shortcutTrigger': 98,
                       'shortcutModifiers': 2,
@@ -119,7 +119,7 @@ void main() {
                     <String, Object?>{'id': 11, 'isDivider': true},
                     <String, Object?>{
                       'id': 12,
-                      'label': 'Sub Sub Menu 112',
+                      'label': 'Sub Sub Menu 102',
                       'enabled': true,
                       'shortcutTrigger': 99,
                       'shortcutModifiers': 4,
@@ -127,7 +127,7 @@ void main() {
                     <String, Object?>{'id': 13, 'isDivider': true},
                     <String, Object?>{
                       'id': 14,
-                      'label': 'Sub Sub Menu 113',
+                      'label': 'Sub Sub Menu 103',
                       'enabled': true,
                       'shortcutTrigger': 100,
                       'shortcutModifiers': 1,
@@ -163,9 +163,9 @@ void main() {
         const MaterialApp(
           home: Material(
             child: PlatformMenuBar(
-              menus: <PlatformMenuItem>[],
+              menus: <MenuItem>[],
               child: PlatformMenuBar(
-                menus: <PlatformMenuItem>[],
+                menus: <MenuItem>[],
                 child: SizedBox(),
               ),
             ),
@@ -180,7 +180,7 @@ void main() {
         shortcut: SingleActivator(LogicalKeyboardKey.keyA),
       );
       const PlatformMenuBar menuBar = PlatformMenuBar(
-        menus: <PlatformMenuItem>[item],
+        menus: <MenuItem>[item],
         child: SizedBox(),
       );
 
@@ -205,14 +205,14 @@ void main() {
       );
     });
   });
-  group('MenuBarItem', () {
+  group('PlatformMenuBarItem', () {
     testWidgets('diagnostics', (WidgetTester tester) async {
       const PlatformMenuItem childItem = PlatformMenuItem(
         label: 'label',
       );
       const PlatformMenu item = PlatformMenu(
         label: 'label',
-        menus: <PlatformMenuItem>[childItem],
+        menus: <MenuItem>[childItem],
       );
 
       final DiagnosticPropertiesBuilder builder = DiagnosticPropertiesBuilder();
@@ -226,34 +226,6 @@ void main() {
       expect(description, <String>[
         'label: "label"',
       ]);
-    });
-  });
-
-  group('ShortcutSerialization', () {
-    testWidgets('character constructor', (WidgetTester tester) async {
-      final ShortcutSerialization serialization = ShortcutSerialization.character('?');
-      expect(serialization.toChannelRepresentation(), equals(<String, Object?>{
-        'shortcutCharacter': '?',
-        'shortcutModifiers': 0,
-      }));
-      final ShortcutSerialization serializationWithModifiers = ShortcutSerialization.character('?', alt: true, control: true, meta: true);
-      expect(serializationWithModifiers.toChannelRepresentation(), equals(<String, Object?>{
-        'shortcutCharacter': '?',
-        'shortcutModifiers': 13,
-      }));
-    });
-
-    testWidgets('modifier constructor', (WidgetTester tester) async {
-      final ShortcutSerialization serialization = ShortcutSerialization.modifier(LogicalKeyboardKey.home);
-      expect(serialization.toChannelRepresentation(), equals(<String, Object?>{
-        'shortcutTrigger': LogicalKeyboardKey.home.keyId,
-        'shortcutModifiers': 0,
-      }));
-      final ShortcutSerialization serializationWithModifiers = ShortcutSerialization.modifier(LogicalKeyboardKey.home, alt: true, control: true, meta: true, shift: true);
-      expect(serializationWithModifiers.toChannelRepresentation(), equals(<String, Object?>{
-        'shortcutTrigger': LogicalKeyboardKey.home.keyId,
-        'shortcutModifiers': 15,
-      }));
     });
   });
 }
@@ -276,29 +248,29 @@ const List<String> subMenu1 = <String>[
 ];
 
 const List<String> subSubMenu10 = <String>[
-  'Sub Sub Menu 110',
-  'Sub Sub Menu 111',
-  'Sub Sub Menu 112',
-  'Sub Sub Menu 113',
+  'Sub Sub Menu 100',
+  'Sub Sub Menu 101',
+  'Sub Sub Menu 102',
+  'Sub Sub Menu 103',
 ];
 
 const List<String> subMenu2 = <String>[
   'Sub Menu 20',
 ];
 
-List<PlatformMenuItem> createTestMenus({
+List<MenuItem> createTestMenus({
   void Function(String)? onActivate,
   void Function(String)? onOpen,
   void Function(String)? onClose,
   Map<String, MenuSerializableShortcut> shortcuts = const <String, MenuSerializableShortcut>{},
   bool includeStandard = false,
 }) {
-  final List<PlatformMenuItem> result = <PlatformMenuItem>[
+  final List<MenuItem> result = <MenuItem>[
     PlatformMenu(
       label: mainMenu[0],
       onOpen: onOpen != null ? () => onOpen(mainMenu[0]) : null,
       onClose: onClose != null ? () => onClose(mainMenu[0]) : null,
-      menus: <PlatformMenuItem>[
+      menus: <MenuItem>[
         PlatformMenuItem(
           label: subMenu0[0],
           onSelected: onActivate != null ? () => onActivate(subMenu0[0]) : null,
@@ -310,9 +282,9 @@ List<PlatformMenuItem> createTestMenus({
       label: mainMenu[1],
       onOpen: onOpen != null ? () => onOpen(mainMenu[1]) : null,
       onClose: onClose != null ? () => onClose(mainMenu[1]) : null,
-      menus: <PlatformMenuItem>[
+      menus: <MenuItem>[
         PlatformMenuItemGroup(
-          members: <PlatformMenuItem>[
+          members: <MenuItem>[
             PlatformMenuItem(
               label: subMenu1[0],
               onSelected: onActivate != null ? () => onActivate(subMenu1[0]) : null,
@@ -324,9 +296,9 @@ List<PlatformMenuItem> createTestMenus({
           label: subMenu1[1],
           onOpen: onOpen != null ? () => onOpen(subMenu1[1]) : null,
           onClose: onClose != null ? () => onClose(subMenu1[1]) : null,
-          menus: <PlatformMenuItem>[
+          menus: <MenuItem>[
             PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
+              members: <MenuItem>[
                 PlatformMenuItem(
                   label: subSubMenu10[0],
                   onSelected: onActivate != null ? () => onActivate(subSubMenu10[0]) : null,
@@ -335,7 +307,7 @@ List<PlatformMenuItem> createTestMenus({
               ],
             ),
             PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
+              members: <MenuItem>[
                 PlatformMenuItem(
                   label: subSubMenu10[1],
                   onSelected: onActivate != null ? () => onActivate(subSubMenu10[1]) : null,
@@ -349,7 +321,7 @@ List<PlatformMenuItem> createTestMenus({
               shortcut: shortcuts[subSubMenu10[2]],
             ),
             PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
+              members: <MenuItem>[
                 PlatformMenuItem(
                   label: subSubMenu10[3],
                   onSelected: onActivate != null ? () => onActivate(subSubMenu10[3]) : null,
@@ -370,7 +342,7 @@ List<PlatformMenuItem> createTestMenus({
       label: mainMenu[2],
       onOpen: onOpen != null ? () => onOpen(mainMenu[2]) : null,
       onClose: onClose != null ? () => onClose(mainMenu[2]) : null,
-      menus: <PlatformMenuItem>[
+      menus: <MenuItem>[
         PlatformMenuItem(
           // Always disabled.
           label: subMenu2[0],
@@ -383,7 +355,7 @@ List<PlatformMenuItem> createTestMenus({
       label: mainMenu[3],
       onOpen: onOpen != null ? () => onOpen(mainMenu[2]) : null,
       onClose: onClose != null ? () => onClose(mainMenu[2]) : null,
-      menus: <PlatformMenuItem>[],
+      menus: <MenuItem>[],
     ),
   ];
   return result;

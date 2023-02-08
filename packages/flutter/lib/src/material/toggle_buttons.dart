@@ -18,10 +18,6 @@ import 'theme.dart';
 import 'theme_data.dart';
 import 'toggle_buttons_theme.dart';
 
-// Examples can assume:
-// List<bool> isSelected = <bool>[];
-// void setState(dynamic arg) { }
-
 /// A set of toggle buttons.
 ///
 /// The list of [children] are laid out along [direction]. The state of each button
@@ -47,32 +43,34 @@ import 'toggle_buttons_theme.dart';
 /// Here is an implementation that allows for multiple buttons to be
 /// simultaneously selected, while requiring none of the buttons to be
 /// selected.
-///
 /// ```dart
 /// ToggleButtons(
-///   isSelected: isSelected,
+///   children: <Widget>[
+///     Icon(Icons.ac_unit),
+///     Icon(Icons.call),
+///     Icon(Icons.cake),
+///   ],
 ///   onPressed: (int index) {
 ///     setState(() {
 ///       isSelected[index] = !isSelected[index];
 ///     });
 ///   },
-///   children: const <Widget>[
-///     Icon(Icons.ac_unit),
-///     Icon(Icons.call),
-///     Icon(Icons.cake),
-///   ],
+///   isSelected: isSelected,
 /// ),
 /// ```
 ///
 /// {@animation 700 150 https://flutter.github.io/assets-for-api-docs/assets/material/toggle_buttons_required_mutually_exclusive.mp4}
 ///
-/// Here is an implementation that requires mutually exclusive selection while
-/// requiring at least one selection. This assumes that [isSelected] was
-/// properly initialized with one selection.
-///
+/// Here is an implementation that requires mutually exclusive selection
+/// while requiring at least one selection. Note that this assumes that
+/// [isSelected] was properly initialized with one selection.
 /// ```dart
 /// ToggleButtons(
-///   isSelected: isSelected,
+///   children: <Widget>[
+///     Icon(Icons.ac_unit),
+///     Icon(Icons.call),
+///     Icon(Icons.cake),
+///   ],
 ///   onPressed: (int index) {
 ///     setState(() {
 ///       for (int buttonIndex = 0; buttonIndex < isSelected.length; buttonIndex++) {
@@ -84,11 +82,7 @@ import 'toggle_buttons_theme.dart';
 ///       }
 ///     });
 ///   },
-///   children: const <Widget>[
-///     Icon(Icons.ac_unit),
-///     Icon(Icons.call),
-///     Icon(Icons.cake),
-///   ],
+///   isSelected: isSelected,
 /// ),
 /// ```
 ///
@@ -96,10 +90,13 @@ import 'toggle_buttons_theme.dart';
 ///
 /// Here is an implementation that requires mutually exclusive selection,
 /// but allows for none of the buttons to be selected.
-///
 /// ```dart
 /// ToggleButtons(
-///   isSelected: isSelected,
+///   children: <Widget>[
+///     Icon(Icons.ac_unit),
+///     Icon(Icons.call),
+///     Icon(Icons.cake),
+///   ],
 ///   onPressed: (int index) {
 ///     setState(() {
 ///       for (int buttonIndex = 0; buttonIndex < isSelected.length; buttonIndex++) {
@@ -111,42 +108,37 @@ import 'toggle_buttons_theme.dart';
 ///       }
 ///     });
 ///   },
-///   children: const <Widget>[
-///     Icon(Icons.ac_unit),
-///     Icon(Icons.call),
-///     Icon(Icons.cake),
-///   ],
+///   isSelected: isSelected,
 /// ),
 /// ```
 ///
 /// {@animation 700 150 https://flutter.github.io/assets-for-api-docs/assets/material/toggle_buttons_required.mp4}
 ///
 /// Here is an implementation that allows for multiple buttons to be
-/// simultaneously selected, while requiring at least one selection. This
-/// assumes that [isSelected] was properly initialized with one selection.
-///
+/// simultaneously selected, while requiring at least one selection. Note
+/// that this assumes that [isSelected] was properly initialized with one
+/// selection.
 /// ```dart
 /// ToggleButtons(
-///   isSelected: isSelected,
-///   onPressed: (int index) {
-///     int count = 0;
-///     for (final bool value in isSelected) {
-///       if (value) {
-///         count += 1;
-///       }
-///     }
-///     if (isSelected[index] && count < 2) {
-///       return;
-///     }
-///     setState(() {
-///       isSelected[index] = !isSelected[index];
-///     });
-///   },
-///   children: const <Widget>[
+///   children: <Widget>[
 ///     Icon(Icons.ac_unit),
 ///     Icon(Icons.call),
 ///     Icon(Icons.cake),
 ///   ],
+///   onPressed: (int index) {
+///     int count = 0;
+///     isSelected.forEach((bool val) {
+///       if (val) count++;
+///     });
+///
+///     if (isSelected[index] && count < 2)
+///       return;
+///
+///     setState(() {
+///       isSelected[index] = !isSelected[index];
+///     });
+///   },
+///   isSelected: isSelected,
 /// ),
 /// ```
 ///
@@ -710,7 +702,7 @@ class ToggleButtons extends StatelessWidget {
       }
       final TextStyle currentTextStyle = textStyle
         ?? toggleButtonsTheme.textStyle
-        ?? theme.textTheme.bodyMedium!;
+        ?? theme.textTheme.bodyText2!;
       final BoxConstraints? currentConstraints = constraints
         ?? toggleButtonsTheme.constraints;
       final Size minimumSize = currentConstraints == null
@@ -798,7 +790,7 @@ class ToggleButtons extends StatelessWidget {
       return MergeSemantics(
         child: Semantics(
           container: true,
-          checked: isSelected[index],
+          toggled: isSelected[index],
           enabled: onPressed != null,
           child: _InputPadding(
             minSize: minPaddingSize,

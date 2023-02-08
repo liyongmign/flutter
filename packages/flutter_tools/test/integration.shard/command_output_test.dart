@@ -68,7 +68,7 @@ void main() {
     ]);
 
     // Check for message only printed in verbose mode.
-    expect(result.stdout, contains('Shutdown hooks complete'));
+    expect(result.stdout, contains('Running shutdown hooks'));
   });
 
   testWithoutContext('flutter config contains all features', () async {

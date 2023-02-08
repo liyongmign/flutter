@@ -140,11 +140,6 @@ class FakeAutofillClient implements TextInputClient, AutofillClient {
   }
 
   @override
-  void didChangeInputControl(TextInputControl? oldControl, TextInputControl? newControl) {
-    latestMethodCall = 'didChangeInputControl';
-  }
-
-  @override
   void autofill(TextEditingValue newEditingValue) => updateEditingValue(newEditingValue);
 
   @override
@@ -160,11 +155,6 @@ class FakeAutofillClient implements TextInputClient, AutofillClient {
   @override
   void removeTextPlaceholder() {
     latestMethodCall = 'removeTextPlaceholder';
-  }
-
-  @override
-  void performSelector(String selectorName) {
-    latestMethodCall = 'performSelector';
   }
 }
 

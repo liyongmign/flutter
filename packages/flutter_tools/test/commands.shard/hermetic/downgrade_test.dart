@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_tools/src/base/io.dart';
@@ -18,11 +20,11 @@ import '../../src/fakes.dart';
 import '../../src/test_flutter_command_runner.dart';
 
 void main() {
-  late FileSystem fileSystem;
-  late BufferLogger bufferLogger;
-  late FakeTerminal terminal;
-  late ProcessManager processManager;
-  late FakeStdio stdio;
+  FileSystem fileSystem;
+  BufferLogger bufferLogger;
+  FakeTerminal terminal;
+  ProcessManager processManager;
+  FakeStdio stdio;
 
   setUpAll(() {
     Cache.disableLocking();
@@ -222,11 +224,11 @@ class FakeTerminal extends Fake implements Terminal {
     _selected = selected;
   }
 
-  List<String>? _characters;
-  late String _selected;
+  List<String> _characters;
+  String _selected;
 
   @override
-  Future<String> promptForCharInput(List<String> acceptedCharacters, {Logger? logger, String? prompt, int? defaultChoiceIndex, bool displayAcceptedCharacters = true}) async {
+  Future<String> promptForCharInput(List<String> acceptedCharacters, {Logger logger, String prompt, int defaultChoiceIndex, bool displayAcceptedCharacters = true}) async {
     expect(acceptedCharacters, _characters);
     return _selected;
   }

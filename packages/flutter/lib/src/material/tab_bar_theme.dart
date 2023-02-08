@@ -29,9 +29,7 @@ class TabBarTheme with Diagnosticable {
   /// Creates a tab bar theme that can be used with [ThemeData.tabBarTheme].
   const TabBarTheme({
     this.indicator,
-    this.indicatorColor,
     this.indicatorSize,
-    this.dividerColor,
     this.labelColor,
     this.labelPadding,
     this.labelStyle,
@@ -42,41 +40,35 @@ class TabBarTheme with Diagnosticable {
     this.mouseCursor,
   });
 
-  /// Overrides the default value for [TabBar.indicator].
+  /// Default value for [TabBar.indicator].
   final Decoration? indicator;
 
-  /// Overrides the default value for [TabBar.indicatorColor].
-  final Color? indicatorColor;
-
-  /// Overrides the default value for [TabBar.indicatorSize].
+  /// Default value for [TabBar.indicatorSize].
   final TabBarIndicatorSize? indicatorSize;
 
-  /// Overrides the default value for [TabBar.dividerColor].
-  final Color? dividerColor;
-
-  /// Overrides the default value for [TabBar.labelColor].
+  /// Default value for [TabBar.labelColor].
   final Color? labelColor;
 
-  /// Overrides the default value for [TabBar.labelPadding].
+  /// Default value for [TabBar.labelPadding].
   ///
   /// If there are few tabs with both icon and text and few
   /// tabs with only icon or text, this padding is vertically
   /// adjusted to provide uniform padding to all tabs.
   final EdgeInsetsGeometry? labelPadding;
 
-  /// Overrides the default value for [TabBar.labelStyle].
+  /// Default value for [TabBar.labelStyle].
   final TextStyle? labelStyle;
 
-  /// Overrides the default value for [TabBar.unselectedLabelColor].
+  /// Default value for [TabBar.unselectedLabelColor].
   final Color? unselectedLabelColor;
 
-  /// Overrides the default value for [TabBar.unselectedLabelStyle].
+  /// Default value for [TabBar.unselectedLabelStyle].
   final TextStyle? unselectedLabelStyle;
 
-  /// Overrides the default value for [TabBar.overlayColor].
+  /// Default value for [TabBar.overlayColor].
   final MaterialStateProperty<Color?>? overlayColor;
 
-  /// Overrides the default value for [TabBar.splashFactory].
+  /// Default value for [TabBar.splashFactory].
   final InteractiveInkFeatureFactory? splashFactory;
 
   /// {@macro flutter.material.tabs.mouseCursor}
@@ -88,9 +80,7 @@ class TabBarTheme with Diagnosticable {
   /// new values.
   TabBarTheme copyWith({
     Decoration? indicator,
-    Color? indicatorColor,
     TabBarIndicatorSize? indicatorSize,
-    Color? dividerColor,
     Color? labelColor,
     EdgeInsetsGeometry? labelPadding,
     TextStyle? labelStyle,
@@ -102,9 +92,7 @@ class TabBarTheme with Diagnosticable {
   }) {
     return TabBarTheme(
       indicator: indicator ?? this.indicator,
-      indicatorColor: indicatorColor ?? this.indicatorColor,
       indicatorSize: indicatorSize ?? this.indicatorSize,
-      dividerColor: dividerColor ?? this.dividerColor,
       labelColor: labelColor ?? this.labelColor,
       labelPadding: labelPadding ?? this.labelPadding,
       labelStyle: labelStyle ?? this.labelStyle,
@@ -132,15 +120,13 @@ class TabBarTheme with Diagnosticable {
     assert(t != null);
     return TabBarTheme(
       indicator: Decoration.lerp(a.indicator, b.indicator, t),
-      indicatorColor: Color.lerp(a.indicatorColor, b.indicatorColor, t),
       indicatorSize: t < 0.5 ? a.indicatorSize : b.indicatorSize,
-      dividerColor: Color.lerp(a.dividerColor, b.dividerColor, t),
       labelColor: Color.lerp(a.labelColor, b.labelColor, t),
       labelPadding: EdgeInsetsGeometry.lerp(a.labelPadding, b.labelPadding, t),
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       unselectedLabelColor: Color.lerp(a.unselectedLabelColor, b.unselectedLabelColor, t),
       unselectedLabelStyle: TextStyle.lerp(a.unselectedLabelStyle, b.unselectedLabelStyle, t),
-      overlayColor: MaterialStateProperty.lerp<Color?>(a.overlayColor, b.overlayColor, t, Color.lerp),
+      overlayColor: _LerpColors(a.overlayColor, b.overlayColor, t),
       splashFactory: t < 0.5 ? a.splashFactory : b.splashFactory,
       mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
     );
@@ -149,9 +135,7 @@ class TabBarTheme with Diagnosticable {
   @override
   int get hashCode => Object.hash(
     indicator,
-    indicatorColor,
     indicatorSize,
-    dividerColor,
     labelColor,
     labelPadding,
     labelStyle,
@@ -172,9 +156,7 @@ class TabBarTheme with Diagnosticable {
     }
     return other is TabBarTheme
         && other.indicator == indicator
-        && other.indicatorColor == indicatorColor
         && other.indicatorSize == indicatorSize
-        && other.dividerColor == dividerColor
         && other.labelColor == labelColor
         && other.labelPadding == labelPadding
         && other.labelStyle == labelStyle
@@ -183,5 +165,41 @@ class TabBarTheme with Diagnosticable {
         && other.overlayColor == overlayColor
         && other.splashFactory == splashFactory
         && other.mouseCursor == mouseCursor;
+  }
+}
+
+
+@immutable
+class _LerpColors implements MaterialStateProperty<Color?> {
+  const _LerpColors(this.a, this.b, this.t);
+
+  final MaterialStateProperty<Color?>? a;
+  final MaterialStateProperty<Color?>? b;
+  final double t;
+
+  @override
+  Color? resolve(Set<MaterialState> states) {
+    final Color? resolvedA = a?.resolve(states);
+    final Color? resolvedB = b?.resolve(states);
+    return Color.lerp(resolvedA, resolvedB, t);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(a, b, t);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is _LerpColors
+      && other.a == a
+      && other.b == b
+      && other.t == t;
   }
 }

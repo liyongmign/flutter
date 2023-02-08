@@ -7,9 +7,6 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
-// Examples can assume:
-// late BuildContext context;
-
 /// Defines the visual properties needed for text selection in [TextField] and
 /// [SelectableText] widgets.
 ///

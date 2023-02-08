@@ -5,7 +5,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'adaptive_text_selection_toolbar.dart';
 import 'colors.dart';
 import 'form_row.dart';
 import 'text_field.dart';
@@ -117,10 +116,6 @@ class CupertinoTextFormFieldRow extends FormField<String> {
     TextAlignVertical? textAlignVertical,
     bool autofocus = false,
     bool readOnly = false,
-    @Deprecated(
-      'Use `contextMenuBuilder` instead. '
-      'This feature was deprecated after v3.3.0-0.5.pre.',
-    )
     ToolbarOptions? toolbarOptions,
     bool? showCursor,
     String obscuringCharacter = '•',
@@ -156,7 +151,6 @@ class CupertinoTextFormFieldRow extends FormField<String> {
       fontWeight: FontWeight.w400,
       color: CupertinoColors.placeholderText,
     ),
-    EditableTextContextMenuBuilder? contextMenuBuilder = _defaultContextMenuBuilder,
   })  : assert(initialValue == null || controller == null),
         assert(textAlign != null),
         assert(autofocus != null),
@@ -240,7 +234,6 @@ class CupertinoTextFormFieldRow extends FormField<String> {
                 autofillHints: autofillHints,
                 placeholder: placeholder,
                 placeholderStyle: placeholderStyle,
-                contextMenuBuilder: contextMenuBuilder,
               ),
             );
           },
@@ -268,12 +261,6 @@ class CupertinoTextFormFieldRow extends FormField<String> {
   /// If null, this widget will create its own [TextEditingController] and
   /// initialize its [TextEditingController.text] with [initialValue].
   final TextEditingController? controller;
-
-  static Widget _defaultContextMenuBuilder(BuildContext context, EditableTextState editableTextState) {
-    return CupertinoAdaptiveTextSelectionToolbar.editableText(
-      editableTextState: editableTextState,
-    );
-  }
 
   @override
   FormFieldState<String> createState() => _CupertinoTextFormFieldRowState();

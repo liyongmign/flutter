@@ -136,7 +136,7 @@ class Xcode {
         // This command will error if additional components need to be installed in
         // xcode 9.2 and above.
         final RunResult result = _processUtils.runSync(
-          <String>[...xcrunCommand(), 'simctl', 'list', 'devices', 'booted'],
+          <String>[...xcrunCommand(), 'simctl', 'list'],
         );
         _isSimctlInstalled = result.exitCode == 0;
       } on ProcessException {
@@ -165,17 +165,16 @@ class Xcode {
   /// See [XcodeProjectInterpreter.xcrunCommand].
   List<String> xcrunCommand() => _xcodeProjectInterpreter.xcrunCommand();
 
-  Future<RunResult> cc(List<String> args) => _run('cc', args);
-
-  Future<RunResult> clang(List<String> args) => _run('clang', args);
-
-  Future<RunResult> dsymutil(List<String> args) => _run('dsymutil', args);
-
-  Future<RunResult> strip(List<String> args) => _run('strip', args);
-
-  Future<RunResult> _run(String command, List<String> args) {
+  Future<RunResult> cc(List<String> args) {
     return _processUtils.run(
-      <String>[...xcrunCommand(), command, ...args],
+      <String>[...xcrunCommand(), 'cc', ...args],
+      throwOnError: true,
+    );
+  }
+
+  Future<RunResult> clang(List<String> args) {
+    return _processUtils.run(
+      <String>[...xcrunCommand(), 'clang', ...args],
       throwOnError: true,
     );
   }

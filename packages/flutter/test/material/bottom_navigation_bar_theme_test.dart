@@ -359,14 +359,14 @@ void main() {
     );
 
 
-    final Finder findVisibility = find.descendant(
+    final Finder findOpacity = find.descendant(
       of: find.byType(BottomNavigationBar),
-      matching: find.byType(Visibility),
+      matching: find.byType(Opacity),
     );
 
-    expect(findVisibility, findsNWidgets(2));
-    expect(tester.widget<Visibility>(findVisibility.at(0)).visible, false);
-    expect(tester.widget<Visibility>(findVisibility.at(1)).visible, false);
+    expect(findOpacity, findsNWidgets(2));
+    expect(tester.widget<Opacity>(findOpacity.at(0)).opacity, 0.0);
+    expect(tester.widget<Opacity>(findOpacity.at(1)).opacity, 0.0);
   });
 
   testWidgets('BottomNavigationBarTheme can be used to hide selected labels', (WidgetTester tester) async {

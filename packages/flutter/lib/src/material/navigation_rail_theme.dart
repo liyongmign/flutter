@@ -11,9 +11,6 @@ import 'package:flutter/widgets.dart';
 import 'navigation_rail.dart';
 import 'theme.dart';
 
-// Examples can assume:
-// late BuildContext context;
-
 /// Defines default property values for descendant [NavigationRail]
 /// widgets.
 ///
@@ -49,7 +46,6 @@ class NavigationRailThemeData with Diagnosticable {
     this.labelType,
     this.useIndicator,
     this.indicatorColor,
-    this.indicatorShape,
     this.minWidth,
     this.minExtendedWidth,
   });
@@ -92,9 +88,6 @@ class NavigationRailThemeData with Diagnosticable {
   /// when [useIndicator] is true.
   final Color? indicatorColor;
 
-  /// Overrides the default shape of the [NavigationRail]'s selection indicator.
-  final ShapeBorder? indicatorShape;
-
   /// Overrides the default value of [NavigationRail]'s minimum width when it
   /// is not extended.
   final double? minWidth;
@@ -116,7 +109,6 @@ class NavigationRailThemeData with Diagnosticable {
     NavigationRailLabelType? labelType,
     bool? useIndicator,
     Color? indicatorColor,
-    ShapeBorder? indicatorShape,
     double? minWidth,
     double? minExtendedWidth,
   }) {
@@ -131,7 +123,6 @@ class NavigationRailThemeData with Diagnosticable {
       labelType: labelType ?? this.labelType,
       useIndicator: useIndicator ?? this.useIndicator,
       indicatorColor: indicatorColor ?? this.indicatorColor,
-      indicatorShape: indicatorShape ?? this.indicatorShape,
       minWidth: minWidth ?? this.minWidth,
       minExtendedWidth: minExtendedWidth ?? this.minExtendedWidth,
     );
@@ -158,7 +149,6 @@ class NavigationRailThemeData with Diagnosticable {
       labelType: t < 0.5 ? a?.labelType : b?.labelType,
       useIndicator: t < 0.5 ? a?.useIndicator : b?.useIndicator,
       indicatorColor: Color.lerp(a?.indicatorColor, b?.indicatorColor, t),
-      indicatorShape: ShapeBorder.lerp(a?.indicatorShape, b?.indicatorShape, t),
       minWidth: lerpDouble(a?.minWidth, b?.minWidth, t),
       minExtendedWidth: lerpDouble(a?.minExtendedWidth, b?.minExtendedWidth, t),
 
@@ -177,7 +167,6 @@ class NavigationRailThemeData with Diagnosticable {
     labelType,
     useIndicator,
     indicatorColor,
-    indicatorShape,
     minWidth,
     minExtendedWidth,
   );
@@ -201,7 +190,6 @@ class NavigationRailThemeData with Diagnosticable {
         && other.labelType == labelType
         && other.useIndicator == useIndicator
         && other.indicatorColor == indicatorColor
-        && other.indicatorShape == indicatorShape
         && other.minWidth == minWidth
         && other.minExtendedWidth == minExtendedWidth;
   }
@@ -221,7 +209,6 @@ class NavigationRailThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<NavigationRailLabelType>('labelType', labelType, defaultValue: defaultData.labelType));
     properties.add(DiagnosticsProperty<bool>('useIndicator', useIndicator, defaultValue: defaultData.useIndicator));
     properties.add(ColorProperty('indicatorColor', indicatorColor, defaultValue: defaultData.indicatorColor));
-    properties.add(DiagnosticsProperty<ShapeBorder>('indicatorShape', indicatorShape, defaultValue: null));
     properties.add(DoubleProperty('minWidth', minWidth, defaultValue: defaultData.minWidth));
     properties.add(DoubleProperty('minExtendedWidth', minExtendedWidth, defaultValue: defaultData.minExtendedWidth));
   }

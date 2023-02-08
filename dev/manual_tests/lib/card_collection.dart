@@ -50,9 +50,8 @@ class CardCollectionState extends State<CardCollection> {
   bool _varyFontSizes = false;
 
   void _updateCardSizes() {
-    if (_fixedSizeCards) {
+    if (_fixedSizeCards)
       return;
-    }
     _cardModels = List<CardModel>.generate(
       _cardModels.length,
       (int i) {
@@ -78,11 +77,10 @@ class CardCollectionState extends State<CardCollection> {
   }
 
   void _initCardModels() {
-    if (_fixedSizeCards) {
+    if (_fixedSizeCards)
       _initFixedSizedCardModels();
-    } else {
+    else
       _initVariableSizedCardModels();
-    }
   }
 
   @override
@@ -243,7 +241,7 @@ class CardCollectionState extends State<CardCollection> {
         padding: const EdgeInsets.only(left: 72.0),
         height: 128.0,
         alignment: const Alignment(-1.0, 0.5),
-        child: Text('Swipe Away: ${_cardModels.length}', style: Theme.of(context).primaryTextTheme.titleLarge),
+        child: Text('Swipe Away: ${_cardModels.length}', style: Theme.of(context).primaryTextTheme.headline6),
       ),
     );
   }
@@ -303,18 +301,16 @@ class CardCollectionState extends State<CardCollection> {
 
     // This icon is wrong in RTL.
     Widget leftArrowIcon = const Icon(Icons.arrow_back, size: 36.0);
-    if (_dismissDirection == DismissDirection.startToEnd) {
+    if (_dismissDirection == DismissDirection.startToEnd)
       leftArrowIcon = Opacity(opacity: 0.1, child: leftArrowIcon);
-    }
 
     // This icon is wrong in RTL.
     Widget rightArrowIcon = const Icon(Icons.arrow_forward, size: 36.0);
-    if (_dismissDirection == DismissDirection.endToStart) {
+    if (_dismissDirection == DismissDirection.endToStart)
       rightArrowIcon = Opacity(opacity: 0.1, child: rightArrowIcon);
-    }
 
     final ThemeData theme = Theme.of(context);
-    final TextStyle? backgroundTextStyle = theme.primaryTextTheme.titleLarge;
+    final TextStyle? backgroundTextStyle = theme.primaryTextTheme.headline6;
 
     // The background Widget appears behind the Dismissible card when the card
     // moves to the left or right. The Positioned widget ensures that the

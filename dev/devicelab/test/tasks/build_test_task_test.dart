@@ -78,13 +78,13 @@ void main() {
     expect(result.message, 'Task failed: Exception: Both build and test should not be passed. Pass only one.');
   });
 
-  test('copies artifacts when build and application binary arg are given', () async {
+  test('throws exception when build and application binary arg are given', () async {
     final TaskResult result = await runTask(
       'smoke_test_build_test',
-      taskArgs: <String>['--build', '--application-binary-path=test'],
+      taskArgs: <String>['--build', '--application-binary-path=test.apk'],
       deviceId: 'FAKE_SUCCESS',
       isolateParams: isolateParams,
     );
-    expect(result.message, 'No tests run');
+    expect(result.message, 'Task failed: Exception: Application binary path is only used for tests');
   });
 }

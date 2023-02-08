@@ -116,7 +116,7 @@ void main() {
 
       await tester.pumpWidget(Builder(
         builder: (BuildContext context) {
-          textHeightBehavior = DefaultTextHeightBehavior.maybeOf(context);
+          textHeightBehavior = DefaultTextHeightBehavior.of(context);
           return textWidget;
         },
       ));

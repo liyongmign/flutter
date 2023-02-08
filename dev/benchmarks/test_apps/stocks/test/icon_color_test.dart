@@ -9,9 +9,8 @@ import 'package:stocks/stock_data.dart' as stock_data;
 
 Element? findElementOfExactWidgetTypeGoingDown(Element node, Type targetType) {
   void walker(Element child) {
-    if (child.widget.runtimeType == targetType) {
+    if (child.widget.runtimeType == targetType)
       throw child;
-    }
     child.visitChildElements(walker);
   }
   try {
@@ -34,6 +33,8 @@ Element? findElementOfExactWidgetTypeGoingUp(Element node, Type targetType) {
   node.visitAncestorElements(walker);
   return result;
 }
+
+final RegExp materialIconAssetNameColorExtractor = RegExp(r'[^/]+/ic_.+_(white|black)_[0-9]+dp\.png');
 
 void checkIconColor(WidgetTester tester, String label, Color color) {
   final Element listTile = findElementOfExactWidgetTypeGoingUp(tester.element(find.text(label)), ListTile)!;

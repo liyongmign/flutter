@@ -144,8 +144,11 @@ void main() {
     expect(paragraph.text.style!.color, equals(foregroundColor));
   });
 
-  testWidgets('CircleAvatar default colors', (WidgetTester tester) async {
-    final ThemeData theme = ThemeData(useMaterial3: true);
+  testWidgets('CircleAvatar with light theme', (WidgetTester tester) async {
+    final ThemeData theme = ThemeData(
+      primaryColor: Colors.grey.shade100,
+      primaryColorBrightness: Brightness.light,
+    );
     await tester.pumpWidget(
       wrap(
         child: Theme(
@@ -160,10 +163,35 @@ void main() {
     final RenderConstrainedBox box = tester.renderObject(find.byType(CircleAvatar));
     final RenderDecoratedBox child = box.child! as RenderDecoratedBox;
     final BoxDecoration decoration = child.decoration as BoxDecoration;
-    expect(decoration.color, equals(theme.colorScheme.primaryContainer));
+    expect(decoration.color, equals(theme.primaryColorLight));
 
     final RenderParagraph paragraph = tester.renderObject(find.text('Z'));
-    expect(paragraph.text.style!.color, equals(theme.colorScheme.onPrimaryContainer));
+    expect(paragraph.text.style!.color, equals(theme.primaryTextTheme.headline6!.color));
+  });
+
+  testWidgets('CircleAvatar with dark theme', (WidgetTester tester) async {
+    final ThemeData theme = ThemeData(
+      primaryColor: Colors.grey.shade800,
+      primaryColorBrightness: Brightness.dark,
+    );
+    await tester.pumpWidget(
+      wrap(
+        child: Theme(
+          data: theme,
+          child: const CircleAvatar(
+            child: Text('Z'),
+          ),
+        ),
+      ),
+    );
+
+    final RenderConstrainedBox box = tester.renderObject(find.byType(CircleAvatar));
+    final RenderDecoratedBox child = box.child! as RenderDecoratedBox;
+    final BoxDecoration decoration = child.decoration as BoxDecoration;
+    expect(decoration.color, equals(theme.primaryColorDark));
+
+    final RenderParagraph paragraph = tester.renderObject(find.text('Z'));
+    expect(paragraph.text.style!.color, equals(theme.primaryTextTheme.headline6!.color));
   });
 
   testWidgets('CircleAvatar text does not expand with textScaleFactor', (WidgetTester tester) async {
@@ -277,61 +305,6 @@ void main() {
 
     final RenderParagraph paragraph = tester.renderObject(find.text('Z'));
     expect(paragraph.text.style!.color, equals(ThemeData.fallback().primaryColorLight));
-  });
-
-  group('Material 2', () {
-    // Tests that are only relevant for Material 2. Once ThemeData.useMaterial3
-    // is turned on by default, these tests can be removed.
-
-    testWidgets('CircleAvatar default colors with light theme', (WidgetTester tester) async {
-      final ThemeData theme = ThemeData(
-        primaryColor: Colors.grey.shade100,
-        primaryColorBrightness: Brightness.light,
-      );
-      await tester.pumpWidget(
-        wrap(
-          child: Theme(
-            data: theme,
-            child: const CircleAvatar(
-              child: Text('Z'),
-            ),
-          ),
-        ),
-      );
-
-      final RenderConstrainedBox box = tester.renderObject(find.byType(CircleAvatar));
-      final RenderDecoratedBox child = box.child! as RenderDecoratedBox;
-      final BoxDecoration decoration = child.decoration as BoxDecoration;
-      expect(decoration.color, equals(theme.primaryColorLight));
-
-      final RenderParagraph paragraph = tester.renderObject(find.text('Z'));
-      expect(paragraph.text.style!.color, equals(theme.primaryTextTheme.titleLarge!.color));
-    });
-
-    testWidgets('CircleAvatar default colors with dark theme', (WidgetTester tester) async {
-      final ThemeData theme = ThemeData(
-        primaryColor: Colors.grey.shade800,
-        primaryColorBrightness: Brightness.dark,
-      );
-      await tester.pumpWidget(
-        wrap(
-          child: Theme(
-            data: theme,
-            child: const CircleAvatar(
-              child: Text('Z'),
-            ),
-          ),
-        ),
-      );
-
-      final RenderConstrainedBox box = tester.renderObject(find.byType(CircleAvatar));
-      final RenderDecoratedBox child = box.child! as RenderDecoratedBox;
-      final BoxDecoration decoration = child.decoration as BoxDecoration;
-      expect(decoration.color, equals(theme.primaryColorDark));
-
-      final RenderParagraph paragraph = tester.renderObject(find.text('Z'));
-      expect(paragraph.text.style!.color, equals(theme.primaryTextTheme.titleLarge!.color));
-    });
   });
 }
 

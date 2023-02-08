@@ -124,7 +124,6 @@ class PackagesGetCommand extends FlutterCommand {
         outputDir: globals.fs.directory(getBuildDirectory()),
         processManager: globals.processManager,
         platform: globals.platform,
-        usage: globals.flutterUsage,
         projectDir: flutterProject.directory,
         generateDartPluginRegistry: true,
       );
@@ -139,10 +138,11 @@ class PackagesGetCommand extends FlutterCommand {
     try {
       await pub.get(
         context: PubContext.pubGet,
-        project: flutterProject,
+        directory: directory,
         upgrade: upgrade,
         shouldSkipThirdPartyGenerator: false,
         offline: boolArgDeprecated('offline'),
+        generateSyntheticPackage: flutterProject.manifest.generateSyntheticPackage,
       );
       pubGetTimer.stop();
       globals.flutterUsage.sendTiming('pub', 'get', pubGetTimer.elapsed, label: 'success');
@@ -171,14 +171,13 @@ class PackagesGetCommand extends FlutterCommand {
     }
     final FlutterProject rootProject = FlutterProject.fromDirectory(globals.fs.directory(target));
 
-    // This will also resolve dependencies for the example folder,
     await _runPubGet(target, rootProject);
-
-    // We need to regenerate the platform specific tooling for both the project
-    // itself and example (if present).
     await rootProject.regeneratePlatformSpecificTooling();
+
+    // Get/upgrade packages in example app as well
     if (rootProject.hasExampleApp && rootProject.example.pubspecFile.existsSync()) {
       final FlutterProject exampleProject = rootProject.example;
+      await _runPubGet(exampleProject.directory.path, exampleProject);
       await exampleProject.regeneratePlatformSpecificTooling();
     }
 
@@ -211,7 +210,7 @@ class PackagesTestCommand extends FlutterCommand {
 
   @override
   Future<FlutterCommandResult> runCommand() async {
-    await pub.batch(<String>['run', 'test', ...argResults!.rest], context: PubContext.runTest);
+    await pub.batch(<String>['run', 'test', ...argResults!.rest], context: PubContext.runTest, retry: false);
     return FlutterCommandResult.success();
   }
 }
@@ -333,7 +332,6 @@ class PackagesInteractiveGetCommand extends FlutterCommand {
           outputDir: globals.fs.directory(getBuildDirectory()),
           processManager: globals.processManager,
           platform: globals.platform,
-          usage: globals.flutterUsage,
           projectDir: flutterProject.directory,
           generateDartPluginRegistry: true,
         );

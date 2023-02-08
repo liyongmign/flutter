@@ -9,16 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Finds CircularProgressIndicator', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const example.ProgressIndicatorApp(),
+      const example.MyApp(),
     );
-
     expect(
       find.bySemanticsLabel('Circular progress indicator'),
       findsOneWidget,
     );
-
-    // Test if CircularProgressIndicator is animating.
-    await tester.pump(const Duration(seconds: 2));
-    expect(tester.hasRunningAnimations, isTrue);
   });
 }

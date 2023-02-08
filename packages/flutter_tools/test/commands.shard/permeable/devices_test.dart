@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'dart:convert';
 
 import 'package:args/command_runner.dart';
@@ -18,8 +20,8 @@ import '../../src/fakes.dart';
 import '../../src/test_flutter_command_runner.dart';
 
 void main() {
-  late FakeDeviceManager deviceManager;
-  late BufferLogger logger;
+  FakeDeviceManager deviceManager;
+  BufferLogger logger;
 
   setUpAll(() {
     Cache.disableLocking();
@@ -85,10 +87,10 @@ class FakeDeviceManager extends Fake implements DeviceManager {
   List<Device> devices = <Device>[];
 
   @override
-  String? specifiedDeviceId;
+  String specifiedDeviceId;
 
   @override
-  Future<List<Device>> refreshAllConnectedDevices({Duration? timeout}) async {
+  Future<List<Device>> refreshAllConnectedDevices({Duration timeout}) async {
     return devices;
   }
 }

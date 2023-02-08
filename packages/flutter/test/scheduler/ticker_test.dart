@@ -124,8 +124,6 @@ void main() {
     expect(lastDuration, const Duration(milliseconds: 20));
 
     ticker.dispose();
-
-    timeDilation = 1.0; // restore time dilation, or it will affect other tests
   });
 
   testWidgets('Ticker can be slowed down with time dilation', (WidgetTester tester) async {
@@ -142,8 +140,6 @@ void main() {
     expect(lastDuration, const Duration(milliseconds: 5));
 
     ticker.dispose();
-
-    timeDilation = 1.0; // restore time dilation, or it will affect other tests
   });
 
   testWidgets('Ticker stops ticking when application is paused', (WidgetTester tester) async {

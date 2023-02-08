@@ -4,15 +4,12 @@
 
 import 'package:args/command_runner.dart';
 import 'package:file/memory.dart';
-import 'package:flutter_tools/src/android/android_studio.dart';
 import 'package:flutter_tools/src/android/android_workflow.dart';
 import 'package:flutter_tools/src/base/config.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
 import 'package:flutter_tools/src/base/io.dart';
-import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/base/platform.dart';
 import 'package:flutter_tools/src/base/time.dart';
-import 'package:flutter_tools/src/build_system/build_system.dart';
 import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/commands/build.dart';
 import 'package:flutter_tools/src/commands/config.dart';
@@ -30,7 +27,6 @@ import 'package:usage/usage_io.dart';
 import '../src/common.dart';
 import '../src/context.dart';
 import '../src/fakes.dart';
-import '../src/test_build_system.dart';
 import '../src/test_flutter_command_runner.dart';
 
 void main() {
@@ -157,7 +153,6 @@ void main() {
     late TestUsage testUsage;
     late FakeClock fakeClock;
     late FakeDoctor doctor;
-    late FakeAndroidStudio androidStudio;
 
     setUp(() {
       memoryFileSystem = MemoryFileSystem.test();
@@ -165,7 +160,6 @@ void main() {
       testUsage = TestUsage();
       fakeClock = FakeClock();
       doctor = FakeDoctor();
-      androidStudio = FakeAndroidStudio();
     });
 
     testUsingContext('flutter commands send timing events', () async {
@@ -181,7 +175,6 @@ void main() {
         ),
       ));
     }, overrides: <Type, Generator>{
-      AndroidStudio: () => androidStudio,
       SystemClock: () => fakeClock,
       Doctor: () => doctor,
       Usage: () => testUsage,
@@ -201,7 +194,6 @@ void main() {
         ),
       ));
     }, overrides: <Type, Generator>{
-      AndroidStudio: () => androidStudio,
       SystemClock: () => fakeClock,
       Doctor: () => doctor,
       Usage: () => testUsage,
@@ -216,13 +208,7 @@ void main() {
     });
 
     testUsingContext('compound command usage path', () async {
-      final BuildCommand buildCommand = BuildCommand(
-        androidSdk: FakeAndroidSdk(),
-        buildSystem: TestBuildSystem.all(BuildResult(success: true)),
-        fileSystem: MemoryFileSystem.test(),
-        logger: BufferLogger.test(),
-        osUtils: FakeOperatingSystemUtils(),
-      );
+      final BuildCommand buildCommand = BuildCommand();
       final FlutterCommand buildApkCommand = buildCommand.subcommands['apk']! as FlutterCommand;
 
       expect(await buildApkCommand.usagePath, 'build/apk');
@@ -388,8 +374,6 @@ class FakeDoctor extends Fake implements Doctor {
     return diagnoseSucceeds;
   }
 }
-
-class FakeAndroidStudio extends Fake implements AndroidStudio {}
 
 class FakeClock extends Fake implements SystemClock {
   List<int> times = <int>[];

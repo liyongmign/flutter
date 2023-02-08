@@ -321,21 +321,8 @@ class KeepAliveNotification extends Notification {
 class KeepAliveHandle extends ChangeNotifier {
   /// Trigger the listeners to indicate that the widget
   /// no longer needs to be kept alive.
-  ///
-  /// This method does not call [dispose]. When the handle is not needed
-  /// anymore, it must be [dispose]d regardless of whether notifying listeners.
-  @Deprecated(
-    'Use dispose instead. '
-    'This feature was deprecated after v3.3.0-0.0.pre.',
-  )
   void release() {
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    notifyListeners();
-    super.dispose();
   }
 }
 
@@ -366,8 +353,7 @@ mixin AutomaticKeepAliveClientMixin<T extends StatefulWidget> on State<T> {
   }
 
   void _releaseKeepAlive() {
-    // Dispose and release do not imply each other.
-    _keepAliveHandle!.dispose();
+    _keepAliveHandle!.release();
     _keepAliveHandle = null;
   }
 

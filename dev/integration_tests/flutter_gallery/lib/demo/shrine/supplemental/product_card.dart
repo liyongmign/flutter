@@ -59,7 +59,7 @@ class ProductCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       product == null ? '' : product!.name,
-                      style: theme.textTheme.labelLarge,
+                      style: theme.textTheme.button,
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -67,7 +67,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4.0),
                     Text(
                       product == null ? '' : formatter.format(product!.price),
-                      style: theme.textTheme.bodySmall,
+                      style: theme.textTheme.caption,
                     ),
                   ],
                 ),

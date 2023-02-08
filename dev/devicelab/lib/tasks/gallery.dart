@@ -25,27 +25,7 @@ TaskFunction createGalleryTransitionTest({bool semanticsEnabled = false}) {
   return GalleryTransitionTest(semanticsEnabled: semanticsEnabled);
 }
 
-TaskFunction createGalleryTransitionE2EBuildTest(
-  List<String> args, {
-  bool semanticsEnabled = false,
-  bool enableImpeller = false,
-}) {
-  return GalleryTransitionBuildTest(
-    args,
-    testFile: semanticsEnabled ? 'transitions_perf_e2e_with_semantics' : 'transitions_perf_e2e',
-    needFullTimeline: false,
-    timelineSummaryFile: 'e2e_perf_summary',
-    transitionDurationFile: null,
-    timelineTraceFile: null,
-    driverFile: 'transitions_perf_e2e_test',
-    enableImpeller: enableImpeller,
-  );
-}
-
-TaskFunction createGalleryTransitionE2ETest({
-  bool semanticsEnabled = false,
-  bool enableImpeller = false,
-}) {
+TaskFunction createGalleryTransitionE2ETest({bool semanticsEnabled = false}) {
   return GalleryTransitionTest(
     testFile: semanticsEnabled
         ? 'transitions_perf_e2e_with_semantics'
@@ -55,18 +35,6 @@ TaskFunction createGalleryTransitionE2ETest({
     transitionDurationFile: null,
     timelineTraceFile: null,
     driverFile: 'transitions_perf_e2e_test',
-    enableImpeller: enableImpeller,
-  );
-}
-
-TaskFunction createGalleryTransitionHybridBuildTest(
-  List<String> args, {
-  bool semanticsEnabled = false,
-}) {
-  return GalleryTransitionBuildTest(
-    args,
-    semanticsEnabled: semanticsEnabled,
-    driverFile: semanticsEnabled ? 'transitions_perf_hybrid_with_semantics_test' : 'transitions_perf_hybrid_test',
   );
 }
 
@@ -91,14 +59,12 @@ class GalleryTransitionTest {
     this.driverFile,
     this.measureCpuGpu = true,
     this.measureMemory = true,
-    this.enableImpeller = false,
   });
 
   final bool semanticsEnabled;
   final bool needFullTimeline;
   final bool measureCpuGpu;
   final bool measureMemory;
-  final bool enableImpeller;
   final String testFile;
   final String timelineSummaryFile;
   final String? timelineTraceFile;
@@ -136,7 +102,6 @@ class GalleryTransitionTest {
       await flutter('drive', options: <String>[
         '--no-dds',
         '--profile',
-        if (enableImpeller) '--enable-impeller',
         if (needFullTimeline)
           '--trace-startup',
         if (applicationBinaryPath != null)
@@ -233,14 +198,12 @@ class GalleryTransitionBuildTest extends BuildTestTask {
     this.driverFile,
     this.measureCpuGpu = true,
     this.measureMemory = true,
-    this.enableImpeller = false,
   }) : super(workingDirectory: galleryDirectory);
 
   final bool semanticsEnabled;
   final bool needFullTimeline;
   final bool measureCpuGpu;
   final bool measureMemory;
-  final bool enableImpeller;
   final String testFile;
   final String timelineSummaryFile;
   final String? timelineTraceFile;
@@ -248,16 +211,6 @@ class GalleryTransitionBuildTest extends BuildTestTask {
   final String? driverFile;
 
   final String testOutputDirectory = Platform.environment['FLUTTER_TEST_OUTPUTS_DIR'] ?? '${galleryDirectory.path}/build';
-
-  @override
-  void copyArtifacts() {
-    if(applicationBinaryPath != null) {
-      copy(
-        file('${galleryDirectory.path}/build/app/outputs/flutter-apk/app-profile.apk'),
-        Directory(applicationBinaryPath!),
-      );
-    }
-  }
 
   @override
   List<String> getBuildArgs(DeviceOperatingSystem deviceOperatingSystem) {
@@ -276,9 +229,7 @@ class GalleryTransitionBuildTest extends BuildTestTask {
   List<String> getTestArgs(DeviceOperatingSystem deviceOperatingSystem, String deviceId) {
     final String testDriver = driverFile ?? (semanticsEnabled ? '${testFile}_with_semantics_test' : '${testFile}_test');
     return <String>[
-      '--no-dds',
       '--profile',
-      if (enableImpeller) '--enable-impeller',
       if (needFullTimeline) '--trace-startup',
       '-t',
       'test_driver/$testFile.dart',
@@ -359,7 +310,7 @@ class GalleryTransitionBuildTest extends BuildTestTask {
   @override
   String getApplicationBinaryPath() {
     if (applicationBinaryPath != null) {
-      return '${applicationBinaryPath!}/app-profile.apk';
+      return applicationBinaryPath!;
     }
 
     return 'build/app/outputs/flutter-apk/app-profile.apk';

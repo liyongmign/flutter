@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Flutter code sample for [PlatformMenuBar].
+// Flutter code sample for PlatformMenuBar
 
 ////////////////////////////////////
 // THIS SAMPLE ONLY WORKS ON MACOS.
@@ -11,32 +11,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() => runApp(const ExampleApp());
+void main() => runApp(const SampleApp());
 
 enum MenuSelection {
   about,
   showMessage,
 }
 
-class ExampleApp extends StatelessWidget {
-  const ExampleApp({super.key});
+class SampleApp extends StatelessWidget {
+  const SampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(body: PlatformMenuBarExample()),
+      home: Scaffold(body: MyMenuBarApp()),
     );
   }
 }
 
-class PlatformMenuBarExample extends StatefulWidget {
-  const PlatformMenuBarExample({super.key});
+class MyMenuBarApp extends StatefulWidget {
+  const MyMenuBarApp({super.key});
 
   @override
-  State<PlatformMenuBarExample> createState() => _PlatformMenuBarExampleState();
+  State<MyMenuBarApp> createState() => _MyMenuBarAppState();
 }
 
-class _PlatformMenuBarExampleState extends State<PlatformMenuBarExample> {
+class _MyMenuBarAppState extends State<MyMenuBarApp> {
   String _message = 'Hello';
   bool _showMessage = false;
 
@@ -73,12 +73,12 @@ class _PlatformMenuBarExampleState extends State<PlatformMenuBarExample> {
     //  │  └ There's a million things I haven't done, but just you wait.
     //  └ Quit
     return PlatformMenuBar(
-      menus: <PlatformMenuItem>[
+      menus: <MenuItem>[
         PlatformMenu(
           label: 'Flutter API Sample',
-          menus: <PlatformMenuItem>[
+          menus: <MenuItem>[
             PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
+              members: <MenuItem>[
                 PlatformMenuItem(
                   label: 'About',
                   onSelected: () {
@@ -88,7 +88,7 @@ class _PlatformMenuBarExampleState extends State<PlatformMenuBarExample> {
               ],
             ),
             PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
+              members: <MenuItem>[
                 PlatformMenuItem(
                   onSelected: () {
                     _handleMenuSelection(MenuSelection.showMessage);
@@ -98,7 +98,7 @@ class _PlatformMenuBarExampleState extends State<PlatformMenuBarExample> {
                 ),
                 PlatformMenu(
                   label: 'Messages',
-                  menus: <PlatformMenuItem>[
+                  menus: <MenuItem>[
                     PlatformMenuItem(
                       label: 'I am not throwing away my shot.',
                       shortcut: const SingleActivator(LogicalKeyboardKey.digit1, meta: true),

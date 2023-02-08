@@ -177,18 +177,17 @@ File getUniqueFile(Directory dir, String baseName, String ext) {
 /// directories and files that the tool creates under the system temporary
 /// directory when the tool exits either normally or when killed by a signal.
 class LocalFileSystem extends local_fs.LocalFileSystem {
-  LocalFileSystem(this._signals, this._fatalSignals, this.shutdownHooks);
+  LocalFileSystem(this._signals, this._fatalSignals, this._shutdownHooks);
 
   @visibleForTesting
   LocalFileSystem.test({
     required Signals signals,
     List<ProcessSignal> fatalSignals = Signals.defaultExitSignals,
-  }) : this(signals, fatalSignals, ShutdownHooks());
+  }) : this(signals, fatalSignals, null);
 
   Directory? _systemTemp;
   final Map<ProcessSignal, Object> _signalTokens = <ProcessSignal, Object>{};
-
-  final ShutdownHooks shutdownHooks;
+  final ShutdownHooks? _shutdownHooks;
 
   Future<void> dispose() async {
     _tryToDeleteTemp();
@@ -207,7 +206,7 @@ class LocalFileSystem extends local_fs.LocalFileSystem {
         _systemTemp?.deleteSync(recursive: true);
       }
     } on FileSystemException {
-      // ignore
+      // ignore.
     }
     _systemTemp = null;
   }
@@ -240,7 +239,7 @@ class LocalFileSystem extends local_fs.LocalFileSystem {
       }
       // Make sure that the temporary directory is cleaned up when the tool
       // exits normally.
-      shutdownHooks.addShutdownHook(
+      _shutdownHooks?.addShutdownHook(
         _tryToDeleteTemp,
       );
     }

@@ -14,11 +14,6 @@ import 'package:vector_math/vector_math_64.dart';
 import 'debug.dart';
 import 'object.dart';
 
-// Examples can assume:
-// abstract class RenderBar extends RenderBox { }
-// late RenderBox firstChild;
-// void markNeedsLayout() { }
-
 // This class should only be used in debug builds.
 class _DebugSize extends Size {
   _DebugSize(super.source, this._owner, this._canBeUsedByParent) : super.copy();
@@ -999,12 +994,11 @@ class _IntrinsicDimensionsCacheEntry {
 ///
 /// ```dart
 /// AxisDirection get axis => _axis;
-/// AxisDirection _axis = AxisDirection.down; // or initialized in constructor
+/// AxisDirection _axis;
 /// set axis(AxisDirection value) {
-///   assert(value != null); // same checks as in the constructor
-///   if (value == _axis) {
+///   assert(value != null); // same check as in the constructor
+///   if (value == _axis)
 ///     return;
-///   }
 ///   _axis = value;
 ///   markNeedsLayout();
 /// }
@@ -1141,7 +1135,6 @@ class _IntrinsicDimensionsCacheEntry {
 /// The declaration of the `RenderFoo` class itself would thus look like this:
 ///
 /// ```dart
-/// // continuing from previous example...
 /// class RenderFoo extends RenderBox with
 ///   ContainerRenderObjectMixin<RenderBox, FooParentData>,
 ///   RenderBoxContainerDefaultsMixin<RenderBox, FooParentData> {
@@ -1155,10 +1148,9 @@ class _IntrinsicDimensionsCacheEntry {
 /// children's [parentData] fields):
 ///
 /// ```dart
-/// // continuing from previous example...
-/// RenderBox? child = firstChild;
+/// RenderBox child = firstChild;
 /// while (child != null) {
-///   final FooParentData childParentData = child.parentData! as FooParentData;
+///   final FooParentData childParentData = child.parentData;
 ///   // ...operate on child and childParentData...
 ///   assert(child.parentData == childParentData);
 ///   child = childParentData.nextSibling;
@@ -2191,12 +2183,8 @@ abstract class RenderBox extends RenderObject {
       return false;
     }());
     assert(_debugSetDoingBaseline(true));
-    final double? result;
-    try {
-      result = getDistanceToActualBaseline(baseline);
-    } finally {
-      assert(_debugSetDoingBaseline(false));
-    }
+    final double? result = getDistanceToActualBaseline(baseline);
+    assert(_debugSetDoingBaseline(false));
     if (result == null && !onlyReal) {
       return size.height;
     }
@@ -2687,16 +2675,10 @@ abstract class RenderBox extends RenderObject {
   /// so that they support [debugPaintPointersEnabled]:
   ///
   /// ```dart
-  /// class RenderFoo extends RenderBox {
-  ///   // ...
-  ///
-  ///   @override
-  ///   void handleEvent(PointerEvent event, HitTestEntry entry) {
-  ///     assert(debugHandleEvent(event, entry));
-  ///     // ... handle the event ...
-  ///   }
-  ///
-  ///   // ...
+  /// @override
+  /// void handleEvent(PointerEvent event, HitTestEntry entry) {
+  ///   assert(debugHandleEvent(event, entry));
+  ///   // ... handle the event ...
   /// }
   /// ```
   @override
@@ -2712,16 +2694,10 @@ abstract class RenderBox extends RenderObject {
   /// [debugHandleEvent] from their [handleEvent] method, as follows:
   ///
   /// ```dart
-  /// class RenderFoo extends RenderBox {
-  ///   // ...
-  ///
-  ///   @override
-  ///   void handleEvent(PointerEvent event, HitTestEntry entry) {
-  ///     assert(debugHandleEvent(event, entry));
-  ///     // ... handle the event ...
-  ///   }
-  ///
-  ///   // ...
+  /// @override
+  /// void handleEvent(PointerEvent event, HitTestEntry entry) {
+  ///   assert(debugHandleEvent(event, entry));
+  ///   // ... handle the event ...
   /// }
   /// ```
   ///

@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'dart:async';
 
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
-import 'package:flutter_tools/src/application_package.dart';
 import 'package:flutter_tools/src/artifacts.dart';
 import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/base/platform.dart';
@@ -14,16 +15,14 @@ import 'package:flutter_tools/src/build_info.dart';
 import 'package:flutter_tools/src/build_system/build_system.dart';
 import 'package:flutter_tools/src/device.dart';
 import 'package:flutter_tools/src/tester/flutter_tester.dart';
-import 'package:test/fake.dart';
 
 import '../../src/common.dart';
 import '../../src/context.dart';
-import '../../src/fake_process_manager.dart';
 import '../../src/fakes.dart';
 import '../../src/test_build_system.dart';
 
 void main() {
-  late MemoryFileSystem fileSystem;
+  MemoryFileSystem fileSystem;
 
   setUp(() {
     fileSystem = MemoryFileSystem.test();
@@ -74,12 +73,12 @@ void main() {
   });
 
   group('startApp', () {
-    late FlutterTesterDevice device;
-    late List<String> logLines;
-    String? mainPath;
+    FlutterTesterDevice device;
+    List<String> logLines;
+    String mainPath;
 
-    late FakeProcessManager fakeProcessManager;
-    late TestBuildSystem buildSystem;
+    FakeProcessManager fakeProcessManager;
+    TestBuildSystem buildSystem;
 
     final Map<Type, Generator> startOverrides = <Type, Generator>{
       Platform: () => FakePlatform(),
@@ -111,24 +110,24 @@ void main() {
       expect(device.portForwarder, isNot(isNull));
       expect(await device.targetPlatform, TargetPlatform.tester);
 
-      expect(await device.installApp(FakeApplicationPackage()), isTrue);
-      expect(await device.isAppInstalled(FakeApplicationPackage()), isFalse);
-      expect(await device.isLatestBuildInstalled(FakeApplicationPackage()), isFalse);
-      expect(await device.uninstallApp(FakeApplicationPackage()), isTrue);
+      expect(await device.installApp(null), isTrue);
+      expect(await device.isAppInstalled(null), isFalse);
+      expect(await device.isLatestBuildInstalled(null), isFalse);
+      expect(await device.uninstallApp(null), isTrue);
 
       expect(device.isSupported(), isTrue);
     });
 
     testWithoutContext('does not accept profile, release, or jit-release builds', () async {
-      final LaunchResult releaseResult = await device.startApp(FakeApplicationPackage(),
+      final LaunchResult releaseResult = await device.startApp(null,
         mainPath: mainPath,
         debuggingOptions: DebuggingOptions.disabled(BuildInfo.release),
       );
-      final LaunchResult profileResult = await device.startApp(FakeApplicationPackage(),
+      final LaunchResult profileResult = await device.startApp(null,
         mainPath: mainPath,
         debuggingOptions: DebuggingOptions.disabled(BuildInfo.profile),
       );
-      final LaunchResult jitReleaseResult = await device.startApp(FakeApplicationPackage(),
+      final LaunchResult jitReleaseResult = await device.startApp(null,
         mainPath: mainPath,
         debuggingOptions: DebuggingOptions.disabled(BuildInfo.jitRelease),
       );
@@ -168,7 +167,7 @@ Hello!
       expect(result.started, isTrue);
       expect(result.observatoryUri, observatoryUri);
       expect(logLines.last, 'Hello!');
-      expect(fakeProcessManager, hasNoRemainingExpectations);
+      expect(fakeProcessManager.hasRemainingExpectations, isFalse);
     }, overrides: startOverrides);
 
     testUsingContext('performs a build and starts in debug mode with track-widget-creation', () async {
@@ -201,7 +200,7 @@ Hello!
       expect(result.started, isTrue);
       expect(result.observatoryUri, observatoryUri);
       expect(logLines.last, 'Hello!');
-      expect(fakeProcessManager, hasNoRemainingExpectations);
+      expect(fakeProcessManager.hasRemainingExpectations, isFalse);
     }, overrides: startOverrides);
   });
 }
@@ -216,5 +215,3 @@ FlutterTesterDevices setUpFlutterTesterDevices() {
     operatingSystemUtils: FakeOperatingSystemUtils(),
   );
 }
-
-class FakeApplicationPackage extends Fake implements ApplicationPackage {}

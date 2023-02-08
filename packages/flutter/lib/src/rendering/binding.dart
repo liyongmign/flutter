@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:developer';
-import 'dart:ui' as ui show SemanticsUpdate;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -15,7 +14,6 @@ import 'box.dart';
 import 'debug.dart';
 import 'mouse_tracker.dart';
 import 'object.dart';
-import 'service_extensions.dart';
 import 'view.dart';
 
 export 'package:flutter/gestures.dart' show HitTestResult;
@@ -32,7 +30,6 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     _pipelineOwner = PipelineOwner(
       onNeedVisualUpdate: ensureVisualUpdate,
       onSemanticsOwnerCreated: _handleSemanticsOwnerCreated,
-      onSemanticsUpdate: _handleSemanticsUpdate,
       onSemanticsOwnerDisposed: _handleSemanticsOwnerDisposed,
     );
     platformDispatcher
@@ -66,7 +63,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     assert(() {
       // these service extensions only work in debug mode
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.invertOversizedImages.name,
+        name: 'invertOversizedImages',
         getter: () async => debugInvertOversizedImages,
         setter: (bool value) async {
           if (debugInvertOversizedImages != value) {
@@ -77,7 +74,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.debugPaint.name,
+        name: 'debugPaint',
         getter: () async => debugPaintSizeEnabled,
         setter: (bool value) {
           if (debugPaintSizeEnabled == value) {
@@ -88,7 +85,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.debugPaintBaselinesEnabled.name,
+        name: 'debugPaintBaselinesEnabled',
         getter: () async => debugPaintBaselinesEnabled,
         setter: (bool value) {
           if (debugPaintBaselinesEnabled == value) {
@@ -99,7 +96,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.repaintRainbow.name,
+        name: 'repaintRainbow',
         getter: () async => debugRepaintRainbowEnabled,
         setter: (bool value) {
           final bool repaint = debugRepaintRainbowEnabled && !value;
@@ -111,7 +108,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerServiceExtension(
-        name: RenderingServiceExtensions.debugDumpLayerTree.name,
+        name: 'debugDumpLayerTree',
         callback: (Map<String, String> parameters) async {
           final String data = RendererBinding.instance.renderView.debugLayer?.toStringDeep() ?? 'Layer tree unavailable.';
           return <String, Object>{
@@ -120,7 +117,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.debugDisableClipLayers.name,
+        name: 'debugDisableClipLayers',
         getter: () async => debugDisableClipLayers,
         setter: (bool value) {
           if (debugDisableClipLayers == value) {
@@ -131,7 +128,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.debugDisablePhysicalShapeLayers.name,
+        name: 'debugDisablePhysicalShapeLayers',
         getter: () async => debugDisablePhysicalShapeLayers,
         setter: (bool value) {
           if (debugDisablePhysicalShapeLayers == value) {
@@ -142,7 +139,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.debugDisableOpacityLayers.name,
+        name: 'debugDisableOpacityLayers',
         getter: () async => debugDisableOpacityLayers,
         setter: (bool value) {
           if (debugDisableOpacityLayers == value) {
@@ -158,7 +155,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     if (!kReleaseMode) {
       // these service extensions work in debug or profile mode
       registerServiceExtension(
-        name: RenderingServiceExtensions.debugDumpRenderTree.name,
+        name: 'debugDumpRenderTree',
         callback: (Map<String, String> parameters) async {
           final String data = RendererBinding.instance.renderView.toStringDeep();
           return <String, Object>{
@@ -167,23 +164,27 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerServiceExtension(
-        name: RenderingServiceExtensions.debugDumpSemanticsTreeInTraversalOrder.name,
+        name: 'debugDumpSemanticsTreeInTraversalOrder',
         callback: (Map<String, String> parameters) async {
+          final String data = RendererBinding.instance.renderView.debugSemantics
+            ?.toStringDeep() ?? 'Semantics not collected.';
           return <String, Object>{
-            'data': _generateSemanticsTree(DebugSemanticsDumpOrder.traversalOrder),
+            'data': data,
           };
         },
       );
       registerServiceExtension(
-        name: RenderingServiceExtensions.debugDumpSemanticsTreeInInverseHitTestOrder.name,
+        name: 'debugDumpSemanticsTreeInInverseHitTestOrder',
         callback: (Map<String, String> parameters) async {
+          final String data = RendererBinding.instance.renderView.debugSemantics
+            ?.toStringDeep(childOrder: DebugSemanticsDumpOrder.inverseHitTest) ?? 'Semantics not collected.';
           return <String, Object>{
-            'data': _generateSemanticsTree(DebugSemanticsDumpOrder.inverseHitTest),
+            'data': data,
           };
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.profileRenderObjectPaints.name,
+        name: 'profileRenderObjectPaints',
         getter: () async => debugProfilePaintsEnabled,
         setter: (bool value) async {
           if (debugProfilePaintsEnabled != value) {
@@ -192,7 +193,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
         },
       );
       registerBoolServiceExtension(
-        name: RenderingServiceExtensions.profileRenderObjectLayouts.name,
+        name: 'profileRenderObjectLayouts',
         getter: () async => debugProfileLayoutsEnabled,
         setter: (bool value) async {
           if (debugProfileLayoutsEnabled != value) {
@@ -367,10 +368,6 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
 
   void _handleSemanticsOwnerCreated() {
     renderView.scheduleInitialSemantics();
-  }
-
-  void _handleSemanticsUpdate(ui.SemanticsUpdate update) {
-    renderView.updateSemantics(update);
   }
 
   void _handleSemanticsOwnerDisposed() {
@@ -578,19 +575,8 @@ void debugDumpLayerTree() {
 ///
 /// The order in which the children of a [SemanticsNode] will be printed is
 /// controlled by the [childOrder] parameter.
-void debugDumpSemanticsTree([DebugSemanticsDumpOrder childOrder = DebugSemanticsDumpOrder.traversalOrder]) {
-  debugPrint(_generateSemanticsTree(childOrder));
-}
-
-String _generateSemanticsTree(DebugSemanticsDumpOrder childOrder) {
-  final String? tree = RendererBinding.instance.renderView.debugSemantics?.toStringDeep(childOrder: childOrder);
-  if (tree != null) {
-    return tree;
-  }
-  return 'Semantics not generated.\n'
-    'For performance reasons, the framework only generates semantics when asked to do so by the platform.\n'
-    'Usually, platforms only ask for semantics when assistive technologies (like screen readers) are running.\n'
-    'To generate semantics, try turning on an assistive technology (like VoiceOver or TalkBack) on your device.';
+void debugDumpSemanticsTree(DebugSemanticsDumpOrder childOrder) {
+  debugPrint(RendererBinding.instance.renderView.debugSemantics?.toStringDeep(childOrder: childOrder) ?? 'Semantics not collected.');
 }
 
 /// A concrete binding for applications that use the Rendering framework

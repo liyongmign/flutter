@@ -37,9 +37,8 @@ class Calculator {
     int i = 0;
     final JsonDecoder decoder = JsonDecoder(
       (dynamic key, dynamic value) {
-        if (key is int && i++ % _NOTIFY_INTERVAL == 0) {
+        if (key is int && i++ % _NOTIFY_INTERVAL == 0)
           onProgressListener(i.toDouble(), _NUM_ITEMS.toDouble());
-        }
         return value;
       },
     );
@@ -57,9 +56,8 @@ class Calculator {
     final StringBuffer buffer = StringBuffer()..write('[');
     for (int i = 0; i < count; i++) {
       buffer.write(data);
-      if (i < count - 1) {
+      if (i < count - 1)
         buffer.write(',');
-      }
     }
     buffer.write(']');
     return buffer.toString();
@@ -269,11 +267,10 @@ class IsolateExampleState extends State<StatefulWidget> with SingleTickerProvide
   }
 
   void _handleButtonPressed() {
-    if (_calculationManager.isRunning) {
+    if (_calculationManager.isRunning)
       _calculationManager.stop();
-    } else {
+    else
       _calculationManager.start();
-    }
     _updateState(' ', 0.0);
   }
 

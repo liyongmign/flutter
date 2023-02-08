@@ -145,6 +145,8 @@ CommandArgs cmd({
   );
 }
 
+typedef ExitErrorFactory = dynamic Function();
+
 @immutable
 class CommandArgs {
   const CommandArgs({ required this.command, this.arguments, this.environment });
@@ -158,9 +160,8 @@ class CommandArgs {
 
   @override
   bool operator==(Object other) {
-    if (other.runtimeType != CommandArgs) {
+    if (other.runtimeType != CommandArgs)
       return false;
-    }
     return other is CommandArgs
         && other.command == command
         && const ListEquality<String>().equals(other.arguments, arguments)

@@ -763,7 +763,6 @@ class FlutterTestTestDriver extends FlutterTestDriver {
 
   Future<void> test({
     String testFile = 'test/test.dart',
-    String? deviceId,
     bool withDebugger = false,
     bool pauseOnExceptions = false,
     bool coverage = false,
@@ -776,8 +775,6 @@ class FlutterTestTestDriver extends FlutterTestDriver {
       '--machine',
       if (coverage)
         '--coverage',
-      if (deviceId != null)
-        ...<String>['-d', deviceId],
     ], script: testFile, withDebugger: withDebugger, pauseOnExceptions: pauseOnExceptions, beforeStart: beforeStart);
   }
 

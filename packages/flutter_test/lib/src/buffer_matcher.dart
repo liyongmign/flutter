@@ -60,11 +60,11 @@ class _BufferGoldenMatcher extends AsyncMatcher {
 /// golden files. This parameter is optional.
 ///
 /// {@tool snippet}
-/// Sample invocations of [bufferMatchesGoldenFile].
+/// Sample invocations of [matchesGoldenFile].
 ///
 /// ```dart
 /// await expectLater(
-///   const <int>[ /* bytes... */ ],
+///   const <int>[],
 ///   bufferMatchesGoldenFile('sample.png'),
 /// );
 /// ```

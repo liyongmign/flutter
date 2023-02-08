@@ -12,15 +12,11 @@ import '../globals.dart' as globals;
 import '../runner/flutter_command.dart';
 
 class InstallCommand extends FlutterCommand with DeviceBasedDevelopmentArtifacts {
-  InstallCommand({
-    required bool verboseHelp,
-  }) {
-    addBuildModeFlags(verboseHelp: verboseHelp);
+  InstallCommand() {
     requiresPubspecYaml();
-    usesApplicationBinaryOption();
-    usesDeviceTimeoutOption();
     usesDeviceUserOption();
-    usesFlavorOption();
+    usesDeviceTimeoutOption();
+    usesApplicationBinaryOption();
     argParser.addFlag('uninstall-only',
       help: 'Uninstall the app if already on the device. Skip install.',
     );
@@ -64,7 +60,6 @@ class InstallCommand extends FlutterCommand with DeviceBasedDevelopmentArtifacts
     final ApplicationPackage? package = await applicationPackages?.getPackageForPlatform(
       await targetDevice.targetPlatform,
       applicationBinary: _applicationBinary,
-      buildInfo: await getBuildInfo(),
     );
     if (package == null) {
       throwToolExit('Could not find or build package');

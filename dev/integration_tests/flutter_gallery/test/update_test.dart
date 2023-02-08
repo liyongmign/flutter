@@ -12,9 +12,8 @@ Future<String> mockUpdateUrlFetcher() {
 
 void main() {
   final TestWidgetsFlutterBinding binding = TestWidgetsFlutterBinding.ensureInitialized();
-  if (binding is LiveTestWidgetsFlutterBinding) {
+  if (binding is LiveTestWidgetsFlutterBinding)
     binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
-  }
 
   // Regression test for https://github.com/flutter/flutter/pull/5168
   testWidgets('update dialog', (WidgetTester tester) async {

@@ -391,8 +391,9 @@ class BoxDecoration extends Decoration {
 
 /// An object that paints a [BoxDecoration] into a canvas.
 class _BoxDecorationPainter extends BoxPainter {
-  _BoxDecorationPainter(this._decoration, super.onChanged)
-    : assert(_decoration != null);
+  _BoxDecorationPainter(this._decoration, VoidCallback? onChanged)
+    : assert(_decoration != null),
+      super(onChanged);
 
   final BoxDecoration _decoration;
 
@@ -430,7 +431,7 @@ class _BoxDecorationPainter extends BoxPainter {
         canvas.drawCircle(center, radius, paint);
         break;
       case BoxShape.rectangle:
-        if (_decoration.borderRadius == null || _decoration.borderRadius == BorderRadius.zero) {
+        if (_decoration.borderRadius == null) {
           canvas.drawRect(rect, paint);
         } else {
           canvas.drawRRect(_decoration.borderRadius!.resolve(textDirection).toRRect(rect), paint);

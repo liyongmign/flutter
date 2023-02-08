@@ -9,9 +9,6 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
-// Examples can assume:
-// late BuildContext context;
-
 @immutable
 /// Defines the visual properties of [ProgressIndicator] widgets.
 ///

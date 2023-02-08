@@ -208,7 +208,7 @@ enum _PickerColumnType {
 ///
 /// {@tool dartpad}
 /// This sample shows how to implement CupertinoDatePicker with different picker modes.
-/// We can provide initial dateTime value for the picker to display. When user changes
+/// We can provide intiial dateTime value for the picker to display. When user changes
 /// the drag the date or time wheels, the picker will call onDateTimeChanged callback.
 ///
 /// CupertinoDatePicker can be displayed directly on a screen or in a popup.
@@ -470,13 +470,20 @@ class CupertinoDatePicker extends StatefulWidget {
 
     assert(longestText != '', 'column type is not appropriate');
 
-    return TextPainter.computeMaxIntrinsicWidth(
+    final TextPainter painter = TextPainter(
       text: TextSpan(
         style: _themeTextStyle(context),
         text: longestText,
       ),
       textDirection: Directionality.of(context),
     );
+
+    // This operation is expensive and should be avoided. It is called here only
+    // because there's no other way to get the information we want without
+    // laying out the text.
+    painter.layout();
+
+    return painter.maxIntrinsicWidth;
   }
 }
 
@@ -939,11 +946,11 @@ class _CupertinoDatePickerDateTimeState extends State<CupertinoDatePicker> {
     if (minCheck || maxCheck) {
       // We have minCheck === !maxCheck.
       final DateTime targetDate = minCheck ? widget.minimumDate! : widget.maximumDate!;
-      _scrollToDate(targetDate, selectedDate, minCheck);
+      _scrollToDate(targetDate, selectedDate);
     }
   }
 
-  void _scrollToDate(DateTime newDate, DateTime fromDate, bool minCheck) {
+  void _scrollToDate(DateTime newDate, DateTime fromDate) {
     assert(newDate != null);
     SchedulerBinding.instance.addPostFrameCallback((Duration timestamp) {
       if (fromDate.year != newDate.year || fromDate.month != newDate.month || fromDate.day != newDate.day) {
@@ -970,9 +977,7 @@ class _CupertinoDatePickerDateTimeState extends State<CupertinoDatePicker> {
       }
 
       if (fromDate.minute != newDate.minute) {
-        final double positionDouble = newDate.minute / widget.minuteInterval;
-        final int position = minCheck ? positionDouble.ceil() : positionDouble.floor();
-        _animateColumnControllerToItem(minuteController, position);
+        _animateColumnControllerToItem(minuteController, newDate.minute);
       }
     });
   }
@@ -1656,7 +1661,6 @@ class _CupertinoTimerPickerState extends State<CupertinoTimerPicker> {
   @override
   void dispose() {
     PaintingBinding.instance.systemFonts.removeListener(_handleSystemFontsChange);
-    textPainter.dispose();
     super.dispose();
   }
 

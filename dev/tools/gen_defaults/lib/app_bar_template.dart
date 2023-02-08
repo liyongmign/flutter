@@ -34,10 +34,7 @@ class _${blockName}DefaultsM3 extends AppBarTheme {
   Color? get foregroundColor => ${color('md.comp.top-app-bar.small.headline.color')};
 
   @override
-  Color? get shadowColor => ${colorOrTransparent('md.comp.top-app-bar.small.container.shadow-color')};
-
-  @override
-  Color? get surfaceTintColor => ${colorOrTransparent('md.comp.top-app-bar.small.container.surface-tint-layer.color')};
+  Color? get surfaceTintColor => ${componentColor('md.comp.top-app-bar.small.container.surface-tint-layer')};
 
   @override
   IconThemeData? get iconTheme => IconThemeData(
@@ -52,7 +49,7 @@ class _${blockName}DefaultsM3 extends AppBarTheme {
   );
 
   @override
-  TextStyle? get toolbarTextStyle => _textTheme.bodyMedium;
+  TextStyle? get toolbarTextStyle => _textTheme.bodyText2;
 
   @override
   TextStyle? get titleTextStyle => ${textStyle('md.comp.top-app-bar.small.headline')};

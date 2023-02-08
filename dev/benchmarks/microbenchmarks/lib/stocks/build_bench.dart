@@ -11,7 +11,7 @@ import '../common.dart';
 
 const Duration kBenchmarkTime = Duration(seconds: 15);
 
-Future<List<double>> runBuildBenchmark() async {
+Future<void> main() async {
   assert(false, "Don't run benchmarks in debug mode! Use 'flutter run --release'.");
   stock_data.StockData.actuallyFetchData = false;
 
@@ -52,14 +52,11 @@ Future<List<double>> runBuildBenchmark() async {
       values.add(watch.elapsedMicroseconds.toDouble());
     }
   });
-  return values;
-}
 
-Future<void> main() async {
   final BenchmarkResultPrinter printer = BenchmarkResultPrinter();
   printer.addResultStatistics(
     description: 'Stock build',
-    values: await runBuildBenchmark(),
+    values: values,
     unit: 'µs per iteration',
     name: 'stock_build_iteration',
   );

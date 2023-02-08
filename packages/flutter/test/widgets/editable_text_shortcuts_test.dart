@@ -8,7 +8,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'clipboard_utils.dart';
-import 'keyboard_utils.dart';
+
+Future<void> sendKeyCombination(
+  WidgetTester tester,
+  SingleActivator activator,
+) async {
+  final List<LogicalKeyboardKey> modifiers = <LogicalKeyboardKey>[
+    if (activator.control) LogicalKeyboardKey.control,
+    if (activator.shift) LogicalKeyboardKey.shift,
+    if (activator.alt) LogicalKeyboardKey.alt,
+    if (activator.meta) LogicalKeyboardKey.meta,
+  ];
+  for (final LogicalKeyboardKey modifier in modifiers) {
+    await tester.sendKeyDownEvent(modifier);
+  }
+  await tester.sendKeyDownEvent(activator.trigger);
+  await tester.sendKeyUpEvent(activator.trigger);
+  await tester.pump();
+  for (final LogicalKeyboardKey modifier in modifiers.reversed) {
+    await tester.sendKeyUpEvent(modifier);
+  }
+}
 
 Iterable<SingleActivator> allModifierVariants(LogicalKeyboardKey trigger) {
   const Iterable<bool> trueFalse = <bool>[false, true];
@@ -47,8 +67,6 @@ void main() {
       '0123456789ABCDEFGHIJ'
       '0123456789ABCDEFGHIJ'
       '0123456789ABCDEFGHIJ';
-
-  const String testVerticalText = '1\n2\n3\n4\n5\n6\n7\n8\n9';
   final TextEditingController controller = TextEditingController(text: testText);
 
   final FocusNode focusNode = FocusNode();
@@ -103,8 +121,6 @@ void main() {
         LogicalKeyboardKey.arrowRight,
         LogicalKeyboardKey.arrowUp,
         LogicalKeyboardKey.arrowDown,
-        LogicalKeyboardKey.pageUp,
-        LogicalKeyboardKey.pageDown,
         LogicalKeyboardKey.home,
         LogicalKeyboardKey.end,
       ];
@@ -150,7 +166,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 19),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('backspace readonly', (WidgetTester tester) async {
           controller.text = testText;
@@ -215,7 +231,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 71),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('backspace inside of a cluster', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -236,7 +252,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('backspace at cluster boundary', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -257,7 +273,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
       });
 
       group('delete: ', () {
@@ -287,7 +303,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 20),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('delete readonly', (WidgetTester tester) async {
           controller.text = testText;
@@ -305,7 +321,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 20, affinity: TextAffinity.upstream),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('delete at start', (WidgetTester tester) async {
           controller.text = testText;
@@ -328,7 +344,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('delete at end', (WidgetTester tester) async {
           controller.text = testText;
@@ -373,7 +389,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('delete at cluster boundary', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -394,7 +410,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 8),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
       });
 
       group('Non-collapsed delete', () {
@@ -420,7 +436,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 8),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('at the boundaries of a cluster', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -441,7 +457,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 8),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('cross-cluster', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -462,7 +478,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('cross-cluster obscured text', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -483,7 +499,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 1),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
       });
 
       group('word modifier + backspace', () {
@@ -516,7 +532,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 24),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('readonly', (WidgetTester tester) async {
           controller.text = testText;
@@ -581,7 +597,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 71),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('inside of a cluster', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -602,7 +618,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('at cluster boundary', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -623,7 +639,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
       });
 
       group('word modifier + delete', () {
@@ -656,7 +672,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 23),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('readonly', (WidgetTester tester) async {
           controller.text = testText;
@@ -697,7 +713,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('at end', (WidgetTester tester) async {
           controller.text = testText;
@@ -735,7 +751,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 0),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
 
         testWidgets('at cluster boundary', (WidgetTester tester) async {
           controller.text = testCluster;
@@ -756,7 +772,7 @@ void main() {
             controller.selection,
             const TextSelection.collapsed(offset: 8),
           );
-        }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{ TargetPlatform.iOS }));
+        }, variant: TargetPlatformVariant.all());
       });
 
       group('line modifier + backspace', () {
@@ -1213,7 +1229,6 @@ void main() {
 
             expect(controller.selection, const TextSelection.collapsed(
               offset: 21,
-              affinity: TextAffinity.upstream,
             ));
           }, variant: TargetPlatformVariant.all());
 
@@ -1228,7 +1243,6 @@ void main() {
 
             expect(controller.selection, const TextSelection.collapsed(
               offset: 10,
-              affinity: TextAffinity.upstream,
             ));
           }, variant: allExceptApple);
 
@@ -1339,7 +1353,6 @@ void main() {
             await tester.pump();
             expect(controller.selection, const TextSelection.collapsed(
               offset: 46, // After "to".
-              affinity: TextAffinity.upstream,
             ));
 
             // "good" to "come" is selected.
@@ -1352,7 +1365,6 @@ void main() {
             await tester.pump();
             expect(controller.selection, const TextSelection.collapsed(
               offset: 28, // After "good".
-              affinity: TextAffinity.upstream,
             ));
           }, variant: allExceptApple);
 
@@ -1431,18 +1443,6 @@ void main() {
                 reason: activator.toString(),
               );
             }
-
-            for (final SingleActivator activator in allModifierVariants(LogicalKeyboardKey.pageUp)) {
-              await sendKeyCombination(tester, activator);
-              await tester.pump();
-
-              expect(controller.text, testText);
-              expect(
-                controller.selection,
-                const TextSelection.collapsed(offset: 0),
-                reason: activator.toString(),
-              );
-            }
           }, variant: TargetPlatformVariant.all());
 
           testWidgets('at end', (WidgetTester tester) async {
@@ -1454,15 +1454,6 @@ void main() {
             await tester.pumpWidget(buildEditableText());
 
             for (final SingleActivator activator in allModifierVariants(LogicalKeyboardKey.arrowDown)) {
-              await sendKeyCombination(tester, activator);
-              await tester.pump();
-
-              expect(controller.text, testText);
-              expect(controller.selection.baseOffset, 72, reason: activator.toString());
-              expect(controller.selection.extentOffset, 72, reason: activator.toString());
-            }
-
-            for (final SingleActivator activator in allModifierVariants(LogicalKeyboardKey.pageDown)) {
               await sendKeyCombination(tester, activator);
               await tester.pump();
 
@@ -1484,7 +1475,6 @@ void main() {
               offset: 2,
             );
             await tester.pumpWidget(buildEditableText());
-            await tester.pump(); // Wait for autofocus to take effect.
 
             await sendKeyCombination(tester, const SingleActivator(LogicalKeyboardKey.arrowDown));
             await tester.pump();
@@ -1558,41 +1548,6 @@ void main() {
               affinity: TextAffinity.upstream,
             ));
           }, variant: TargetPlatformVariant.all());
-
-          testWidgets('run with page down/up', (WidgetTester tester) async {
-            controller.text =
-              'aa\n'     // 3
-              'a\n'      // 3 + 2 = 5
-              'aa\n'     // 5 + 3 = 8
-              'aaa\n'    // 8 + 4 = 12
-              '${"aaa\n" * 50}'
-              'aaaa';
-
-            controller.selection = const TextSelection.collapsed(offset: 2);
-            await tester.pumpWidget(buildEditableText());
-
-            await sendKeyCombination(tester, const SingleActivator(LogicalKeyboardKey.arrowDown));
-            await tester.pump();
-            expect(controller.selection, const TextSelection.collapsed(
-              offset: 4,
-              affinity: TextAffinity.upstream,
-            ));
-
-            await sendKeyCombination(tester, const SingleActivator(LogicalKeyboardKey.pageDown));
-            await tester.pump();
-            expect(controller.selection, const TextSelection.collapsed(offset: 82));
-
-            await sendKeyCombination(tester, const SingleActivator(LogicalKeyboardKey.arrowUp));
-            await tester.pump();
-            expect(controller.selection, const TextSelection.collapsed(offset: 78));
-
-            await sendKeyCombination(tester, const SingleActivator(LogicalKeyboardKey.pageUp));
-            await tester.pump();
-            expect(controller.selection, const TextSelection.collapsed(
-              offset: 2,
-              affinity: TextAffinity.upstream,
-            ));
-          }, variant: TargetPlatformVariant.all(excluding: <TargetPlatform>{TargetPlatform.iOS, TargetPlatform.macOS})); // intended: on macOS Page Up/Down only scrolls
 
           testWidgets('run can be interrupted by layout changes', (WidgetTester tester) async {
             controller.text =
@@ -1717,7 +1672,6 @@ void main() {
 
       expect(controller.selection, const TextSelection.collapsed(
         offset: 10,
-        affinity: TextAffinity.upstream,
       ));
     }, variant: macOSOnly);
 
@@ -1788,7 +1742,6 @@ void main() {
       await tester.pump();
       expect(controller.selection, const TextSelection.collapsed(
         offset: 46, // After "to".
-        affinity: TextAffinity.upstream,
       ));
 
       // "good" to "come" is selected.
@@ -1801,7 +1754,6 @@ void main() {
       await tester.pump();
       expect(controller.selection, const TextSelection.collapsed(
         offset: 28, // After "good".
-        affinity: TextAffinity.upstream,
       ));
     }, variant: macOSOnly);
 
@@ -2025,8 +1977,7 @@ void main() {
       }, variant: appleOnly);
     });
 
-    testWidgets('vertical movement outside of selection',
-        (WidgetTester tester) async {
+    testWidgets('vertical movement', (WidgetTester tester) async {
       controller.text = testText;
       controller.selection = const TextSelection.collapsed(
         offset: 0,
@@ -2035,10 +1986,6 @@ void main() {
       await tester.pumpWidget(buildEditableText());
 
       for (final SingleActivator activator in allModifierVariants(LogicalKeyboardKey.arrowDown)) {
-        // Skip for the shift shortcut since web accepts it.
-        if (activator.shift) {
-          continue;
-        }
         await sendKeyCombination(tester, activator);
         await tester.pump();
 
@@ -2188,102 +2135,4 @@ void main() {
     }, variant: appleOnly);
 
   }, skip: !kIsWeb);// [intended] specific tests target web.
-
-  group('Web does accept', () {
-      testWidgets('select up', (WidgetTester tester) async {
-        const SingleActivator selectUp =
-            SingleActivator(LogicalKeyboardKey.arrowUp, shift: true);
-        controller.text = testVerticalText;
-        controller.selection = const TextSelection.collapsed(
-          offset: 5,
-        );
-
-        await tester.pumpWidget(buildEditableText());
-        await sendKeyCombination(tester, selectUp);
-        await tester.pump();
-
-        expect(controller.text, testVerticalText);
-        expect(
-          controller.selection,
-          const TextSelection(
-              baseOffset: 5,
-              extentOffset: 3), // selection extends upwards from 5
-          reason: selectUp.toString(),
-        );
-      }, variant: TargetPlatformVariant.desktop());
-
-      testWidgets('select down', (WidgetTester tester) async {
-        const SingleActivator selectDown =
-            SingleActivator(LogicalKeyboardKey.arrowDown, shift: true);
-        controller.text = testVerticalText;
-        controller.selection = const TextSelection.collapsed(
-          offset: 5,
-        );
-
-        await tester.pumpWidget(buildEditableText());
-        await sendKeyCombination(tester, selectDown);
-        await tester.pump();
-
-        expect(controller.text, testVerticalText);
-        expect(
-          controller.selection,
-          const TextSelection(
-              baseOffset: 5,
-              extentOffset: 7), // selection extends downwards from 5
-          reason: selectDown.toString(),
-        );
-      }, variant: TargetPlatformVariant.desktop());
-
-      testWidgets('select all up', (WidgetTester tester) async {
-        final bool isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
-        final SingleActivator selectAllUp = isMacOS
-            ? const SingleActivator(LogicalKeyboardKey.arrowUp,
-                shift: true, meta: true)
-            : const SingleActivator(LogicalKeyboardKey.arrowUp,
-                shift: true, alt: true);
-        controller.text = testVerticalText;
-        controller.selection = const TextSelection.collapsed(
-          offset: 5,
-        );
-
-        await tester.pumpWidget(buildEditableText());
-        await sendKeyCombination(tester, selectAllUp);
-        await tester.pump();
-
-        expect(controller.text, testVerticalText);
-        expect(
-          controller.selection,
-          const TextSelection(
-              baseOffset: 5,
-              extentOffset: 0), // selection extends all the way up
-          reason: selectAllUp.toString(),
-        );
-      }, variant: TargetPlatformVariant.desktop());
-
-      testWidgets('select all down', (WidgetTester tester) async {
-        final bool isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
-        final SingleActivator selectAllDown = isMacOS
-            ? const SingleActivator(LogicalKeyboardKey.arrowDown,
-                shift: true, meta: true)
-            : const SingleActivator(LogicalKeyboardKey.arrowDown,
-                shift: true, alt: true);
-        controller.text = testVerticalText;
-        controller.selection = const TextSelection.collapsed(
-          offset: 5,
-        );
-
-        await tester.pumpWidget(buildEditableText());
-        await sendKeyCombination(tester, selectAllDown);
-        await tester.pump();
-
-        expect(controller.text, testVerticalText);
-        expect(
-          controller.selection,
-          const TextSelection(
-              baseOffset: 5,
-              extentOffset: 17), // selection extends all the way down
-          reason: selectAllDown.toString(),
-        );
-    }, variant: TargetPlatformVariant.desktop());
-  }, skip: !kIsWeb); // [intended] specific tests target web.
 }

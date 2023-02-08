@@ -64,7 +64,8 @@ int x = 'String';
       ], workingDirectory: projectRoot.path);
 
       expect(
-        result.stderr,
+        // iOS shows this as stdout.
+        targetPlatform == 'ios' ? result.stdout : result.stderr,
         contains("A value of type 'String' can't be assigned to a variable of type 'int'."),
       );
       expect(result.exitCode, 1);

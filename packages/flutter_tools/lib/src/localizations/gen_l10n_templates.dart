@@ -137,25 +137,68 @@ const String getterTemplate = '''
 const String methodTemplate = '''
   @override
   String @(name)(@(parameters)) {
-@(dateFormatting)
-@(numberFormatting)
-@(tempVars)    return @(message);
+    return @(message);
   }''';
 
-const String pluralVariableTemplate = '''
-    String @(varName) = intl.Intl.pluralLogic(
+const String formatMethodTemplate = '''
+  @override
+  String @(name)(@(parameters)) {
+@(dateFormatting)
+@(numberFormatting)
+    return @(message);
+  }''';
+
+const String pluralMethodTemplate = '''
+  @override
+  String @(name)(@(parameters)) {
+@(dateFormatting)
+@(numberFormatting)
+    return intl.Intl.pluralLogic(
       @(count),
       locale: localeName,
-@(pluralLogicArgs)
-    );''';
+@(pluralLogicArgs),
+    );
+  }''';
 
-const String selectVariableTemplate = '''
-    String @(varName) = intl.Intl.selectLogic(
+const String pluralMethodTemplateInString = '''
+  @override
+  String @(name)(@(parameters)) {
+@(dateFormatting)
+@(numberFormatting)
+    final String @(variable) = intl.Intl.pluralLogic(
+      @(count),
+      locale: localeName,
+@(pluralLogicArgs),
+    );
+
+    return @(string);
+  }''';
+
+const String selectMethodTemplate = '''
+  @override
+  String @(name)(@(parameters)) {
+    return intl.Intl.select(
       @(choice),
       {
-@(selectCases)
+        @(cases)
       },
-    );''';
+      desc: '@(description)'
+    );
+  }''';
+
+const String selectMethodTemplateInString = '''
+  @override
+  String @(name)(@(parameters)) {
+    final String @(variable) = intl.Intl.select(
+      @(choice),
+      {
+        @(cases)
+      },
+      desc: '@(description)'
+    );
+
+    return @(string);
+  }''';
 
 const String classFileTemplate = '''
 @(header)@(requiresIntlImport)import '@(fileName)';

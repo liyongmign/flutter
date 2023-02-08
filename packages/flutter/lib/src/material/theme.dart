@@ -72,7 +72,7 @@ class Theme extends StatelessWidget {
   /// Widget build(BuildContext context) {
   ///   return Text(
   ///     'Example',
-  ///     style: Theme.of(context).textTheme.titleLarge,
+  ///     style: Theme.of(context).textTheme.headline6,
   ///   );
   /// }
   /// ```
@@ -89,14 +89,14 @@ class Theme extends StatelessWidget {
   /// Widget build(BuildContext context) {
   ///   return MaterialApp(
   ///     theme: ThemeData.light(),
-  ///     home: Builder(
+  ///     body: Builder(
   ///       // Create an inner BuildContext so that we can refer to
   ///       // the Theme with Theme.of().
   ///       builder: (BuildContext context) {
   ///         return Center(
   ///           child: Text(
   ///             'Example',
-  ///             style: Theme.of(context).textTheme.titleLarge,
+  ///             style: Theme.of(context).textTheme.headline6,
   ///           ),
   ///         );
   ///       },

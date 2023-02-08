@@ -2,39 +2,41 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Flutter code sample for [LinearProgressIndicator].
+// Flutter code sample for LinearProgressIndicator
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(const ProgressIndicatorApp());
+void main() => runApp(const MyApp());
 
-class ProgressIndicatorApp extends StatelessWidget {
-  const ProgressIndicatorApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static const String _title = 'Flutter Code Sample';
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: ProgressIndicatorExample(),
+      title: _title,
+      home: MyStatefulWidget(),
     );
   }
 }
 
-class ProgressIndicatorExample extends StatefulWidget {
-  const ProgressIndicatorExample({super.key});
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({super.key});
 
   @override
-  State<ProgressIndicatorExample> createState() => _ProgressIndicatorExampleState();
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
-class _ProgressIndicatorExampleState extends State<ProgressIndicatorExample>
+/// AnimationControllers can be created with `vsync: this` because of TickerProviderStateMixin.
+class _MyStatefulWidgetState extends State<MyStatefulWidget>
     with TickerProviderStateMixin {
   late AnimationController controller;
 
   @override
   void initState() {
     controller = AnimationController(
-      /// [AnimationController]s can be created with `vsync: this` because of
-      /// [TickerProviderStateMixin].
       vsync: this,
       duration: const Duration(seconds: 5),
     )..addListener(() {

@@ -121,13 +121,6 @@ class _RotationContainerState extends State<RotationContainer>
     );
     _rotationController.repeat();
   }
-
-  @override
-  void dispose() {
-    _rotationController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return RotationTransition(

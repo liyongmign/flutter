@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
@@ -18,12 +20,12 @@ import '../../src/fakes.dart' show FakeFlutterVersion;
 import '../../src/test_flutter_command_runner.dart';
 
 void main() {
-  late FileSystem fileSystem;
-  late BufferLogger logger;
-  late FakeProcessManager processManager;
+  FileSystem fileSystem;
+  BufferLogger logger;
+  FakeProcessManager processManager;
   UpgradeCommand command;
-  late CommandRunner<void> runner;
-  late FlutterVersion flutterVersion;
+  CommandRunner<void> runner;
+  FlutterVersion flutterVersion;
 
   setUpAll(() {
     Cache.disableLocking();

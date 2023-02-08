@@ -40,9 +40,11 @@ const double _kLowDprLimit = 2.0;
 /// as 2.0 and 4.0 pixel ratios (variants). The asset bundle should then
 /// contain the following assets:
 ///
-///     heart.png
-///     2.0x/heart.png
-///     4.0x/heart.png
+/// ```
+/// heart.png
+/// 2.0x/heart.png
+/// 4.0x/heart.png
+/// ```
 ///
 /// On a device with a 1.0 device pixel ratio, the image chosen would be
 /// heart.png; on a device with a 2.0 device pixel ratio, the image chosen
@@ -86,12 +88,15 @@ const double _kLowDprLimit = 2.0;
 /// at the equivalent level; that is, the following is also a valid bundle
 /// structure:
 ///
-///     icons/heart.png
-///     icons/1.5x/heart.png
-///     icons/2.0x/heart.png
+/// ```
+/// icons/heart.png
+/// icons/1.5x/heart.png
+/// icons/2.0x/heart.png
+/// ```
 ///
 /// assets/icons/3.0x/heart.png would be a valid variant of
 /// assets/icons/heart.png.
+///
 ///
 /// ## Fetching assets
 ///
@@ -108,7 +113,7 @@ const double _kLowDprLimit = 2.0;
 ///
 /// Then, to fetch the image, use:
 /// ```dart
-/// const AssetImage('icons/heart.png')
+/// AssetImage('icons/heart.png')
 /// ```
 ///
 /// {@tool snippet}
@@ -199,7 +204,7 @@ const double _kLowDprLimit = 2.0;
 /// `my_icons`. Then to fetch the image, use:
 ///
 /// ```dart
-/// const AssetImage('icons/heart.png', package: 'my_icons')
+/// AssetImage('icons/heart.png', package: 'my_icons')
 /// ```
 ///
 /// Assets used by the package itself should also be fetched using the [package]
@@ -214,9 +219,11 @@ const double _kLowDprLimit = 2.0;
 /// bundled, the app has to specify which ones to include. For instance a
 /// package named `fancy_backgrounds` could have:
 ///
-///     lib/backgrounds/background1.png
-///     lib/backgrounds/background2.png
-///     lib/backgrounds/background3.png
+/// ```
+/// lib/backgrounds/background1.png
+/// lib/backgrounds/background2.png
+/// lib/backgrounds/background3.png
+/// ```
 ///
 /// To include, say the first image, the `pubspec.yaml` of the app should specify
 /// it in the `assets` section:
@@ -284,7 +291,7 @@ class AssetImage extends AssetBundleImageProvider {
     Completer<AssetBundleImageKey>? completer;
     Future<AssetBundleImageKey>? result;
 
-    chosenBundle.loadStructuredData<Map<String, List<String>>?>(_kAssetManifestFileName, manifestParser).then<void>(
+    chosenBundle.loadStructuredData<Map<String, List<String>>?>(_kAssetManifestFileName, _manifestParser).then<void>(
       (Map<String, List<String>>? manifest) {
         final String chosenName = _chooseVariant(
           keyName,
@@ -328,9 +335,7 @@ class AssetImage extends AssetBundleImageProvider {
     return completer.future;
   }
 
-  /// Parses the asset manifest string into a strongly-typed map.
-  @visibleForTesting
-  static Future<Map<String, List<String>>?> manifestParser(String? jsonData) {
+  static Future<Map<String, List<String>>?> _manifestParser(String? jsonData) {
     if (jsonData == null) {
       return SynchronousFuture<Map<String, List<String>>?>(null);
     }

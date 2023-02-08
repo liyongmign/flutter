@@ -14,7 +14,6 @@ import 'package:flutter_tools/src/globals.dart' as globals;
 
 import '../../src/common.dart';
 import '../../src/context.dart';
-import '../../src/fake_process_manager.dart';
 
 const String home = '/home/me';
 
@@ -66,7 +65,7 @@ void main() {
         return message.isError && message.message.contains('ProcessException');
       }).isNotEmpty, true);
     }
-    expect(fakeProcessManager, hasNoRemainingExpectations);
+    expect(fakeProcessManager.hasRemainingExpectations, isFalse);
   }, overrides: <Type, Generator>{
     FileSystem: () => fileSystem,
     ProcessManager: () => fakeProcessManager,

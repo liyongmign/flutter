@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:io';
-import 'dart:ui' show Image, Picture, Size;
+import 'dart:ui' show Size, Picture, Image;
 
 import 'package:flutter/foundation.dart';
 

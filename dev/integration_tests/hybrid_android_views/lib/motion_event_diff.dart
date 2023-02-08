@@ -46,19 +46,17 @@ void diffActions(StringBuffer diffBuffer, Map<String, dynamic> originalEvent,
   final String originalActionName =
       getActionName(originalActionMasked, originalEvent['action'] as int);
 
-  if (synthesizedActionMasked != originalActionMasked) {
+  if (synthesizedActionMasked != originalActionMasked)
     diffBuffer.write(
         'action (expected: $originalActionName actual: $synthesizedActionName) ');
-  }
 
   if (kPointerActions.contains(originalActionMasked) &&
       originalActionMasked == synthesizedActionMasked) {
     final int originalPointer = getPointerIdx(originalEvent['action'] as int);
     final int synthesizedPointer = getPointerIdx(synthesizedEvent['action'] as int);
-    if (originalPointer != synthesizedPointer) {
+    if (originalPointer != synthesizedPointer)
       diffBuffer.write(
           'pointerIdx (expected: $originalPointer actual: $synthesizedPointer action: $originalActionName ');
-    }
   }
 }
 
@@ -124,12 +122,10 @@ void diffMaps(
     return;
   }
   for (final String key in expected.keys) {
-    if (excludeKeys.contains(key)) {
+    if (excludeKeys.contains(key))
       continue;
-    }
-    if (doublesApproximatelyMatch(expected[key], actual[key])) {
+    if (doublesApproximatelyMatch(expected[key], actual[key]))
       continue;
-    }
 
     if (expected[key] != actual[key]) {
       diffBuffer.write(
@@ -158,11 +154,10 @@ String getActionName(int actionMasked, int action) {
     'BUTTON_PRESS',
     'BUTTON_RELEASE',
   ];
-  if (actionMasked < actionNames.length) {
+  if (actionMasked < actionNames.length)
     return '${actionNames[actionMasked]}($action)';
-  } else {
+  else
     return 'ACTION_$actionMasked';
-  }
 }
 
 bool doublesApproximatelyMatch(dynamic a, dynamic b) =>

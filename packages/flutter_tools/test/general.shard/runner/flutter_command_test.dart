@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'dart:async';
 import 'dart:io' as io;
 
@@ -11,37 +13,31 @@ import 'package:flutter_tools/src/base/common.dart';
 import 'package:flutter_tools/src/base/error_handling_io.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
 import 'package:flutter_tools/src/base/io.dart';
-import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/base/signals.dart';
-import 'package:flutter_tools/src/base/terminal.dart';
 import 'package:flutter_tools/src/base/time.dart';
-import 'package:flutter_tools/src/base/user_messages.dart';
 import 'package:flutter_tools/src/build_info.dart';
 import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/dart/pub.dart';
-import 'package:flutter_tools/src/device.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
 import 'package:flutter_tools/src/pre_run_validator.dart';
-import 'package:flutter_tools/src/project.dart';
 import 'package:flutter_tools/src/reporting/reporting.dart';
 import 'package:flutter_tools/src/runner/flutter_command.dart';
 import 'package:test/fake.dart';
 
 import '../../src/common.dart';
 import '../../src/context.dart';
-import '../../src/fake_devices.dart';
 import '../../src/test_flutter_command_runner.dart';
 import 'utils.dart';
 
 void main() {
   group('Flutter Command', () {
-    late FakeCache cache;
-    late TestUsage usage;
-    late FakeClock clock;
-    late FakeProcessInfo processInfo;
-    late MemoryFileSystem fileSystem;
-    late FakeProcessManager processManager;
-    late PreRunValidator preRunValidator;
+    FakeCache cache;
+    TestUsage usage;
+    FakeClock clock;
+    FakeProcessInfo processInfo;
+    MemoryFileSystem fileSystem;
+    FakeProcessManager processManager;
+    PreRunValidator preRunValidator;
 
     setUpAll(() {
       Cache.flutterRoot = '/path/to/sdk/flutter';
@@ -249,7 +245,7 @@ void main() {
       final DummyFlutterCommand flutterCommand = DummyFlutterCommand(
         commandFunction: () async {
           throwToolExit('fail');
-        },
+        }
       );
       await expectLater(
         () => flutterCommand.run(),
@@ -327,9 +323,9 @@ void main() {
     });
 
     group('signals tests', () {
-      late FakeIoProcessSignal mockSignal;
-      late ProcessSignal signalUnderTest;
-      late StreamController<io.ProcessSignal> signalController;
+      FakeIoProcessSignal mockSignal;
+      ProcessSignal signalUnderTest;
+      StreamController<io.ProcessSignal> signalController;
 
       setUp(() {
         mockSignal = FakeIoProcessSignal();
@@ -353,7 +349,7 @@ void main() {
           commandFunction: () async {
             final Completer<void> c = Completer<void>();
             await c.future;
-            throw UnsupportedError('Unreachable');
+            return null; // unreachable
           }
         );
 
@@ -401,7 +397,7 @@ void main() {
           checkLockCompleter.complete();
           final Completer<void> c = Completer<void>();
           await c.future;
-          throw UnsupportedError('Unreachable');
+          return null; // unreachable
         });
 
         unawaited(flutterCommand.run());
@@ -457,7 +453,7 @@ void main() {
       final FlutterCommandResult commandResult = FlutterCommandResult(
         ExitStatus.success,
         // nulls should be cleaned up.
-        timingLabelParts: <String?> ['blah1', 'blah2', null, 'blah3'],
+        timingLabelParts: <String> ['blah1', 'blah2', null, 'blah3'],
         endTimeOverride: DateTime.fromMillisecondsSinceEpoch(1500),
       );
 
@@ -674,138 +670,6 @@ void main() {
       FileSystem: () => fileSystem,
       ProcessManager: () => processManager,
     });
-
-    group('findAllTargetDevices', () {
-      final FakeDevice device1 = FakeDevice('device1', 'device1');
-      final FakeDevice device2 = FakeDevice('device2', 'device2');
-      group('when specified device id', () {
-        testUsingContext('returns device when device is found', () async {
-          testDeviceManager.specifiedDeviceId = 'device-id';
-          testDeviceManager.addDevice(device1);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, <Device>[device1]);
-        });
-
-        testUsingContext('show error when no device found', () async {
-          testDeviceManager.specifiedDeviceId = 'device-id';
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, null);
-          expect(testLogger.statusText, contains(UserMessages().flutterNoMatchingDevice('device-id')));
-        });
-
-        testUsingContext('show error when multiple devices found', () async {
-          testDeviceManager.specifiedDeviceId = 'device-id';
-          testDeviceManager.addDevice(device1);
-          testDeviceManager.addDevice(device2);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, null);
-          expect(testLogger.statusText, contains(UserMessages().flutterFoundSpecifiedDevices(2, 'device-id')));
-        });
-      });
-
-      group('when specified all', () {
-        testUsingContext('can return one device', () async {
-          testDeviceManager.specifiedDeviceId = 'all';
-          testDeviceManager.addDevice(device1);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, <Device>[device1]);
-        });
-
-        testUsingContext('can return multiple devices', () async {
-          testDeviceManager.specifiedDeviceId = 'all';
-          testDeviceManager.addDevice(device1);
-          testDeviceManager.addDevice(device2);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, <Device>[device1, device2]);
-        });
-
-        testUsingContext('show error when no device found', () async {
-          testDeviceManager.specifiedDeviceId = 'all';
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, null);
-          expect(testLogger.statusText, contains(UserMessages().flutterNoDevicesFound));
-        });
-      });
-
-      group('when device not specified', () {
-        testUsingContext('returns one device when only one device connected', () async {
-          testDeviceManager.addDevice(device1);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, <Device>[device1]);
-        });
-
-        testUsingContext('show error when no device found', () async {
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, null);
-          expect(testLogger.statusText, contains(UserMessages().flutterNoSupportedDevices));
-        });
-
-        testUsingContext('show error when multiple devices found and not connected to terminal', () async {
-          testDeviceManager.addDevice(device1);
-          testDeviceManager.addDevice(device2);
-          final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-          final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-          expect(devices, null);
-          expect(testLogger.statusText, contains(UserMessages().flutterSpecifyDeviceWithAllOption));
-        }, overrides: <Type, Generator>{
-          AnsiTerminal: () => FakeTerminal(stdinHasTerminal: false),
-        });
-
-        // Prompt to choose device when multiple devices found and connected to terminal
-        group('show prompt', () {
-          late FakeTerminal terminal;
-          setUp(() {
-            terminal = FakeTerminal();
-          });
-
-          testUsingContext('choose first device', () async {
-            testDeviceManager.addDevice(device1);
-            testDeviceManager.addDevice(device2);
-            terminal.setPrompt(<String>['1', '2', 'q', 'Q'], '1');
-            final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-            final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-
-            expect(devices, <Device>[device1]);
-          }, overrides: <Type, Generator>{
-            AnsiTerminal: () => terminal,
-          });
-
-          testUsingContext('choose second device', () async {
-            testDeviceManager.addDevice(device1);
-            testDeviceManager.addDevice(device2);
-            terminal.setPrompt(<String>['1', '2', 'q', 'Q'], '2');
-            final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-            final List<Device>? devices = await flutterCommand.findAllTargetDevices();
-
-            expect(devices, <Device>[device2]);
-          }, overrides: <Type, Generator>{
-            AnsiTerminal: () => terminal,
-          });
-
-          testUsingContext('exits without choosing device', () async {
-            testDeviceManager.addDevice(device1);
-            testDeviceManager.addDevice(device2);
-            terminal.setPrompt(<String>['1', '2', 'q', 'Q'], 'q');
-            final DummyFlutterCommand flutterCommand = DummyFlutterCommand();
-
-            await expectLater(
-              flutterCommand.findAllTargetDevices(),
-              throwsToolExit(),
-            );
-          }, overrides: <Type, Generator>{
-            AnsiTerminal: () => terminal,
-          });
-        });
-      });
-    });
   });
 }
 
@@ -836,7 +700,7 @@ class FakeTargetCommand extends FlutterCommand {
     return FlutterCommandResult.success();
   }
 
-  String? cachedTargetFile;
+  String cachedTargetFile;
 
   @override
   String get description => '';
@@ -894,7 +758,7 @@ class FakeProcessInfo extends Fake implements ProcessInfo {
 }
 
 class FakeIoProcessSignal extends Fake implements io.ProcessSignal {
-  late Stream<io.ProcessSignal> stream;
+  Stream<io.ProcessSignal> stream;
 
   @override
   Stream<io.ProcessSignal> watch() => stream;
@@ -914,8 +778,8 @@ class FakeCache extends Fake implements Cache {
 
 class FakeSignals implements Signals {
   FakeSignals({
-    required this.subForSigTerm,
-    required List<ProcessSignal> exitSignals,
+    this.subForSigTerm,
+    List<ProcessSignal> exitSignals,
   }) : delegate = Signals.test(exitSignals: exitSignals);
 
   final ProcessSignal subForSigTerm;
@@ -949,44 +813,15 @@ class FakeClock extends Fake implements SystemClock {
 class FakePub extends Fake implements Pub {
   @override
   Future<void> get({
-    required PubContext context,
-    required FlutterProject project,
+    PubContext context,
+    String directory,
     bool skipIfAbsent = false,
     bool upgrade = false,
     bool offline = false,
-    String? flutterRootOverride,
+    bool generateSyntheticPackage = false,
+    String flutterRootOverride,
     bool checkUpToDate = false,
     bool shouldSkipThirdPartyGenerator = true,
     bool printProgress = true,
   }) async { }
-}
-
-class FakeTerminal extends Fake implements AnsiTerminal {
-  FakeTerminal({this.stdinHasTerminal = true});
-
-  @override
-  final bool stdinHasTerminal;
-
-  @override
-  bool usesTerminalUi = true;
-
-  void setPrompt(List<String> characters, String result) {
-    _nextPrompt = characters;
-    _nextResult = result;
-  }
-
-  List<String>? _nextPrompt;
-  late String _nextResult;
-
-  @override
-  Future<String> promptForCharInput(
-    List<String> acceptedCharacters, {
-    Logger? logger,
-    String? prompt,
-    int? defaultChoiceIndex,
-    bool displayAcceptedCharacters = true,
-  }) async {
-    expect(acceptedCharacters, _nextPrompt);
-    return _nextResult;
-  }
 }

@@ -26,9 +26,8 @@ Future<void> main() async {
     section('Find Java');
 
     final String? javaHome = await findJavaHome();
-    if (javaHome == null) {
+    if (javaHome == null)
       return TaskResult.failure('Could not find Java');
-    }
     print('\nUsing JAVA_HOME=$javaHome');
 
     section('Create Flutter module project');

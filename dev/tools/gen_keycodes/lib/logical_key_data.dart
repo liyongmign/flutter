@@ -327,9 +327,8 @@ class LogicalKeyData {
   static void _readFuchsiaKeyCodes(Map<String, LogicalKeyEntry> data, PhysicalKeyData physicalData) {
     for (final LogicalKeyEntry entry in data.values) {
       final int? value = (() {
-        if (entry.value == 0) {
+        if (entry.value == 0) // "None" key
           return 0;
-        }
         final String? keyLabel = printable[entry.constantName];
         if (keyLabel != null && !entry.constantName.startsWith('numpad')) {
           return toPlane(keyLabel.codeUnitAt(0), kUnicodePlane.value);
@@ -340,9 +339,8 @@ class LogicalKeyData {
           }
         }
       })();
-      if (value != null) {
+      if (value != null)
         entry.fuchsiaValues.add(value);
-      }
     }
   }
 
@@ -431,9 +429,8 @@ class LogicalKeyData {
   })();
 
   static int _sourceToPlane(String source, bool isPrintable) {
-    if (isPrintable) {
+    if (isPrintable)
       return kUnicodePlane.value;
-    }
     switch (source) {
       case 'DOM':
         return kUnprintablePlane.value;

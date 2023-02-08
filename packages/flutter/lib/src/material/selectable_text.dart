@@ -9,16 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 
-import 'adaptive_text_selection_toolbar.dart';
 import 'desktop_text_selection.dart';
 import 'feedback.dart';
-import 'magnifier.dart';
 import 'text_selection.dart';
 import 'theme.dart';
-
-// Examples can assume:
-// late BuildContext context;
-// late FocusNode myFocusNode;
 
 /// An eyeballed value that moves the cursor slightly left of where it is
 /// rendered for text on Android so its positioning more accurately matches the
@@ -191,11 +185,7 @@ class SelectableText extends StatefulWidget {
     this.textScaleFactor,
     this.showCursor = false,
     this.autofocus = false,
-    @Deprecated(
-      'Use `contextMenuBuilder` instead. '
-      'This feature was deprecated after v3.3.0-0.5.pre.',
-    )
-    this.toolbarOptions,
+    ToolbarOptions? toolbarOptions,
     this.minLines,
     this.maxLines,
     this.cursorWidth = 2.0,
@@ -213,8 +203,6 @@ class SelectableText extends StatefulWidget {
     this.textHeightBehavior,
     this.textWidthBasis,
     this.onSelectionChanged,
-    this.contextMenuBuilder = _defaultContextMenuBuilder,
-    this.magnifierConfiguration,
   }) :  assert(showCursor != null),
         assert(autofocus != null),
         assert(dragStartBehavior != null),
@@ -230,7 +218,12 @@ class SelectableText extends StatefulWidget {
           data != null,
           'A non-null String must be provided to a SelectableText widget.',
         ),
-        textSpan = null;
+        textSpan = null,
+        toolbarOptions = toolbarOptions ??
+          const ToolbarOptions(
+            selectAll: true,
+            copy: true,
+          );
 
   /// Creates a selectable text widget with a [TextSpan].
   ///
@@ -249,11 +242,7 @@ class SelectableText extends StatefulWidget {
     this.textScaleFactor,
     this.showCursor = false,
     this.autofocus = false,
-    @Deprecated(
-      'Use `contextMenuBuilder` instead. '
-      'This feature was deprecated after v3.3.0-0.5.pre.',
-    )
-    this.toolbarOptions,
+    ToolbarOptions? toolbarOptions,
     this.minLines,
     this.maxLines,
     this.cursorWidth = 2.0,
@@ -271,8 +260,6 @@ class SelectableText extends StatefulWidget {
     this.textHeightBehavior,
     this.textWidthBasis,
     this.onSelectionChanged,
-    this.contextMenuBuilder = _defaultContextMenuBuilder,
-    this.magnifierConfiguration,
   }) :  assert(showCursor != null),
     assert(autofocus != null),
     assert(dragStartBehavior != null),
@@ -286,7 +273,12 @@ class SelectableText extends StatefulWidget {
       textSpan != null,
       'A non-null TextSpan must be provided to a SelectableText.rich widget.',
     ),
-    data = null;
+    data = null,
+    toolbarOptions = toolbarOptions ??
+      const ToolbarOptions(
+        selectAll: true,
+        copy: true,
+      );
 
   /// The text to display.
   ///
@@ -318,7 +310,7 @@ class SelectableText extends StatefulWidget {
   /// to the [focusNode]:
   ///
   /// ```dart
-  /// myFocusNode.addListener(() { print(myFocusNode.hasFocus); });
+  /// focusNode.addListener(() { print(myFocusNode.hasFocus); });
   /// ```
   ///
   /// If null, this widget will create its own [FocusNode] with
@@ -398,11 +390,7 @@ class SelectableText extends StatefulWidget {
   /// Paste and cut will be disabled regardless.
   ///
   /// If not set, select all and copy will be enabled by default.
-  @Deprecated(
-    'Use `contextMenuBuilder` instead. '
-    'This feature was deprecated after v3.3.0-0.5.pre.',
-  )
-  final ToolbarOptions? toolbarOptions;
+  final ToolbarOptions toolbarOptions;
 
   /// {@macro flutter.widgets.editableText.selectionEnabled}
   bool get selectionEnabled => enableInteractiveSelection;
@@ -438,26 +426,6 @@ class SelectableText extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.onSelectionChanged}
   final SelectionChangedCallback? onSelectionChanged;
-
-  /// {@macro flutter.widgets.EditableText.contextMenuBuilder}
-  final EditableTextContextMenuBuilder? contextMenuBuilder;
-
-  static Widget _defaultContextMenuBuilder(BuildContext context, EditableTextState editableTextState) {
-    return AdaptiveTextSelectionToolbar.editableText(
-      editableTextState: editableTextState,
-    );
-  }
-
-  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.intro}
-  ///
-  /// {@macro flutter.widgets.magnifier.intro}
-  ///
-  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.details}
-  ///
-  /// By default, builds a [CupertinoTextMagnifier] on iOS and [TextMagnifier]
-  /// on Android, and builds nothing on all other platforms. If it is desired to
-  /// suppress the magnifier, consider passing [TextMagnifierConfiguration.disabled].
-  final TextMagnifierConfiguration? magnifierConfiguration;
 
   @override
   State<SelectableText> createState() => _SelectableTextState();
@@ -514,9 +482,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
   @override
   void initState() {
     super.initState();
-    _selectionGestureDetectorBuilder = _SelectableTextSelectionGestureDetectorBuilder(
-      state: this,
-    );
+    _selectionGestureDetectorBuilder = _SelectableTextSelectionGestureDetectorBuilder(state: this);
     _controller = _TextSpanEditingController(
         textSpan: widget.textSpan ?? TextSpan(text: widget.data),
     );
@@ -543,7 +509,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
   @override
   void dispose() {
     _focusNode?.dispose();
-    _controller.dispose();
+    _controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
@@ -653,7 +619,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
       case TargetPlatform.iOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
         forcePressEnabled = true;
-        textSelectionControls ??= cupertinoTextSelectionHandleControls;
+        textSelectionControls ??= cupertinoTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor = widget.cursorColor ?? selectionStyle.cursorColor ?? cupertinoTheme.primaryColor;
@@ -665,7 +631,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
       case TargetPlatform.macOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
         forcePressEnabled = false;
-        textSelectionControls ??= cupertinoDesktopTextSelectionHandleControls;
+        textSelectionControls ??= cupertinoDesktopTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor = widget.cursorColor ?? selectionStyle.cursorColor ?? cupertinoTheme.primaryColor;
@@ -677,7 +643,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
         forcePressEnabled = false;
-        textSelectionControls ??= materialTextSelectionHandleControls;
+        textSelectionControls ??= materialTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = widget.cursorColor ?? selectionStyle.cursorColor ?? theme.colorScheme.primary;
@@ -687,7 +653,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
       case TargetPlatform.linux:
       case TargetPlatform.windows:
         forcePressEnabled = false;
-        textSelectionControls ??= desktopTextSelectionHandleControls;
+        textSelectionControls ??= desktopTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = widget.cursorColor ?? selectionStyle.cursorColor ?? theme.colorScheme.primary;
@@ -708,7 +674,6 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
         key: editableTextKey,
         style: effectiveTextStyle,
         readOnly: true,
-        toolbarOptions: widget.toolbarOptions,
         textWidthBasis: widget.textWidthBasis ?? defaultTextStyle.textWidthBasis,
         textHeightBehavior: widget.textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
         showSelectionHandles: _showSelectionHandles,
@@ -721,6 +686,7 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
         textScaleFactor: widget.textScaleFactor,
         autofocus: widget.autofocus,
         forceLine: false,
+        toolbarOptions: widget.toolbarOptions,
         minLines: widget.minLines,
         maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
         selectionColor: selectionColor,
@@ -739,11 +705,9 @@ class _SelectableTextState extends State<SelectableText> implements TextSelectio
         paintCursorAboveText: paintCursorAboveText,
         backgroundCursorColor: CupertinoColors.inactiveGray,
         enableInteractiveSelection: widget.enableInteractiveSelection,
-        magnifierConfiguration: widget.magnifierConfiguration ?? TextMagnifier.adaptiveMagnifierConfiguration,
         dragStartBehavior: widget.dragStartBehavior,
         scrollPhysics: widget.scrollPhysics,
         autofillHints: null,
-        contextMenuBuilder: widget.contextMenuBuilder,
       ),
     );
 

@@ -117,10 +117,9 @@ void main() {
 
   testWithoutContext('Config does not error on a normally fatal file system exception', () {
     final BufferLogger bufferLogger = BufferLogger.test();
-    final Platform platform = FakePlatform();
     final File file = ErrorHandlingFile(
-      platform: platform,
-      fileSystem: ErrorHandlingFileSystem(delegate: MemoryFileSystem.test(), platform: platform),
+      platform: FakePlatform(),
+      fileSystem: MemoryFileSystem.test(),
       delegate: FakeFile('testfile'),
     );
 

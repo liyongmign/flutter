@@ -339,7 +339,6 @@ class _SemanticsDebuggerPainter extends CustomPainter {
       ..layout(maxWidth: rect.width);
 
     textPainter.paint(canvas, Alignment.center.inscribe(textPainter.size, rect).topLeft);
-    textPainter.dispose();
     canvas.restore();
   }
 

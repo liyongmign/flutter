@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.8
+
 import 'package:flutter_devicelab/framework/runner.dart';
 
 import 'common.dart';
@@ -11,7 +13,7 @@ void main() {
     'runFlutterConfig': 'false',
     'timeoutInMinutes': '1',
   };
-  late List<String> printLog;
+  List<String> printLog;
   void print(String s) => printLog.add(s);
 
   group('run.dart script', () {

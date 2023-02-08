@@ -26,9 +26,7 @@ class _${blockName}DefaultsM3 extends NavigationBarThemeData {
 
   @override Color? get backgroundColor => ${componentColor("md.comp.navigation-bar.container")};
 
-  @override Color? get shadowColor => ${colorOrTransparent("md.comp.navigation-bar.container.shadow-color")};
-
-  @override Color? get surfaceTintColor => ${colorOrTransparent("md.comp.navigation-bar.container.surface-tint-layer.color")};
+  @override Color? get surfaceTintColor => ${color("md.comp.navigation-bar.container.surface-tint-layer.color")};
 
   @override MaterialStateProperty<IconThemeData?>? get iconTheme {
     return MaterialStateProperty.resolveWith((Set<MaterialState> states) {

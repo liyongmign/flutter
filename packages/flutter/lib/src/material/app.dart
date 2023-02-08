@@ -19,10 +19,6 @@ import 'scrollbar.dart';
 import 'theme.dart';
 import 'tooltip.dart';
 
-// Examples can assume:
-// typedef GlobalWidgetsLocalizations = DefaultWidgetsLocalizations;
-// typedef GlobalMaterialLocalizations = DefaultMaterialLocalizations;
-
 /// [MaterialApp] uses this [TextStyle] as its [DefaultTextStyle] to encourage
 /// developers to be intentional about their [DefaultTextStyle].
 ///
@@ -175,7 +171,7 @@ enum ThemeMode {
 /// a [Material] widget that defines its default text style.
 ///
 /// ```dart
-/// const MaterialApp(
+/// MaterialApp(
 ///   title: 'Material App',
 ///   home: Scaffold(
 ///     body: Center(
@@ -224,8 +220,6 @@ class MaterialApp extends StatefulWidget {
     this.highContrastTheme,
     this.highContrastDarkTheme,
     this.themeMode = ThemeMode.system,
-    this.themeAnimationDuration = kThemeAnimationDuration,
-    this.themeAnimationCurve = Curves.linear,
     this.locale,
     this.localizationsDelegates,
     this.localeListResolutionCallback,
@@ -277,8 +271,6 @@ class MaterialApp extends StatefulWidget {
     this.highContrastTheme,
     this.highContrastDarkTheme,
     this.themeMode = ThemeMode.system,
-    this.themeAnimationDuration = kThemeAnimationDuration,
-    this.themeAnimationCurve = Curves.linear,
     this.locale,
     this.localizationsDelegates,
     this.localeListResolutionCallback,
@@ -480,30 +472,6 @@ class MaterialApp extends StatefulWidget {
   ///    system what kind of theme is being used.
   final ThemeMode? themeMode;
 
-  /// The duration of animated theme changes.
-  ///
-  /// When the theme changes (either by the [theme], [darkTheme] or [themeMode]
-  /// parameters changing) it is animated to the new theme over time.
-  /// The [themeAnimationDuration] determines how long this animation takes.
-  ///
-  /// To have the theme change immediately, you can set this to [Duration.zero].
-  ///
-  /// The default is [kThemeAnimationDuration].
-  ///
-  /// See also:
-  ///   [themeAnimationCurve], which defines the curve used for the animation.
-  final Duration themeAnimationDuration;
-
-  /// The curve to apply when animating theme changes.
-  ///
-  /// The default is [Curves.linear].
-  ///
-  /// This is ignored if [themeAnimationDuration] is [Duration.zero].
-  ///
-  /// See also:
-  ///   [themeAnimationDuration], which defines how long the animation is.
-  final Curve themeAnimationCurve;
-
   /// {@macro flutter.widgets.widgetsApp.color}
   final Color? color;
 
@@ -517,19 +485,16 @@ class MaterialApp extends StatefulWidget {
   /// and list the [supportedLocales] that the application can handle.
   ///
   /// ```dart
-  /// // The GlobalMaterialLocalizations and GlobalWidgetsLocalizations
-  /// // classes require the following import:
-  /// // import 'package:flutter_localizations/flutter_localizations.dart';
-  ///
-  /// const MaterialApp(
-  ///   localizationsDelegates: <LocalizationsDelegate<Object>>[
-  ///     // ... app-specific localization delegate(s) here
+  /// import 'package:flutter_localizations/flutter_localizations.dart';
+  /// MaterialApp(
+  ///   localizationsDelegates: [
+  ///     // ... app-specific localization delegate[s] here
   ///     GlobalMaterialLocalizations.delegate,
   ///     GlobalWidgetsLocalizations.delegate,
   ///   ],
-  ///   supportedLocales: <Locale>[
-  ///     Locale('en', 'US'), // English
-  ///     Locale('he', 'IL'), // Hebrew
+  ///   supportedLocales: [
+  ///     const Locale('en', 'US'), // English
+  ///     const Locale('he', 'IL'), // Hebrew
   ///     // ... other locales the app supports
   ///   ],
   ///   // ...
@@ -549,39 +514,33 @@ class MaterialApp extends StatefulWidget {
   /// [LocalizationsDelegate<MaterialLocalizations>] whose load methods return
   /// custom versions of [WidgetsLocalizations] or [MaterialLocalizations].
   ///
-  /// For example: to add support to [MaterialLocalizations] for a locale it
-  /// doesn't already support, say `const Locale('foo', 'BR')`, one first
-  /// creates a subclass of [MaterialLocalizations] that provides the
-  /// translations:
+  /// For example: to add support to [MaterialLocalizations] for a
+  /// locale it doesn't already support, say `const Locale('foo', 'BR')`,
+  /// one could just extend [DefaultMaterialLocalizations]:
   ///
   /// ```dart
-  /// class FooLocalizations extends MaterialLocalizations {
-  ///   FooLocalizations();
+  /// class FooLocalizations extends DefaultMaterialLocalizations {
+  ///   FooLocalizations(Locale locale) : super(locale);
   ///   @override
-  ///   String get okButtonLabel => 'foo';
-  ///   // ...
-  ///   // lots of other getters and methods to override!
+  ///   String get okButtonLabel {
+  ///     if (locale == const Locale('foo', 'BR'))
+  ///       return 'foo';
+  ///     return super.okButtonLabel;
+  ///   }
   /// }
+  ///
   /// ```
   ///
-  /// One must then create a [LocalizationsDelegate] subclass that can provide
-  /// an instance of the [MaterialLocalizations] subclass. In this case, this is
-  /// essentially just a method that constructs a `FooLocalizations` object. A
-  /// [SynchronousFuture] is used here because no asynchronous work takes place
-  /// upon "loading" the localizations object.
+  /// A `FooLocalizationsDelegate` is essentially just a method that constructs
+  /// a `FooLocalizations` object. We return a [SynchronousFuture] here because
+  /// no asynchronous work takes place upon "loading" the localizations object.
   ///
   /// ```dart
-  /// // continuing from previous example...
   /// class FooLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
   ///   const FooLocalizationsDelegate();
   ///   @override
-  ///   bool isSupported(Locale locale) {
-  ///     return locale == const Locale('foo', 'BR');
-  ///   }
-  ///   @override
   ///   Future<FooLocalizations> load(Locale locale) {
-  ///     assert(locale == const Locale('foo', 'BR'));
-  ///     return SynchronousFuture<FooLocalizations>(FooLocalizations());
+  ///     return SynchronousFuture(FooLocalizations(locale));
   ///   }
   ///   @override
   ///   bool shouldReload(FooLocalizationsDelegate old) => false;
@@ -595,10 +554,9 @@ class MaterialApp extends StatefulWidget {
   /// [localizationsDelegates] list.
   ///
   /// ```dart
-  /// // continuing from previous example...
-  /// const MaterialApp(
-  ///   localizationsDelegates: <LocalizationsDelegate<Object>>[
-  ///     FooLocalizationsDelegate(),
+  /// MaterialApp(
+  ///   localizationsDelegates: [
+  ///     const FooLocalizationsDelegate(),
   ///   ],
   ///   // ...
   /// )
@@ -817,7 +775,7 @@ class MaterialScrollBehavior extends ScrollBehavior {
   @override
   Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
     // When modifying this function, consider modifying the implementation in
-    // the base class ScrollBehavior as well.
+    // the base class as well.
     switch (axisDirectionToAxis(details.direction)) {
       case Axis.horizontal:
         return child;
@@ -841,7 +799,7 @@ class MaterialScrollBehavior extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
     // When modifying this function, consider modifying the implementation in
-    // the base class ScrollBehavior as well.
+    // the base class as well.
     late final AndroidOverscrollIndicator indicator;
     if (Theme.of(context).useMaterial3) {
       indicator = AndroidOverscrollIndicator.stretch;
@@ -938,8 +896,6 @@ class _MaterialAppState extends State<MaterialApp> {
         cursorColor: effectiveCursorColor,
         child: AnimatedTheme(
           data: theme,
-          duration: widget.themeAnimationDuration,
-          curve: widget.themeAnimationCurve,
           child: widget.builder != null
             ? Builder(
                 builder: (BuildContext context) {

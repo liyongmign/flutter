@@ -11,7 +11,6 @@ class TextPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: const <Widget>[
           SizedBox(
             width: 200,

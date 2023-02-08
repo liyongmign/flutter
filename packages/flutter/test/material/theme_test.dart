@@ -134,8 +134,7 @@ void main() {
 
   testWidgets('ThemeData with null typography uses proper defaults', (WidgetTester tester) async {
     expect(ThemeData().typography, Typography.material2014());
-    final ThemeData m3Theme = ThemeData(useMaterial3: true);
-    expect(m3Theme.typography, Typography.material2021(colorScheme: m3Theme.colorScheme));
+    expect(ThemeData(useMaterial3: true).typography, Typography.material2021());
   });
 
   testWidgets('PopupMenu inherits shadowed app theme', (WidgetTester tester) async {
@@ -388,12 +387,12 @@ void main() {
     final ThemeData fallback = ThemeData.fallback();
     final ThemeData customTheme = fallback.copyWith(
       primaryTextTheme: fallback.primaryTextTheme.copyWith(
-        bodyMedium: fallback.primaryTextTheme.bodyMedium!.copyWith(
+        bodyText2: fallback.primaryTextTheme.bodyText2!.copyWith(
           fontSize: kMagicFontSize,
         ),
       ),
     );
-    expect(customTheme.primaryTextTheme.bodyMedium!.fontSize, kMagicFontSize);
+    expect(customTheme.primaryTextTheme.bodyText2!.fontSize, kMagicFontSize);
 
     late double actualFontSize;
     await tester.pumpWidget(Directionality(
@@ -402,10 +401,10 @@ void main() {
         data: customTheme,
         child: Builder(builder: (BuildContext context) {
           final ThemeData theme = Theme.of(context);
-          actualFontSize = theme.primaryTextTheme.bodyMedium!.fontSize!;
+          actualFontSize = theme.primaryTextTheme.bodyText2!.fontSize!;
           return Text(
             'A',
-            style: theme.primaryTextTheme.bodyMedium,
+            style: theme.primaryTextTheme.bodyText2,
           );
         }),
       ),
@@ -729,9 +728,14 @@ void main() {
 }
 
 int testBuildCalled = 0;
-class Test extends StatelessWidget {
+class Test extends StatefulWidget {
   const Test({ super.key });
 
+  @override
+  State<Test> createState() => _TestState();
+}
+
+class _TestState extends State<Test> {
   @override
   Widget build(BuildContext context) {
     testBuildCalled += 1;
